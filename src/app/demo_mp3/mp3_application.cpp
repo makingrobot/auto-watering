@@ -7,10 +7,10 @@
 #include "config.h"
 #if APP_DEMO_MP3==1
 
-#include <esp_log.h>
 #include <string>
 #include "mp3_application.h"
 #include "mp3_state.h"
+#include "src/sys/log.h"
 #include "src/boards/board.h"
 #include "src/display/lvgl_display.h"
 #include "src/audio/audio_codec.h"
@@ -99,7 +99,7 @@ void Mp3Application::Start() {
     xTaskCreate(AudioTask, "AUDIO_TASK", 8192, audio_, 1, &audio_task_handle_);
 
     mp3_info_t info = mp3_list[mp3_index_];
-    ESP_LOGI(TAG, "play %s", info.url);
+    Log::Info(TAG, "play %s", info.url);
     audio_->connecttohost(info.url);
 
     window_->SetTitle(info.name);
@@ -114,7 +114,7 @@ void Mp3Application::Start() {
 
 void Mp3Application::AudioInfo(Audio::msg_t m) {
 
-    ESP_LOGD(TAG, "%s: %s", m.s, m.msg);
+    Log::Debug(TAG, "%s: %s", m.s, m.msg);
     if (strcmp(m.s, "eof")==0) {
         AudioPlayEnd();
     }
@@ -129,7 +129,7 @@ void Mp3Application::AudioPlayEnd() {
     }
 
     mp3_info_t info = mp3_list[mp3_index_];
-    ESP_LOGI(TAG, "play %s", info.url);
+    Log::Info(TAG, "play %s", info.url);
     audio_->connecttohost(info.url);
 
     window_->SetTitle(info.name);

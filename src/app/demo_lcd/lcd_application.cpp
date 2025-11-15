@@ -8,7 +8,7 @@
 #if APP_DEMO_LCD==1
 
 #include "lcd_application.h"
-#include "esp_log.h"
+#include "src/sys/log.h"
 #include "src/boards/board.h"
 #include "src/lang/lang_zh_cn.h"
 #include "src/display/lvgl_display.h"

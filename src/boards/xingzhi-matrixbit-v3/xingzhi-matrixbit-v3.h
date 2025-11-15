@@ -4,7 +4,6 @@
 #ifndef _XINGZHI_MATRIXBIT_V3_H
 #define _XINGZHI_MATRIXBIT_V3_H
 
-#include <esp_log.h>
 #include <esp_sleep.h>
 #include <driver/i2c_master.h>
 #include <driver/spi_common.h>

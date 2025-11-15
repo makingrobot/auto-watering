@@ -11,11 +11,13 @@
 #include <functional>
 #include <Ticker.h>
 
+#include "sensor.h"
+
 /**
- * 模拟量传感器类
+ * 模拟量传感器
  * 使用 Arduino-ESP32 的 AnalogRead 函数取值。
  */
-class AnalogSensor {
+class AnalogSensor : public Sensor {
 public:
     AnalogSensor(gpio_num_t pin);
     virtual ~AnalogSensor();

@@ -6,8 +6,8 @@
  */
 #include "power_save_timer.h"
 #include "src/app/application.h"
+#include "src/sys/log.h"
 
-#include <esp_log.h>
 #include <esp_pm.h>
 
 #define TAG "PowerSaveTimer"
@@ -33,10 +33,10 @@ void PowerSaveTimer::SetEnabled(bool enabled) {
         ticks_ = 0;
         enabled_ = enabled;
         power_save_ticker_->attach(1, TickerCallback, this);
-        ESP_LOGI( TAG, "Timer started" );
+        Log::Info( TAG, "Timer started" );
     } else if (!enabled && enabled_) {
         power_save_ticker_->detach();
-        ESP_LOGI( TAG, "Timer stopped" );
+        Log::Info( TAG, "Timer stopped" );
         enabled_ = enabled;
         WakeUp();
     }
@@ -66,7 +66,7 @@ void PowerSaveTimer::CheckPowerSave() {
         if (!in_sleep_mode_) {
             in_sleep_mode_ = true;
             if (on_enter_sleep_mode_) {
-                ESP_LOGI( TAG, "Entering sleep mode" );
+                Log::Info( TAG, "Entering sleep mode" );
                 on_enter_sleep_mode_();
             }
 
@@ -81,7 +81,7 @@ void PowerSaveTimer::CheckPowerSave() {
         }
     }
     if (seconds_to_shutdown_ != -1 && ticks_ >= seconds_to_shutdown_ && on_shutdown_request_) {
-        ESP_LOGI( TAG, "Entering deep sleep mode" );
+        Log::Info( TAG, "Entering deep sleep mode" );
         on_shutdown_request_();
     }
 }
@@ -101,7 +101,7 @@ void PowerSaveTimer::WakeUp() {
         }
 
         if (on_exit_sleep_mode_) {
-            ESP_LOGI( TAG, "Exiting sleep mode" );
+            Log::Info( TAG, "Exiting sleep mode" );
             on_exit_sleep_mode_();
         }
     }

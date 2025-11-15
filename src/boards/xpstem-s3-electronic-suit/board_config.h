@@ -25,8 +25,8 @@
 #define TOUCH_FT6336_ADDR                   0x38
 
 // 三按键模块
+#define BUTTON_0_PIN                        GPIO_NUM_0
 #define BUTTON_1_PIN                        GPIO_NUM_1  
-#define BUTTON_2_PIN                        GPIO_NUM_0
 #define BUTTON_3_PTN                        GPIO_NUM_47
 
 // 【6P插座】 SD卡模块（与LCD屏共用SPI数据口3，4，5）

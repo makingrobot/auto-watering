@@ -45,7 +45,7 @@ void XINGZHI_MATRIXBIT_V3::InitializeI2c() {
 }
 
 void XINGZHI_MATRIXBIT_V3::InitializePowerSaveTimer() {
-    ESP_LOGI( TAG, "Init power save timer ......" );
+    Log::Info( TAG, "Init power save timer ......" );
     power_save_timer_ = new PowerSaveTimer(-1, 180, 900);
     power_save_timer_->OnEnterSleepMode([this]() {
         EnterSleepMode();
@@ -63,7 +63,7 @@ void XINGZHI_MATRIXBIT_V3::InitializePowerSaveTimer() {
 void XINGZHI_MATRIXBIT_V3::InitializeDisplay() {
 
 #if CONFIG_USE_TFT==1
-    ESP_LOGI( TAG, "Init ssd1306 display ......" );
+    Log::Info( TAG, "Init ssd1306 display ......" );
     TFT_eSPI *tft = new TFT_eSPI();
     tft->init();
     //tft->setRotation(0);
@@ -76,11 +76,11 @@ void XINGZHI_MATRIXBIT_V3::InitializeDisplay() {
 #endif
 
 #if CONFIG_USE_LCD_PANEL==1
-    ESP_LOGI( TAG, "Create st7789 driver." );
+    Log::Info( TAG, "Create st7789 driver." );
     driver = new ST7789Driver(DISPLAY_WIDTH, DISPLAY_HEIGHT,
                                     DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY);
                                     
-    ESP_LOGI( TAG, "Init st7796 on spi mode." );
+    Log::Info( TAG, "Init st7796 on spi mode." );
     driver->InitSpi(SPI3_HOST, 0, DISPLAY_CS_PIN, DISPLAY_DC_PIN, DISPLAY_RST_PIN, 
         DISPLAY_MOSI_PIN, GPIO_NUM_NC, DISPLAY_SCK_PIN, DISPLAY_RGB_ORDER, DISPLAY_INVERT_COLOR);
 
@@ -102,7 +102,7 @@ void XINGZHI_MATRIXBIT_V3::InitializeRP2040() {
 
 XINGZHI_MATRIXBIT_V3::XINGZHI_MATRIXBIT_V3() : WifiBoard() {
 
-    ESP_LOGI(TAG, "===== Create Board ...... =====");
+    Log::Info(TAG, "===== Create Board ...... =====");
 
     InitializeI2c();
 
@@ -113,7 +113,7 @@ XINGZHI_MATRIXBIT_V3::XINGZHI_MATRIXBIT_V3() : WifiBoard() {
     InitializeDisplay();
 
 #if CONFIG_USE_LCD_PANEL==1
-    ESP_LOGI( TAG, "Init backlight ......" );
+    Log::Info( TAG, "Init backlight ......" );
     backlight_ = new PwmBacklight(DISPLAY_BACKLIGHT_PIN, DISPLAY_BACKLIGHT_OUTPUT_INVERT);
     backlight_->RestoreBrightness();
 #endif
@@ -132,7 +132,7 @@ XINGZHI_MATRIXBIT_V3::XINGZHI_MATRIXBIT_V3() : WifiBoard() {
         AUDIO_CODEC_ES8311_ADDR, 
         AUDIO_INPUT_REFERENCE);
 
-    ESP_LOGI( TAG, "===== Board config completed. =====");
+    Log::Info( TAG, "===== Board config completed. =====");
 }
 
 XINGZHI_MATRIXBIT_V3::~XINGZHI_MATRIXBIT_V3() {

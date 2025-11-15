@@ -13,10 +13,10 @@
 #include <nvs.h>
 #include <nvs_flash.h>
 #include "wifi_html.h"
-#include <esp_log.h>
 #include <esp_mac.h>
 #include <esp_wifi.h>
 #include "ssid_manager.h"
+#include "src/sys/log.h"
 
 const IPAddress wifi_ap_ip(192,168,5,1);
 const IPAddress wifi_ap_gateway(192,168,5,0);
@@ -65,7 +65,7 @@ void WifiConfigurationAp::LoadAdvancedConfig() {
         // 读取WiFi功率
         err = nvs_get_i8(nvs, "max_tx_power", &max_tx_power_);
         if (err == ESP_OK) {
-            ESP_LOGI(TAG, "WiFi max tx power from NVS: %d", max_tx_power_);
+            Log::Info(TAG, "WiFi max tx power from NVS: %d", max_tx_power_);
             ESP_ERROR_CHECK(esp_wifi_set_max_tx_power(max_tx_power_));
         } else {
             esp_wifi_get_max_tx_power(&max_tx_power_);
@@ -90,10 +90,10 @@ void WifiConfigurationAp::Start() {
 
     WiFi.softAPConfig(wifi_ap_ip, wifi_ap_gateway, wifi_ap_subnet);
     if (!WiFi.softAP(wifi_ap_ssid.c_str())) {
-        ESP_LOGI(TAG, "Soft AP creation failed.");
+        Log::Info(TAG, "Soft AP creation failed.");
         while(1);
     }
-    ESP_LOGI(TAG, "Wifi AP %s on %s", wifi_ap_ssid.c_str(), wifi_ap_ip.toString());
+    Log::Info(TAG, "Wifi AP %s on %s", wifi_ap_ssid.c_str(), wifi_ap_ip.toString());
 
     web_server_ = new AsyncWebServer(80);
 
@@ -105,20 +105,20 @@ void WifiConfigurationAp::Start() {
     // POST /submit --json
     web_server_->on("/submit", HTTP_POST, [this](AsyncWebServerRequest *request){ 
         
-            ESP_LOGD(TAG, "request body: %s", this->request_data_);
+            Log::Debug(TAG, "request body: %s", this->request_data_);
             
             cJSON *json = cJSON_Parse(this->request_data_);
 
             std::string ssid = cJSON_GetObjectItem(json, "ssid")->valuestring;
             std::string password = cJSON_GetObjectItem(json, "password")->valuestring;
 
-            ESP_LOGI(TAG, "ssid: %s, password: %s", ssid.c_str(), password.c_str());
+            Log::Info(TAG, "ssid: %s, password: %s", ssid.c_str(), password.c_str());
             if (!this->ConnectToWifi(ssid, password)) {
                 request->send(200, "application/json", "{\"success\":false,\"error\":\"无法连接到 WiFi\"}");
                 return;
             }
 
-            ESP_LOGI(TAG, "Save SSID %s %d", ssid.c_str(), ssid.length());
+            Log::Info(TAG, "Save SSID %s %d", ssid.c_str(), ssid.length());
             SsidManager::GetInstance().AddSsid(ssid, password);
 
             request->send(200, "application/json", "{\"success\":true}"); 
@@ -141,7 +141,7 @@ void WifiConfigurationAp::Start() {
     // GET /saved/set_default --json
     web_server_->on("/saved/set_default", HTTP_GET, [this](AsyncWebServerRequest *request){ 
         int index = request->getParam("index")->value().toInt();
-        ESP_LOGI(TAG, "Set default item %d", index);
+        Log::Info(TAG, "Set default item %d", index);
         SsidManager::GetInstance().SetDefaultSsid(index);
         request->send(200, "application/json", "{}"); 
     });
@@ -149,7 +149,7 @@ void WifiConfigurationAp::Start() {
     // GET /saved/delete  --json
     web_server_->on("/saved/delete", HTTP_GET, [this](AsyncWebServerRequest *request){ 
         int index = request->getParam("index")->value().toInt();
-        ESP_LOGI(TAG, "Delete saved list item %d", index);
+        Log::Info(TAG, "Delete saved list item %d", index);
         SsidManager::GetInstance().RemoveSsid(index);
         request->send(200, "application/json", "{}"); 
     });
@@ -184,7 +184,7 @@ void WifiConfigurationAp::Start() {
 
     // POST /advanced/submit --json
     web_server_->on("/advanced/submit", HTTP_POST,  [this](AsyncWebServerRequest *request){
-            ESP_LOGD(TAG, "request body: %s", this->request_data_);
+            Log::Debug(TAG, "request body: %s", this->request_data_);
 
             cJSON *json = cJSON_Parse(this->request_data_);
 
@@ -203,7 +203,7 @@ void WifiConfigurationAp::Start() {
                 this->ota_url_ = ota_url->valuestring;
                 err = nvs_set_str(nvs, "ota_url", this->ota_url_.c_str());
                 if (err != ESP_OK) {
-                    ESP_LOGE(TAG, "Failed to save OTA URL: %d", err);
+                    Log::Error(TAG, "Failed to save OTA URL: %d", err);
                 }
             }
 
@@ -213,13 +213,13 @@ void WifiConfigurationAp::Start() {
                 this->max_tx_power_ = max_tx_power->valueint;
                 err = esp_wifi_set_max_tx_power(this->max_tx_power_);
                 if (err != ESP_OK) {
-                    ESP_LOGE(TAG, "Failed to set WiFi power: %d", err);
+                    Log::Error(TAG, "Failed to set WiFi power: %d", err);
                     request->send(200, "text/plain", "Failed to set WiFi power");
                     return ESP_FAIL;
                 }
                 err = nvs_set_i8(nvs, "max_tx_power", this->max_tx_power_);
                 if (err != ESP_OK) {
-                    ESP_LOGE(TAG, "Failed to save WiFi power: %d", err);
+                    Log::Error(TAG, "Failed to save WiFi power: %d", err);
                 }
             }
 
@@ -229,7 +229,7 @@ void WifiConfigurationAp::Start() {
                 this->remember_bssid_ = cJSON_IsTrue(remember_bssid);
                 err = nvs_set_u8(nvs, "remember_bssid", this->remember_bssid_);
                 if (err != ESP_OK) {
-                    ESP_LOGE(TAG, "Failed to save remember_bssid: %d", err);
+                    Log::Error(TAG, "Failed to save remember_bssid: %d", err);
                 }
             }
 
@@ -254,7 +254,7 @@ void WifiConfigurationAp::Start() {
         request->send(200, "application/json", "{\"success\":true}"); 
 
         // 创建一个延迟重启任务
-        ESP_LOGI(TAG, "Rebooting..." );
+        Log::Info(TAG, "Rebooting..." );
         xTaskCreate([](void *ctx) {
                 // 等待200ms确保HTTP响应完全发送
                 vTaskDelay(pdMS_TO_TICKS(200));
@@ -288,7 +288,7 @@ void WifiConfigurationAp::Start() {
 
     LoadAdvancedConfig();
 
-    ESP_LOGI(TAG, "WebServer started");
+    Log::Info(TAG, "WebServer started");
 }
 
 std::string WifiConfigurationAp::GetAvailableAPList() {
@@ -297,7 +297,7 @@ std::string WifiConfigurationAp::GetAvailableAPList() {
     int n = WiFi.scanNetworks();
 
     for (int i=0; i<n; ++i) {
-        ESP_LOGD(TAG, "SSID: %s, RSSI: %d, Authmode: %d",
+        Log::Debug(TAG, "SSID: %s, RSSI: %d, Authmode: %d",
             WiFi.SSID(i).c_str(), WiFi.RSSI(i), WiFi.encryptionType(i) );
         char buf[128];
         snprintf(buf, sizeof(buf), "{\"ssid\":\"%s\",\"rssi\":%d,\"authmode\":%d}",
@@ -343,17 +343,17 @@ std::string WifiConfigurationAp::GetWebServerUrl() {
 bool WifiConfigurationAp::ConnectToWifi(const std::string &ssid, const std::string &password)
 {
     if (ssid.empty()) {
-        ESP_LOGE(TAG, "SSID cannot be empty");
+        Log::Warn(TAG, "SSID cannot be empty");
         return false;
     }
     
     if (ssid.length() > 32) {  // WiFi SSID 最大长度
-        ESP_LOGE(TAG, "SSID too long");
+        Log::Warn(TAG, "SSID too long");
         return false;
     }
     
     WiFi.begin(ssid.c_str(), password.c_str());
-    ESP_LOGI(TAG, "connect to WiFi %s", ssid.c_str());
+    Log::Info(TAG, "connect to WiFi %s", ssid.c_str());
     int n = 0;
     // 最多等待10s
     while (++n < 1000) {
@@ -364,11 +364,11 @@ bool WifiConfigurationAp::ConnectToWifi(const std::string &ssid, const std::stri
     }
 
     if (WiFi.status() != WL_CONNECTED) {
-        ESP_LOGE(TAG, "Failed to connect to WiFi %s", ssid.c_str());
+        Log::Warn(TAG, "Failed to connect to WiFi %s", ssid.c_str());
         return false;
     }
 
-    ESP_LOGI(TAG, "Connected to WiFi %s", ssid.c_str());
+    Log::Info(TAG, "Connected to WiFi %s", ssid.c_str());
     WiFi.disconnect();
     return true;
 }

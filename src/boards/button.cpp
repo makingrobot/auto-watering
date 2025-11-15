@@ -6,12 +6,12 @@
  */
 #include "button.h"
 
-#include <esp_log.h>
+#include "src/sys/log.h"
 #include "src/libs/button/iot_button.h"
 
 #define TAG "Button"
 
-AdcButton::AdcButton(const button_adc_config_t& adc_config) : Button(nullptr) {
+AdcButton::AdcButton(const std::string& name, const button_adc_config_t& adc_config) : Button(name_, nullptr) {
     button_config_t btn_config = {
         .long_press_time = 2000,
         .short_press_time = 0,
@@ -19,10 +19,12 @@ AdcButton::AdcButton(const button_adc_config_t& adc_config) : Button(nullptr) {
     ESP_ERROR_CHECK(iot_button_new_adc_device(&btn_config, &adc_config, &button_handle_));
 }
 
-Button::Button(button_handle_t button_handle) : button_handle_(button_handle) {
+Button::Button(const std::string& name, button_handle_t button_handle) 
+        : name_(name), button_handle_(button_handle) {
 }
 
-Button::Button(gpio_num_t gpio_num, bool active_high, uint16_t long_press_time, uint16_t short_press_time, bool enable_power_save) : gpio_num_(gpio_num) {
+Button::Button(const std::string& name, gpio_num_t gpio_num, bool active_high, uint16_t long_press_time, uint16_t short_press_time, bool enable_power_save) 
+        : name_(name), gpio_num_(gpio_num) {
     if (gpio_num == GPIO_NUM_NC) {
         return;
     }

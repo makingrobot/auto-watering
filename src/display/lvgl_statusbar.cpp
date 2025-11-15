@@ -9,9 +9,8 @@
 
 #include "lvgl_statusbar.h"
 
-#include <esp_log.h>
-
 #include "config.h"
+#include "src/sys/log.h"
 #include "src/boards/board.h"
 #include "src/audio/audio_codec.h"
 #include "src/app/application.h"
@@ -140,7 +139,7 @@ void LvglStatusBar::ShowNotification(const char* notification, int duration_ms) 
     lv_obj_add_flag(status_label_, LV_OBJ_FLAG_HIDDEN);
 
     notification_ticker_->once(1, TickerCallback, this);
-    ESP_LOGI( TAG, "notification timer started" );
+    Log::Info( TAG, "notification timer started" );
 }
 
 void LvglStatusBar::OnNotificationTimer() {
@@ -199,7 +198,7 @@ void LvglStatusBar::Update(bool update_all) {
     //     } else {
     //         // 每 60 秒输出一次
     //         if (seconds_counter++ % 60 == 0) {
-    //             ESP_LOGW( TAG, "System time is not set, tm_year: %d", tm->tm_year);
+    //             Log::Warn( TAG, "System time is not set, tm_year: %d", tm->tm_year);
     //         }
     //     }
     // }

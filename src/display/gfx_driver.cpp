@@ -8,6 +8,9 @@
 #if CONFIG_USE_GFX_LIBRARY == 1
 
 #include "gfx_driver.h"
+#include "src/sys/log.h"
+
+#define TAG "GfxDriver"
 
 /* LVGL calls it when a rendered image needs to copied to the display*/
 void GfxDriver::FlushCallback(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map)
@@ -26,7 +29,7 @@ void GfxDriver::FlushCallback(lv_display_t *disp, const lv_area_t *area, uint8_t
 void GfxDriver::Init() {
     // Init Display
     if (!gfx_->begin()) {
-        Serial.println("gfx->begin() failed!");
+        Log::Error(TAG, "gfx->begin() failed!");
         return;
     }
     gfx_->fillScreen(RGB565_BLACK);
@@ -54,7 +57,7 @@ void GfxDriver::Init() {
 #endif // !(defined(DIRECT_RENDER_MODE) && (defined(CANVAS) || defined(RGB_PANEL) || defined(DSI_PANEL)))
 
     if (!disp_buf_) {
-        Serial.println("LVGL disp_draw_buf allocate failed!");
+        Log::Error(TAG, "LVGL disp_draw_buf allocate failed!");
         return;
     }
    

@@ -8,7 +8,7 @@
 #if CONFIG_USE_LED_WS2812==1
 
 #include "ws2812_led.h"
-#include <esp_log.h> 
+#include "src/sys/log.h"
 
 #define TAG "Ws2812Led"
 
@@ -46,14 +46,14 @@ void Ws2812Led::Stop() {
 }
 
 void Ws2812Led::SetColor(uint8_t r, uint8_t g, uint8_t b) {
-    ESP_LOGI(TAG, "Set color r:%d, g:%d, b:%d", r, g, b);
+    Log::Info(TAG, "Set color r:%d, g:%d, b:%d", r, g, b);
     r_ = r;
     g_ = g;
     b_ = b;
 }
 
 void Ws2812Led::TurnOn() {
-    ESP_LOGD(TAG, "turn on");
+    Log::Debug(TAG, "turn on");
     if (led_strip_ == nullptr) {
         return;
     }
@@ -66,7 +66,7 @@ void Ws2812Led::TurnOn() {
 }
 
 void Ws2812Led::TurnOff() {
-    ESP_LOGD(TAG, "turn off");
+    Log::Debug(TAG, "turn off");
     if (led_strip_ == nullptr) {
         return;
     }
@@ -78,12 +78,12 @@ void Ws2812Led::TurnOff() {
 }
 
 void Ws2812Led::BlinkOnce() {
-    ESP_LOGD(TAG, "blink");
+    Log::Debug(TAG, "blink");
     Blink(1, 100);
 }
 
 void Ws2812Led::Blink(int times, int interval_ms) {
-    ESP_LOGD(TAG, "blink %d times", times);
+    Log::Debug(TAG, "blink %d times", times);
     StartBlinkTask(times, interval_ms);
 }
 
@@ -107,7 +107,7 @@ void Ws2812Led::StartBlinkTask(int times, int interval_ms) {
     blink_interval_ms_ = interval_ms;
     
     blink_ticker_->attach_ms(interval_ms, TickerCallback, this);
-    ESP_LOGI( TAG, "blink timer started" );
+    Log::Info( TAG, "blink timer started" );
 }
 
 void Ws2812Led::OnBlinkTimer() {

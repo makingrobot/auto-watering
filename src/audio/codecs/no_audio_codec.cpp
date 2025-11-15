@@ -8,9 +8,10 @@
 
 #include "no_audio_codec.h"
 
-#include <esp_log.h>
 #include <cmath>
 #include <cstring>
+
+#include "src/sys/log.h"
 
 #define TAG "NoAudioCodec"
 
@@ -79,7 +80,7 @@ NoAudioCodecDuplex::NoAudioCodecDuplex(int input_sample_rate, int output_sample_
     };
     ESP_ERROR_CHECK(i2s_channel_init_std_mode(tx_handle_, &std_cfg));
     ESP_ERROR_CHECK(i2s_channel_init_std_mode(rx_handle_, &std_cfg));
-    ESP_LOGI(TAG, "Duplex channels created");
+    Log::Info(TAG, "Duplex channels created");
 }
 
 NoAudioCodecSimplex::NoAudioCodecSimplex(int input_sample_rate, int output_sample_rate, gpio_num_t spk_bclk, gpio_num_t spk_ws, gpio_num_t spk_dout) {
@@ -139,7 +140,7 @@ NoAudioCodecSimplex::NoAudioCodecSimplex(int input_sample_rate, int output_sampl
     };
     ESP_ERROR_CHECK(i2s_channel_init_std_mode(tx_handle_, &std_cfg));
 
-    ESP_LOGI(TAG, "Simplex channels created");
+    Log::Info(TAG, "Simplex channels created");
 }
 
 NoAudioCodecSimplex::NoAudioCodecSimplex(int input_sample_rate, int output_sample_rate, gpio_num_t spk_bclk, gpio_num_t spk_ws, gpio_num_t spk_dout, gpio_num_t mic_sck, gpio_num_t mic_ws, gpio_num_t mic_din) {
@@ -208,7 +209,7 @@ NoAudioCodecSimplex::NoAudioCodecSimplex(int input_sample_rate, int output_sampl
     std_cfg.gpio_cfg.dout = I2S_GPIO_UNUSED;
     std_cfg.gpio_cfg.din = mic_din;
     ESP_ERROR_CHECK(i2s_channel_init_std_mode(rx_handle_, &std_cfg));
-    ESP_LOGI(TAG, "Simplex channels created");
+    Log::Info(TAG, "Simplex channels created");
 }
 
 NoAudioCodecSimplex::NoAudioCodecSimplex(int input_sample_rate, int output_sample_rate, gpio_num_t spk_bclk, gpio_num_t spk_ws, gpio_num_t spk_dout, i2s_std_slot_mask_t spk_slot_mask, gpio_num_t mic_sck, gpio_num_t mic_ws, gpio_num_t mic_din, i2s_std_slot_mask_t mic_slot_mask){
@@ -278,7 +279,7 @@ NoAudioCodecSimplex::NoAudioCodecSimplex(int input_sample_rate, int output_sampl
     std_cfg.gpio_cfg.dout = I2S_GPIO_UNUSED;
     std_cfg.gpio_cfg.din = mic_din;
     ESP_ERROR_CHECK(i2s_channel_init_std_mode(rx_handle_, &std_cfg));
-    ESP_LOGI(TAG, "Simplex channels created");
+    Log::Info(TAG, "Simplex channels created");
 }
 
 NoAudioCodecSimplexPdm::NoAudioCodecSimplexPdm(int input_sample_rate, int output_sample_rate, gpio_num_t spk_bclk, gpio_num_t spk_ws, gpio_num_t spk_dout, gpio_num_t mic_sck, gpio_num_t mic_din) {
@@ -340,9 +341,9 @@ NoAudioCodecSimplexPdm::NoAudioCodecSimplexPdm(int input_sample_rate, int output
     };
     ESP_ERROR_CHECK(i2s_channel_init_pdm_rx_mode(rx_handle_, &pdm_rx_cfg));
 #else
-    ESP_LOGE(TAG, "PDM is not supported");
+    Log::Error(TAG, "PDM is not supported");
 #endif
-    ESP_LOGI(TAG, "Simplex channels created");
+    Log::Info(TAG, "Simplex channels created");
 }
 
 int NoAudioCodec::Write(const int16_t* data, int samples) {
@@ -372,7 +373,7 @@ int NoAudioCodec::Read(int16_t* dest, int samples) {
 
     std::vector<int32_t> bit32_buffer(samples);
     if (i2s_channel_read(rx_handle_, bit32_buffer.data(), samples * sizeof(int32_t), &bytes_read, portMAX_DELAY) != ESP_OK) {
-        ESP_LOGE(TAG, "Read Failed!");
+        Log::Error(TAG, "Read Failed!");
         return 0;
     }
 
@@ -389,7 +390,7 @@ int NoAudioCodecSimplexPdm::Read(int16_t* dest, int samples) {
 
     // PDM 解调后的数据位宽为 16 位，直接读取到目标缓冲区
     if (i2s_channel_read(rx_handle_, dest, samples * sizeof(int16_t), &bytes_read, portMAX_DELAY) != ESP_OK) {
-        ESP_LOGE(TAG, "Read Failed!");
+        Log::Error(TAG, "Read Failed!");
         return 0;
     }
 

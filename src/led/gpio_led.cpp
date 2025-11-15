@@ -9,7 +9,7 @@
 
 #include "gpio_led.h"
 #include "src/app/application.h"
-#include <esp_log.h>
+#include "src/sys/log.h"
 #include <Arduino.h>
 
 #define TAG "GpioLed"
@@ -26,12 +26,8 @@
 #define LEDC_FADE_TIME          (1000)
 
 // GPIO_LED
-GpioLed::GpioLed(gpio_num_t gpio)
-        : GpioLed(gpio, false) {
-}
-
-GpioLed::GpioLed(gpio_num_t gpio, int output_invert)
-        : led_pin_(gpio), output_invert_(output_invert) {
+GpioLed::GpioLed(gpio_num_t gpio, bool pwm, bool output_invert)
+        : led_pin_(gpio), pwm_(pwm), output_invert_(output_invert) {
 
     assert(gpio != GPIO_NUM_NC);
 
@@ -49,21 +45,37 @@ GpioLed::~GpioLed() {
 
 void GpioLed::SetBrightness(uint8_t brightness) {
     brightness_ = brightness;
-    analogWrite(led_pin_, brightness);
+    if (pwm_) {
+        analogWrite(led_pin_, brightness);
+    } else {
+        digitalWrite(led_pin_, brightness > 127 ? HIGH : LOW);
+    }
 }
 
 void GpioLed::TurnOn() {
     if (blink_ticker_->active()) {
+        blink_counter_ = 0;
         blink_ticker_->detach();
     }
-    analogWrite(led_pin_, output_invert_ ? 0 : brightness_);
+
+    if (pwm_) {
+        analogWrite(led_pin_, output_invert_ ? 0 : brightness_);
+    } else {
+        digitalWrite(led_pin_, output_invert_ ? LOW : HIGH);
+    }
 }
 
 void GpioLed::TurnOff() {
     if (blink_ticker_->active()) {
+        blink_counter_ = 0;
         blink_ticker_->detach();
     }
-    analogWrite(led_pin_, output_invert_ ? brightness_ : 0);
+
+    if (pwm_) {
+        analogWrite(led_pin_, output_invert_ ? brightness_ : 0);
+    } else {
+        digitalWrite(led_pin_, output_invert_ ? HIGH : LOW);
+    }
 }
 
 void GpioLed::BlinkOnce() {
@@ -78,12 +90,16 @@ void GpioLed::StartContinuousBlink(int interval_ms) {
     StartBlinkTask(BLINK_INFINITE, interval_ms);
 }
 
+/**
+ * 定时器回调
+ */
 void TickerCallback(GpioLed *arg) {
     arg->OnBlinkTimer();
 }
 
 void GpioLed::StartBlinkTask(int times, int interval_ms) {
     if (blink_ticker_->active()) {
+        blink_counter_ = 0;
         blink_ticker_->detach();
     }
     blink_counter_ = times * 2;
@@ -92,6 +108,10 @@ void GpioLed::StartBlinkTask(int times, int interval_ms) {
 }
 
 void GpioLed::OnBlinkTimer() {
+    if (blink_counter_==0) {
+        return;
+    }
+
     std::lock_guard<std::mutex> lock(mutex_);
     blink_counter_--;
     if (blink_counter_ & 1) {

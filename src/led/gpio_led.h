@@ -23,9 +23,7 @@
  */
 class GpioLed : public Led {
  public:
-    GpioLed(gpio_num_t gpio);
-    GpioLed(gpio_num_t gpio, int output_invert);
-    GpioLed(gpio_num_t gpio, int output_invert, int channel);
+    GpioLed(gpio_num_t gpio, bool pwm=true, bool output_invert=false);
     virtual ~GpioLed();
 
     void TurnOn() override;
@@ -39,12 +37,13 @@ class GpioLed : public Led {
 
  private:
     std::mutex mutex_;
-    uint8_t brightness_ = 255;
+    gpio_num_t led_pin_;
+    bool pwm_ = false;
     bool output_invert_ = false;
+    uint8_t brightness_ = 255;
     int blink_counter_ = 0;
     int blink_interval_ms_ = 0;
     Ticker* blink_ticker_ = nullptr;
-    gpio_num_t led_pin_;
 
     void StartBlinkTask(int times, int interval_ms);
 

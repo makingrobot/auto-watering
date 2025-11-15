@@ -8,16 +8,20 @@
 #define BUTTON_H_
 
 #include <functional>
+#include <string>
 #include <driver/gpio.h>
+
 #include "src/libs/button/button_types.h"
 #include "src/libs/button/button_adc.h"
 #include "src/libs/button/button_gpio.h"
 
 class Button {
 public:
-    Button(button_handle_t button_handle);
-    Button(gpio_num_t gpio_num, bool active_high = false, uint16_t long_press_time = 0, uint16_t short_press_time = 0, bool enable_power_save = false);
+    Button(const std::string& name, button_handle_t button_handle);
+    Button(const std::string& name, gpio_num_t gpio_num, bool active_high = false, uint16_t long_press_time = 0, uint16_t short_press_time = 0, bool enable_power_save = false);
     ~Button();
+
+    const std::string& name() const { return name_; }
 
     void OnPressDown(std::function<void()> callback);
     void OnPressUp(std::function<void()> callback);
@@ -27,6 +31,7 @@ public:
     void OnMultipleClick(std::function<void()> callback, uint8_t click_count = 3);
 
 protected:
+    std::string name_;
     gpio_num_t gpio_num_;
     button_handle_t button_handle_ = nullptr;
 
@@ -40,12 +45,12 @@ protected:
 
 class AdcButton : public Button {
 public:
-    AdcButton(const button_adc_config_t& adc_config);
+    AdcButton(const std::string& name, const button_adc_config_t& adc_config);
 };
 
 class PowerSaveButton : public Button {
 public:
-    PowerSaveButton(gpio_num_t gpio_num) : Button(gpio_num, false, 0, 0, true) {
+    PowerSaveButton(const std::string& name, gpio_num_t gpio_num) : Button(name_, gpio_num, false, 0, 0, true) {
     }
 };
 

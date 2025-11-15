@@ -9,15 +9,15 @@
 
 #include <vector>
 #include <esp_err.h>
-#include <esp_log.h>
 
 #include "lcd_driver.h"
+#include "src/sys/log.h"
 #include "src/libs/esp_lvgl_port/esp_lvgl_port.h"
 
 #define TAG "LcdDriver"
 
 void LcdDriver::Init() {
-    ESP_LOGI(TAG, "drive mode: %d", drive_mode_);
+    Log::Info(TAG, "drive mode: %d", drive_mode_);
     
     // draw white
     if (drive_mode_ == kDriveModeSpi ||
@@ -31,21 +31,21 @@ void LcdDriver::Init() {
     // Set the display to on
     if (drive_mode_ == kDriveModeSpi ||
             drive_mode_ == kDriveModeMipi) {
-        ESP_LOGI(TAG, "Turning display on");
+        Log::Info(TAG, "Turning display on");
         ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_, true));
     }
 
-    ESP_LOGI(TAG, "Initialize LVGL library" );
+    Log::Info(TAG, "Initialize LVGL library" );
     lv_init();
 
     if (drive_mode_ == kDriveModeSpi) {
-        ESP_LOGI(TAG, "Initialize LVGL port");
+        Log::Info(TAG, "Initialize LVGL port");
         lvgl_port_cfg_t port_cfg = ESP_LVGL_PORT_INIT_CONFIG();
         port_cfg.task_priority = 1;
         port_cfg.timer_period_ms = 50;
         lvgl_port_init(&port_cfg);
 
-        ESP_LOGI(TAG, "Adding LCD display");
+        Log::Info(TAG, "Adding LCD display");
         const lvgl_port_display_cfg_t display_cfg = {
             .io_handle = panel_io_,
             .panel_handle = panel_,
@@ -75,13 +75,13 @@ void LcdDriver::Init() {
         display_ = lvgl_port_add_disp(&display_cfg);
 
     } else if (drive_mode_ == kDriveModeRgb) {
-        ESP_LOGI( TAG, "Initialize LVGL port" );
+        Log::Info( TAG, "Initialize LVGL port" );
         lvgl_port_cfg_t port_cfg = ESP_LVGL_PORT_INIT_CONFIG();
         port_cfg.task_priority = 1;
         port_cfg.timer_period_ms = 50;
         lvgl_port_init(&port_cfg);
 
-        ESP_LOGI( TAG, "Adding LCD driver" );
+        Log::Info( TAG, "Adding LCD driver" );
         const lvgl_port_display_cfg_t display_cfg = {
             .io_handle = panel_io_,
             .panel_handle = panel_,
@@ -113,11 +113,11 @@ void LcdDriver::Init() {
 
     } else if (drive_mode_ == kDriveModeMipi) {
 
-        ESP_LOGI( TAG, "Initialize LVGL port");
+        Log::Info( TAG, "Initialize LVGL port");
         lvgl_port_cfg_t port_cfg = ESP_LVGL_PORT_INIT_CONFIG();
         lvgl_port_init(&port_cfg);
 
-        ESP_LOGI( TAG, "Adding LCD display");
+        Log::Info( TAG, "Adding LCD display");
         const lvgl_port_display_cfg_t disp_cfg = {
             .io_handle = panel_io_,
             .panel_handle = panel_,
@@ -150,7 +150,7 @@ void LcdDriver::Init() {
     }
 
     if (display_ == nullptr) {
-        ESP_LOGE( TAG, "Failed to add RGB display");
+        Log::Warn( TAG, "Failed to add RGB display");
         return;
     }
 

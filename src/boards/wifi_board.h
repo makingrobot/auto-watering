@@ -7,7 +7,6 @@
 #ifndef _WIFI_BOARD_H
 #define _WIFI_BOARD_H
 
-#include "config.h"
 #include "board.h"
 
 class WifiBoard : public Board {

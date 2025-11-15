@@ -33,7 +33,7 @@ void* create_board() {
 }
 
 void XPSTEM_IOT_DEVKIT_SUIT::InitializePowerSaveTimer() {
-    ESP_LOGI( TAG, "Init power save timer ......" );
+    Log::Info( TAG, "Init power save timer ......" );
     power_save_timer_ = new PowerSaveTimer(-1, 180, 900);
     power_save_timer_->OnEnterSleepMode([this]() {
         EnterSleepMode();
@@ -51,7 +51,7 @@ void XPSTEM_IOT_DEVKIT_SUIT::InitializePowerSaveTimer() {
 void XPSTEM_IOT_DEVKIT_SUIT::InitializeDisplay() {
 
 #if CONFIG_USE_U8G2==1
-    ESP_LOGI( TAG, "Init ssd1306 display ......" );
+    Log::Info( TAG, "Init ssd1306 display ......" );
     U8G2 *u8g2 = new U8G2_SSD1306_128X64_NONAME_F_SW_I2C(U8G2_R0, 
         /* i2c clk */ I2C_SCL_PIN,
         /* i2c data */ I2C_SDA_PIN,
@@ -63,7 +63,7 @@ void XPSTEM_IOT_DEVKIT_SUIT::InitializeDisplay() {
 #endif
 
 #if CONFIG_USE_TFT_ESPI==1
-    ESP_LOGI( TAG, "Init ssd1306 display ......" );
+    Log::Info( TAG, "Init ssd1306 display ......" );
     /**
      * 注意！！！
      * 请在TFT_eSPI库包内的User_Setup.h中配置引脚
@@ -71,7 +71,7 @@ void XPSTEM_IOT_DEVKIT_SUIT::InitializeDisplay() {
     TFT_eSPI *tft = new TFT_eSPI(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     tft->init();
     tft->setRotation(3);
-    tft->fillScreen(TFT_DARKGREY);
+    tft->fillScreen(TFT_BLACK);
     //tft->invertDisplay(DISPLAY_INVERT_COLOR);
     
     //u8g2_font_unifont_t_chinese2
@@ -79,11 +79,11 @@ void XPSTEM_IOT_DEVKIT_SUIT::InitializeDisplay() {
 #endif
 
 #if CONFIG_USE_LVGL==1
-    ESP_LOGI( TAG, "Create ili9341 driver." );
+    Log::Info( TAG, "Create ili9341 driver." );
     driver = new ILI9341Driver(DISPLAY_WIDTH, DISPLAY_HEIGHT,
                                     DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY);
                                     
-    ESP_LOGI( TAG, "Init st7796 on spi mode." );
+    Log::Info( TAG, "Init st7796 on spi mode." );
     driver->InitSpi(SPI3_HOST, DISPLAY_SPI_MODE, DISPLAY_CS_PIN, DISPLAY_DC_PIN, DISPLAY_RST_PIN, 
         DISPLAY_MOSI_PIN, DISPLAY_MISO_PIN, DISPLAY_SCK_PIN, DISPLAY_RGB_ORDER, DISPLAY_INVERT_COLOR);
 
@@ -103,23 +103,23 @@ void XPSTEM_IOT_DEVKIT_SUIT::InitializeButtons() {
 
 XPSTEM_IOT_DEVKIT_SUIT::XPSTEM_IOT_DEVKIT_SUIT() : WifiBoard() {
 
-    ESP_LOGI(TAG, "===== Create Board ...... =====");
+    Log::Info(TAG, "===== Create Board ...... =====");
 
-    led_ = new GpioLed(BUILTIN_LED_PIN);
+    led_ = new GpioLed(BUILTIN_LED_PIN, false); // no pwm
 
     // InitializePowerSaveTimer();
 
-    // InitializeButtons();
+    InitializeButtons();
 
     InitializeDisplay();
 
 #if CONFIG_USE_LCD_PANEL==1
-    ESP_LOGI( TAG, "Init backlight ......" );
+    Log::Info( TAG, "Init backlight ......" );
     backlight_ = new PwmBacklight(DISPLAY_LED_PIN, DISPLAY_BACKLIGHT_OUTPUT_INVERT);
     backlight_->RestoreBrightness();
 #endif
 
-    ESP_LOGI( TAG, "===== Board config completed. =====");
+    Log::Info( TAG, "===== Board config completed. =====");
 }
 
 XPSTEM_IOT_DEVKIT_SUIT::~XPSTEM_IOT_DEVKIT_SUIT() {
@@ -127,9 +127,9 @@ XPSTEM_IOT_DEVKIT_SUIT::~XPSTEM_IOT_DEVKIT_SUIT() {
 }
 
 void XPSTEM_IOT_DEVKIT_SUIT::SetPowerSaveMode(bool enabled) {
-    if (!enabled) {
-        power_save_timer_->WakeUp();
-    }
+
+    // call base
+    WifiBoard::SetPowerSaveMode(enabled);
 }
 
 #endif //BOARD_XPSTEM_IOT_DEVKIT_SUIT

@@ -12,7 +12,6 @@
 
 #include "display.h"
 #include <lvgl.h>
-#include <esp_log.h>
 
 #include "disp_driver.h"
 #include "lvgl_style.h"

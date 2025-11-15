@@ -13,15 +13,16 @@
 #include <esp_partition.h>
 #include <esp_app_desc.h>
 #include <esp_ota_ops.h>
-#include <esp_log.h>
 #include <Arduino.h>
+
+#include "log.h"
 
 #define TAG "SystemInfo"
 
 size_t SystemInfo::GetFlashSize() {
     uint32_t flash_size;
     if (esp_flash_get_size(NULL, &flash_size) != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to get flash size");
+        Log::Error(TAG, "Failed to get flash size");
         return 0;
     }
     return (size_t)flash_size;
@@ -139,12 +140,11 @@ exit:    //Common return path
 void SystemInfo::PrintTaskList() {
     char buffer[1000];
     vTaskList(buffer);
-    ESP_LOGI(TAG, "Task list: \n%s", buffer);
+    Log::Info(TAG, "Task list: \n%s", buffer);
 }
 
 void SystemInfo::PrintHeapStats() {
     int free_sram = heap_caps_get_free_size(MALLOC_CAP_INTERNAL);
     int min_free_sram = heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL);
-    Serial.println("");
-    ESP_LOGI(TAG, "free sram: %d minimal sram: %d", free_sram, min_free_sram);
+    Log::Info(TAG, "free sram: %d minimal sram: %d", free_sram, min_free_sram);
 }

@@ -11,6 +11,15 @@
 
 typedef std::function<void(void)> callback_function_t;
 
+enum ButtonAction {
+    PressDown,
+    PressUp,
+    LongPress,
+    Click,
+    DoubleClick,
+    MultipleClick,
+};
+
 struct TouchPoint_t {
     int num = 0;
     int x = -1;

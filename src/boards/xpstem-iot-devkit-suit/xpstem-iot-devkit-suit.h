@@ -4,12 +4,12 @@
 #ifndef _XPSTEM_IOT_DEVKIT_SUIT_H
 #define _XPSTEM_IOT_DEVKIT_SUIT_H
 
-#include <esp_log.h>
 #include <esp_sleep.h>
 #include <driver/i2c_master.h>
 #include <driver/spi_common.h>
 #include <driver/gpio.h>
 
+#include "src/sys/log.h"
 #include "src/boards/button.h"
 #include "src/app/application.h"
 #include "src/boards/wifi_board.h"

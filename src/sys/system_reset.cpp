@@ -10,7 +10,7 @@
 #include <esp_partition.h>
 #include <esp_system.h>
 #include <freertos/FreeRTOS.h>
-#include <esp_log.h>
+#include "log.h"
 
 #define TAG "SystemReset"
 
@@ -28,39 +28,39 @@ SystemReset::SystemReset(gpio_num_t reset_nvs_pin, gpio_num_t reset_factory_pin)
 
 void SystemReset::CheckButtons() {
     if (gpio_get_level(reset_factory_pin_) == 0) {
-        ESP_LOGI( TAG, "Button is pressed, reset to factory" );
+        Log::Info( TAG, "Button is pressed, reset to factory" );
         ResetNvsFlash();
         ResetToFactory();
     }
 
     if (gpio_get_level(reset_nvs_pin_) == 0) {
-        ESP_LOGI( TAG, "Button is pressed, reset NVS flash" );
+        Log::Info( TAG, "Button is pressed, reset NVS flash" );
         ResetNvsFlash();
     }
 }
 
 void SystemReset::ResetNvsFlash() {
-    ESP_LOGI( TAG, "Resetting NVS flash" );
+    Log::Info( TAG, "Resetting NVS flash" );
     esp_err_t ret = nvs_flash_erase();
     if (ret != ESP_OK) {
-        ESP_LOGE( TAG, "Failed to erase NVS flash" );
+        Log::Error( TAG, "Failed to erase NVS flash" );
     }
     ret = nvs_flash_init();
     if (ret != ESP_OK) {
-        ESP_LOGE( TAG, "Failed to initialize NVS flash" );
+        Log::Error( TAG, "Failed to initialize NVS flash" );
     }
 }
 
 void SystemReset::ResetToFactory() {
-    ESP_LOGI( TAG, "Resetting to factory" );
+    Log::Info( TAG, "Resetting to factory" );
     // Erase otadata partition
     const esp_partition_t* partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_OTA, NULL);
     if (partition == NULL) {
-        ESP_LOGE( TAG, "Failed to find otadata partition" );
+        Log::Error( TAG, "Failed to find otadata partition" );
         return;
     }
     esp_partition_erase_range(partition, 0, partition->size);
-    ESP_LOGI( TAG, "Erased otadata partition" );
+    Log::Info( TAG, "Erased otadata partition" );
 
     // Reboot in 3 seconds
     RestartInSeconds(3);
@@ -68,7 +68,7 @@ void SystemReset::ResetToFactory() {
 
 void SystemReset::RestartInSeconds(int seconds) {
     for (int i = seconds; i > 0; i--) {
-        ESP_LOGI( TAG, "Resetting in %d seconds", i);
+        Log::Info( TAG, "Resetting in %d seconds", i);
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
     esp_restart();

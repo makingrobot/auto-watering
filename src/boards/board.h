@@ -8,6 +8,7 @@
 #define _BOARD_H
 
 #include <string>
+#include <map>
 #include "config.h"
 #include "src/led/led.h"
 #include "src/display/display.h"
@@ -18,13 +19,20 @@
 #include "src/file/file_system.h"
 #include "src/sys/time.h"
 #include "src/app/types.h"
+#include "src/peripheral/actuator.h"
+#include "src/peripheral/sensor.h"
 
 void* create_board();
+
+static const char* kBootButton = "boot_button";
 
 class Board {
 private:
     Board(const Board&) = delete; // 禁用拷贝构造函数
     Board& operator=(const Board&) = delete; // 禁用赋值操作
+
+    std::map<std::string, Actuator*> actuator_map_; //执行器外设列列表
+    std::map<std::string, Sensor*> sensor_map_; //传感器外设列表
 
 protected:
     Board();
@@ -37,9 +45,16 @@ protected:
     virtual void ExitSleepMode();
     virtual void Shutdown();
 
-    virtual bool OnPhysicalButtonEvent(const std::string& button_name, const std::string& event_type);
+    virtual bool OnPhysicalButtonEvent(const std::string& button_name, const ButtonAction action);
     virtual bool OnDisplayTouchEvent(const TouchPoint_t& point);
-    
+
+    virtual void AddActuator(const std::string& name, Actuator* actuator) {
+        actuator_map_[name] = actuator;
+    }
+    virtual void AddSensor(const std::string& name, Sensor* sensor) {
+        sensor_map_[name] = sensor;
+    }
+   
 public:
     static Board& GetInstance() {
         static Board* instance = static_cast<Board*>(create_board());
@@ -60,13 +75,31 @@ public:
 
     virtual const char* GetNetworkStateIconName() = 0;
 
-    virtual Display* GetDisplay();
     virtual Led* GetLed();
 
     virtual DispDriver* GetDispDriver() { return nullptr; }
     virtual Backlight* GetBacklight() { return nullptr; }
     virtual Time* GetTime() { return nullptr; }
 
+    // 查找执行器外设
+    virtual Actuator* GetActuator(const std::string& name) {
+        auto it = actuator_map_.find(name);
+        if (it != actuator_map_.end()) {
+            return it->second;
+        }
+        return nullptr;
+    }
+
+    // 查找传感器外设
+    virtual Sensor* GetSensor(const std::string& name) {
+        auto it = sensor_map_.find(name);
+        if (it != sensor_map_.end()) {
+            return it->second;
+        }
+        return nullptr;
+    }
+
+    virtual Display* GetDisplay();
 #if CONFIG_USE_LVGL==1
     virtual void SetDisplay(Display *display) = 0;
 #endif

@@ -7,9 +7,8 @@
 #include "config.h"
 #if CONFIG_USE_LVGL == 1
 
-#include <esp_log.h>
-
 #include "lvgl_text_window.h"
+#include "src/sys/log.h"
 #include "src/fonts/font_awesome_symbols.h"
 #include "src/lang/lang_zh_cn.h"
 
@@ -17,7 +16,7 @@
 
 LvglTextWindow::LvglTextWindow() {
             
-    ESP_LOGD(TAG, "LvglTextWindow constructor.");
+    Log::Debug(TAG, "LvglTextWindow constructor.");
 
 }
 
@@ -34,7 +33,7 @@ LvglTextWindow::~LvglTextWindow() {
 }
 
 void LvglTextWindow::SetupUI(lv_obj_t* container, const ThemeColors& theme, const DisplayFonts& fonts) {
-    ESP_LOGI(TAG, "SetupUI ......");
+    Log::Info(TAG, "SetupUI ......");
 
     /* Content */
     content_ = lv_obj_create(container);
@@ -56,7 +55,7 @@ void LvglTextWindow::SetupUI(lv_obj_t* container, const ThemeColors& theme, cons
     lv_obj_set_style_text_align(text_label_, LV_TEXT_ALIGN_CENTER, 0); // 设置文本居中对齐
     lv_obj_set_style_text_color(text_label_, theme.text, 0);
 
-    ESP_LOGI( TAG, "SetupUI completed." );
+    Log::Info( TAG, "SetupUI completed." );
 }
 
 void LvglTextWindow::SetTheme(const ThemeColors& theme) {
@@ -72,7 +71,7 @@ void LvglTextWindow::SetTheme(const ThemeColors& theme) {
 
 void LvglTextWindow::SetText(const char* text) {
     if (text_label_ == nullptr) {
-        ESP_LOGW(TAG, "text label not setup.");
+        Log::Warn(TAG, "text label not setup.");
         return;
     }
     lv_label_set_text(text_label_, text);

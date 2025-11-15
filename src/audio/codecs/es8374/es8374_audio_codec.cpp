@@ -7,7 +7,7 @@
 #if CONFIG_USE_AUDIO_ES8374==1
 
 #include "es8374_audio_codec.h"
-#include <esp_log.h>
+#include "src/sys/log.h"
 
 #define TAG "Es8374AudioCodec"
 
@@ -63,7 +63,7 @@ Es8374AudioCodec::Es8374AudioCodec(void* i2c_master_handle, i2c_port_t i2c_port,
     assert(input_dev_ != NULL);
     esp_codec_set_disable_when_closed(output_dev_, false);
     esp_codec_set_disable_when_closed(input_dev_, false);
-    ESP_LOGI(TAG, "Es8374AudioCodec initialized");
+    Log::Info(TAG, "Es8374AudioCodec initialized");
 }
 
 Es8374AudioCodec::~Es8374AudioCodec() {
@@ -131,7 +131,7 @@ void Es8374AudioCodec::CreateDuplexChannels(gpio_num_t mclk, gpio_num_t bclk, gp
 
     ESP_ERROR_CHECK(i2s_channel_init_std_mode(tx_handle_, &std_cfg));
     ESP_ERROR_CHECK(i2s_channel_init_std_mode(rx_handle_, &std_cfg));
-    ESP_LOGI(TAG, "Duplex channels created");
+    Log::Info(TAG, "Duplex channels created");
 }
 
 void Es8374AudioCodec::SetOutputVolume(int volume) {

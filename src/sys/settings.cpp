@@ -6,7 +6,7 @@
  */
 #include "settings.h"
 #include <nvs_flash.h>
-#include <esp_log.h>
+#include "log.h"
 
 #define TAG "Settings"
 
@@ -47,7 +47,7 @@ void Settings::SetString(const std::string& key, const std::string& value) {
         ESP_ERROR_CHECK(nvs_set_str(nvs_handle_, key.c_str(), value.c_str()));
         dirty_ = true;
     } else {
-        ESP_LOGW( TAG, "Namespace %s is not open for writing", ns_.c_str());
+        Log::Warn( TAG, "Namespace %s is not open for writing", ns_.c_str());
     }
 }
 
@@ -68,7 +68,7 @@ void Settings::SetInt(const std::string& key, int32_t value) {
         ESP_ERROR_CHECK(nvs_set_i32(nvs_handle_, key.c_str(), value));
         dirty_ = true;
     } else {
-        ESP_LOGW( TAG, "Namespace %s is not open for writing", ns_.c_str());
+        Log::Warn( TAG, "Namespace %s is not open for writing", ns_.c_str());
     }
 }
 
@@ -79,7 +79,7 @@ void Settings::EraseKey(const std::string& key) {
             ESP_ERROR_CHECK(ret);
         }
     } else {
-        ESP_LOGW( TAG, "Namespace %s is not open for writing", ns_.c_str());
+        Log::Warn( TAG, "Namespace %s is not open for writing", ns_.c_str());
     }
 }
 
@@ -87,6 +87,6 @@ void Settings::EraseAll() {
     if (read_write_) {
         ESP_ERROR_CHECK(nvs_erase_all(nvs_handle_));
     } else {
-        ESP_LOGW( TAG, "Namespace %s is not open for writing", ns_.c_str());
+        Log::Warn( TAG, "Namespace %s is not open for writing", ns_.c_str());
     }
 }

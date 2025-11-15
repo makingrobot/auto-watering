@@ -9,12 +9,11 @@
 
 #include "st7796_driver.h"
 
-#include <esp_log.h>
 #include <esp_lcd_panel_vendor.h>
 #include <esp_lcd_panel_io.h>
 #include <esp_lcd_panel_ops.h>
 #include <driver/spi_common.h>
-
+#include "src/sys/log.h"
 #include "src/libs/esp_lcd_st7796/esp_lcd_st7796.h"
 
 #define TAG "ST7796Driver"
@@ -24,11 +23,11 @@ void ST7796Driver::InitSpi(spi_host_device_t spi_host, int spi_mode,
         gpio_num_t mosi_num, gpio_num_t miso_num, gpio_num_t clk_num, 
         lcd_rgb_element_order_t rgb_color_order, bool invert_color ) {
 
-    ESP_LOGI(TAG, "Init St7796 driver");
+    Log::Info(TAG, "Init St7796 driver");
 
     drive_mode_ = kDriveModeSpi;
     
-    ESP_LOGI( TAG, "Init SPI for lcd driver ......" );
+    Log::Info( TAG, "Init SPI for lcd driver ......" );
     spi_bus_config_t buscfg = {};
     buscfg.mosi_io_num = mosi_num;
     buscfg.miso_io_num = miso_num;
@@ -38,7 +37,7 @@ void ST7796Driver::InitSpi(spi_host_device_t spi_host, int spi_mode,
     buscfg.max_transfer_sz = width_ * height_ * sizeof(uint16_t); // for lcd.
     ESP_ERROR_CHECK(spi_bus_initialize(spi_host, &buscfg, SPI_DMA_CH_AUTO));
 
-    ESP_LOGD(TAG, "Install panel IO");
+    Log::Debug(TAG, "Install panel IO");
     esp_lcd_panel_io_spi_config_t io_config = {};
     io_config.cs_gpio_num = cs_num;
     io_config.dc_gpio_num = dc_num;
@@ -49,7 +48,7 @@ void ST7796Driver::InitSpi(spi_host_device_t spi_host, int spi_mode,
     io_config.lcd_param_bits = 8;
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_spi(spi_host, &io_config, &panel_io_));
 
-    ESP_LOGD(TAG, "Install LCD driver");
+    Log::Debug(TAG, "Install LCD driver");
     esp_lcd_panel_dev_config_t panel_config = {};
     panel_config.reset_gpio_num = rst_num;
     panel_config.rgb_ele_order = rgb_color_order;

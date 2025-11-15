@@ -5,7 +5,7 @@
  * Author: Billy Zhang（billy_zh@126.com）
  */
 #include "adc_battery_monitor.h"
-#include <esp_log.h>
+#include "src/sys/log.h"
 #include <Arduino.h>
 
 #define TAG "AdcBatteryMonitor"
@@ -63,7 +63,7 @@ AdcBatteryMonitor::AdcBatteryMonitor(gpio_num_t charging_pin, adc_unit_t adc_uni
 
     monitor_timer_ = new Ticker();
     monitor_timer_->attach(20, TimerCallback, this);
-    ESP_LOGI(TAG, "monitor ticker started");
+    Log::Info(TAG, "monitor ticker started");
     Serial.println("");
 }
 
@@ -103,7 +103,7 @@ void AdcBatteryMonitor::CheckBatteryStatus() {
     float capacity = 0;
     int adc_value = 0;
     ESP_ERROR_CHECK(adc_battery_estimation_get_capacity(adc_battery_estimation_handle_, &adc_value, &capacity));
-    ESP_LOGD(TAG, "Battery adc value: %d, capacity: %.1f%%", adc_value, capacity);
+    Log::Debug(TAG, "Battery adc value: %d, capacity: %.1f%%", adc_value, capacity);
 
     bool new_charging_status = IsCharging();
     if (new_charging_status != is_charging_) {

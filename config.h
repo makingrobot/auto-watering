@@ -19,7 +19,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 // 主板（只能设置一个为1，其余必须为0）
 
-#define BOARD_XPSTEM_S3_LCD_2_80            1  // 小鹏AI语音机器人、ESP32-S3 2.8寸显示屏开发板
+#define BOARD_XPSTEM_S3_LCD_2_80            0  // 小鹏AI语音机器人、ESP32-S3 2.8寸显示屏开发板
 #define BOARD_XPSTEM_IOT_DEVKIT_SUIT        0  // 小鹏IoT开发套件
 #define BOARD_XPSTEM_S3_ELECTRONIC_SUIT     0   // 小鹏ESP32-S3创意电子套件
 #define BOARD_XINGZHI_MATRIXBIT_V3          0   // Matrixbit V3

@@ -10,10 +10,10 @@
 #include <freertos/task.h>
 #include <cJSON.h>
 #include <WiFi.h>
-#include <esp_log.h>
 #include <esp_mac.h>
 
 #include "board_def.h"
+#include "src/sys/log.h"
 #include "src/wifi/wifi_station.h"
 #include "src/wifi/ssid_manager.h"
 #include "src/display/display.h"
@@ -33,7 +33,7 @@ WifiBoard::WifiBoard() {
     Settings settings("wifi", true);
     wifi_config_mode_ = settings.GetInt("force_ap") == 1;
     if (wifi_config_mode_) {
-        ESP_LOGI( TAG, "force_ap is set to 1, reset to 0" );
+        Log::Info( TAG, "force_ap is set to 1, reset to 0" );
         settings.SetInt("force_ap", 0);
     }
 }
@@ -52,7 +52,7 @@ void WifiBoard::EnterWifiConfigMode() {
     wifi_ap.SetSsidPrefix("XPSTEM");
     wifi_ap.Start();
 
-    ESP_LOGI( TAG, "进入 WiFi AP 配置模式。" );
+    Log::Info( TAG, "进入 WiFi AP 配置模式。" );
     
     // 显示配置 WiFi 的提示
     application.ShowWifiConfigHit(wifi_ap.GetSsid(), wifi_ap.GetWebServerUrl(), 
@@ -60,10 +60,10 @@ void WifiBoard::EnterWifiConfigMode() {
 
     // Wait forever until reset after configuration
     while (true) {
-        ESP_LOGI(TAG, "等待配网......" );
+        Log::Info(TAG, "等待配网......" );
         // int free_sram = heap_caps_get_free_size(MALLOC_CAP_INTERNAL);
         // int min_free_sram = heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL);
-        // ESP_LOGI(TAG, "Free internal: %u minimal internal: %u", free_sram, min_free_sram);
+        // Log::Info(TAG, "Free internal: %u minimal internal: %u", free_sram, min_free_sram);
         vTaskDelay(pdMS_TO_TICKS(30000));
     }
 }
@@ -103,7 +103,7 @@ void WifiBoard::StartNetwork() {
         display->ShowNotification(notification.c_str(), 30000);
     });
     wifi_station.Start();
-    ESP_LOGI( TAG, "进入 WiFi STA 联网模式。");
+    Log::Info( TAG, "进入 WiFi STA 联网模式。");
 
     // Try to connect to WiFi, if failed, launch the WiFi configuration AP
     if (!wifi_station.WaitForConnected(60 * 1000)) {
@@ -123,7 +123,7 @@ void WifiBoard::ResetWifiConfiguration() {
     GetDisplay()->ShowNotification(Lang::Strings::ENTERING_WIFI_CONFIG_MODE);
     vTaskDelay(pdMS_TO_TICKS(1000));
     // Reboot the device
-    ESP_LOGI( TAG, "重启设备......" );
+    Log::Info( TAG, "重启设备......" );
     esp_restart();
 }
 #endif //CONFIG_WIFI_CONFIGURE_ENABLE
@@ -148,7 +148,7 @@ void WifiBoard::StartNetwork(const std::string& ssid, const std::string& passwor
         notification += ssid;
         display->ShowNotification(notification.c_str(), 30000);
     });
-    ESP_LOGI( TAG, "进入 WiFi STA 联网模式。");
+    Log::Info( TAG, "进入 WiFi STA 联网模式。");
 
     // Try to connect to WiFi, if failed, launch the WiFi configuration AP
     if (!wifi_station.WaitForConnected(ssid, password, 60 * 1000)) {

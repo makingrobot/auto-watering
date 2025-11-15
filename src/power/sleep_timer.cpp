@@ -8,9 +8,9 @@
 #include "src/app/application.h"
 #include "src/boards/board.h"
 #include "src/display/display.h"
+#include "src/sys/log.h"
 
 #include <esp_sleep.h>
-#include <esp_log.h>
 #include <esp_pm.h>
 
 #if CONFIG_USE_LVGL==1
@@ -40,10 +40,10 @@ void SleepTimer::SetEnabled(bool enabled) {
         ticks_ = 0;
         enabled_ = enabled;
         sleep_ticker_->attach(1, TickerCallback, this);
-        ESP_LOGI( TAG, "Timer started" );
+        Log::Info( TAG, "Timer started" );
     } else if (!enabled && enabled_) {
         sleep_ticker_->detach();
-        ESP_LOGI( TAG, "Timer stopped" );
+        Log::Info( TAG, "Timer stopped" );
         enabled_ = enabled;
         WakeUp();
     }

@@ -8,14 +8,14 @@
 #if CONFIG_USE_U8G2 == 1
 
 #include "u8g2_display.h"
-#include <esp_log.h>
+#include "src/sys/log.h"
 
 #define TAG "U8g2Display"
 
 U8g2Display::U8g2Display(U8G2* driver, int width, int height, const uint8_t* fonts) 
         : driver_(driver), fonts_(fonts) {
             
-    ESP_LOGD(TAG, "U8g2Display constructor.");
+    Log::Debug(TAG, "U8g2Display constructor.");
     width_ = width; 
     height_ = height;
 }

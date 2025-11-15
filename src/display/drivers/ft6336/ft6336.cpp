@@ -5,13 +5,13 @@
  * Author: Billy Zhang（billy_zh@126.com）
  */
 #include "ft6336.h"
-#include <esp_log.h>
+#include "src/sys/log.h"
 
 #define TAG "Ft6336"
 
 Ft6336::Ft6336(i2c_master_bus_handle_t i2c_bus, uint8_t addr) : I2cDevice(i2c_bus, addr) {
     uint8_t chip_id = ReadReg(0xA3);
-    ESP_LOGI(TAG, "Get chip ID: 0x%02X", chip_id);
+    Log::Info(TAG, "Get chip ID: 0x%02X", chip_id);
     read_buffer_ = new uint8_t[6];
     touchpad_ticker_ = new Ticker();
 }
@@ -31,7 +31,7 @@ void TickerCallback(Ft6336 *arg) {
 void Ft6336::Start() {
     // 创建定时器，20ms 间隔
     touchpad_ticker_->attach_ms(20, TickerCallback, this);
-    ESP_LOGI(TAG, "Timer started");
+    Log::Info(TAG, "Timer started");
 }
 
 void Ft6336::UpdateTouchPoint() {

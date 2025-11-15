@@ -7,8 +7,9 @@
 #include "ssid_manager.h"
 
 #include <algorithm>
-#include <esp_log.h>
 #include <nvs_flash.h>
+
+#include "src/sys/log.h"
 
 #define TAG "SsidManager"
 #define NVS_NAMESPACE "wifi"
@@ -36,7 +37,7 @@ void SsidManager::LoadFromNvs() {
     auto ret = nvs_open(NVS_NAMESPACE, NVS_READONLY, &nvs_handle);
     if (ret != ESP_OK) {
         // The namespace doesn't exist, just return
-        ESP_LOGW(TAG, "NVS namespace %s doesn't exist", NVS_NAMESPACE);
+        Log::Warn(TAG, "NVS namespace %s doesn't exist", NVS_NAMESPACE);
         return;
     }
     for (int i = 0; i < MAX_WIFI_SSID_COUNT; i++) {
@@ -91,9 +92,9 @@ void SsidManager::SaveToNvs() {
 
 void SsidManager::AddSsid(const std::string& ssid, const std::string& password) {
     for (auto& item : ssid_list_) {
-        ESP_LOGI(TAG, "compare [%s:%d] [%s:%d]", item.ssid.c_str(), item.ssid.size(), ssid.c_str(), ssid.size());
+        Log::Info(TAG, "compare [%s:%d] [%s:%d]", item.ssid.c_str(), item.ssid.size(), ssid.c_str(), ssid.size());
         if (item.ssid == ssid) {
-            ESP_LOGW(TAG, "SSID %s already exists, overwrite it", ssid.c_str());
+            Log::Warn(TAG, "SSID %s already exists, overwrite it", ssid.c_str());
             item.password = password;
             SaveToNvs();
             return;
@@ -101,7 +102,7 @@ void SsidManager::AddSsid(const std::string& ssid, const std::string& password) 
     }
 
     if (ssid_list_.size() >= MAX_WIFI_SSID_COUNT) {
-        ESP_LOGW(TAG, "SSID list is full, pop one");
+        Log::Warn(TAG, "SSID list is full, pop one");
         ssid_list_.pop_back();
     }
     // Add the new ssid to the front of the list
@@ -121,7 +122,7 @@ const SsidItem* SsidManager::GetSsid(const std::string& ssid) const {
 
 void SsidManager::RemoveSsid(int index) {
     if (index < 0 || index >= ssid_list_.size()) {
-        ESP_LOGW(TAG, "Invalid index %d", index);
+        Log::Warn(TAG, "Invalid index %d", index);
         return;
     }
     ssid_list_.erase(ssid_list_.begin() + index);
@@ -130,7 +131,7 @@ void SsidManager::RemoveSsid(int index) {
 
 void SsidManager::SetDefaultSsid(int index) {
     if (index < 0 || index >= ssid_list_.size()) {
-        ESP_LOGW(TAG, "Invalid index %d", index);
+        Log::Warn(TAG, "Invalid index %d", index);
         return;
     }
     // Move the ssid at index to the front of the list

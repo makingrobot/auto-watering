@@ -7,10 +7,10 @@
 #if CONFIG_USE_AUDIO==1
 
 #include "audio_codec.h"
-#include <esp_log.h>
 #include <cstring>
 #include <driver/i2s_common.h>
 
+#include "src/sys/log.h"
 #include "src/boards/board.h"
 #include "src/sys/settings.h"
 
@@ -38,7 +38,7 @@ void AudioCodec::Start() {
     Settings settings("audio", false);
     output_volume_ = settings.GetInt("output_volume", output_volume_);
     if (output_volume_ <= 0) {
-        ESP_LOGW(TAG, "Output volume value (%d) is too small, setting to default (10)", output_volume_);
+        Log::Warn(TAG, "Output volume value (%d) is too small, setting to default (10)", output_volume_);
         output_volume_ = 10;
     }
 
@@ -52,12 +52,12 @@ void AudioCodec::Start() {
 
     EnableInput(true);
     EnableOutput(true);
-    ESP_LOGI(TAG, "Audio codec started");
+    Log::Info(TAG, "Audio codec started");
 }
 
 void AudioCodec::SetOutputVolume(int volume) {
     output_volume_ = volume;
-    ESP_LOGI(TAG, "Set output volume to %d", output_volume_);
+    Log::Info(TAG, "Set output volume to %d", output_volume_);
     
     Settings settings("audio", true);
     settings.SetInt("output_volume", output_volume_);
@@ -68,7 +68,7 @@ void AudioCodec::EnableInput(bool enable) {
         return;
     }
     input_enabled_ = enable;
-    ESP_LOGI(TAG, "Set input enable to %s", enable ? "true" : "false");
+    Log::Info(TAG, "Set input enable to %s", enable ? "true" : "false");
 }
 
 void AudioCodec::EnableOutput(bool enable) {
@@ -76,7 +76,7 @@ void AudioCodec::EnableOutput(bool enable) {
         return;
     }
     output_enabled_ = enable;
-    ESP_LOGI(TAG, "Set output enable to %s", enable ? "true" : "false");
+    Log::Info(TAG, "Set output enable to %s", enable ? "true" : "false");
 }
 
 #endif //CONFIG_USE_AUDIO

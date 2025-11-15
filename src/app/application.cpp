@@ -11,7 +11,6 @@
 #include <nvs.h>
 #include <nvs_flash.h>
 #include <esp_event.h>
-#include <esp_log.h>
 
 #include "config.h"
 #include "src/display/display.h"
@@ -22,6 +21,7 @@
 #include "src/fonts/font_awesome_symbols.h"
 #include "src/lang/lang_zh_cn.h"
 #include "src/app/types.h"
+#include "src/sys/log.h"
 
 #define TAG "Application"
 
@@ -33,7 +33,7 @@ Application::Application() {
     // Initialize NVS flash for WiFi configuration
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        ESP_LOGI(TAG, "rasing NVS flash to fix corruption");
+        Log::Info(TAG, "rasing NVS flash to fix corruption");
         ESP_ERROR_CHECK(nvs_flash_erase());
         ret = nvs_flash_init();
     }
@@ -56,7 +56,7 @@ Application::~Application() {
 }
 
 void Application::Init() {
-    ESP_LOGI(TAG, "Initialize ......");
+    Log::Info(TAG, "Initialize ......");
     
 #if CONFIG_CLOCK_ENABLE==1
     clock_ticker_ = new Ticker();
@@ -70,7 +70,7 @@ void TickerCallback(Application *arg) {
 #endif
 
 void Application::Start() {
-    ESP_LOGI(TAG, "Starting ......");
+    Log::Info(TAG, "Starting ......");
 
     auto& board = Board::GetInstance();
     Display* display = board.GetDisplay();
@@ -79,7 +79,7 @@ void Application::Start() {
 
 #if CONFIG_CLOCK_ENABLE==1
     clock_ticker_->attach(1, TickerCallback, this);
-    ESP_LOGI(TAG, "clock timer started.");
+    Log::Info(TAG, "clock timer started.");
 #endif
 
     SetDeviceState(kDeviceStateStarting);
@@ -103,7 +103,7 @@ void Application::Start() {
     // Print heap stats
     SystemInfo::PrintHeapStats();
     
-    ESP_LOGI(TAG, "Started.");
+    Log::Info(TAG, "Started.");
 
     // Raise the priority of the main event loop to avoid being interrupted by background tasks (which has priority 2)
     //vTaskPrioritySet(NULL, 3);
@@ -111,7 +111,7 @@ void Application::Start() {
 }
 
 void Application::Alert(const char* status, const char* message, const char* emotion) {
-    ESP_LOGI(TAG, "Alert %s: %s [%s]", status, message, emotion);
+    Log::Info(TAG, "Alert %s: %s [%s]", status, message, emotion);
     auto display = Board::GetInstance().GetDisplay();
     display->SetStatus(status);
     //display->SetText(message);
@@ -149,11 +149,11 @@ void Application::Schedule(callback_function_t callback) {
     xEventGroupSetBits(event_group_, EventHandler::kEventScheduleTask);
 }
 
-bool Application::OnPhysicalButtonEvent(const std::string& button_name, const std::string& event_type) {
+bool Application::OnPhysicalButtonEvent(const std::string& button_name, const ButtonAction action) {
 
-    if (strcmp(button_name.c_str(), "boot")==0) {
+    if (strcmp(button_name.c_str(), kBootButton)==0) {
 
-        if (strcmp(event_type.c_str(), "click") == 0) {
+        if (action == ButtonAction::Click) {
             ToggleWorkState();
             return true;
         }
@@ -176,7 +176,7 @@ void Application::OnClockTimer() {
 
     // Print the debug info every 60 seconds
     if (clock_ticks_ % 60 == 0) {
-        ESP_LOGI(TAG, "clock ticks: %d", clock_ticks_);
+        Log::Info(TAG, "clock ticks: %d", clock_ticks_);
         // SystemInfo::PrintTaskCpuUsage(pdMS_TO_TICKS(1000));
         // SystemInfo::PrintTaskList();
         SystemInfo::PrintHeapStats();
@@ -213,7 +213,7 @@ void Application::SetDeviceState(const DeviceState* state) {
     if (device_state_ == state) {
         return;
     }
-    ESP_LOGI(TAG, "STATE: %s", state->text().c_str());
+    Log::Info(TAG, "STATE: %s", state->text().c_str());
     
     clock_ticks_ = 0;
     DeviceState* previous_state = device_state_;
@@ -237,7 +237,6 @@ void Application::SetDeviceState(const DeviceState* state) {
 
 void Application::OnStateChanged() {
     Led* led = Board::GetInstance().GetLed();
-    ESP_LOGI(TAG, "Led Type: %s", typeid(*led).name());
 
     if (device_state_ == kDeviceStateStarting) {
         led->SetColor(0, 0, DEFAULT_BRIGHTNESS);
@@ -260,7 +259,7 @@ void Application::OnStateChanged() {
 }
 
 void Application::Reboot() {
-    ESP_LOGI(TAG, "Rebooting..." );
+    Log::Info(TAG, "Rebooting..." );
     esp_restart();
 }
 
@@ -279,7 +278,7 @@ void Application::CheckNewVersion(Ota& ota) {
         if (!ota.CheckVersion()) {
             retry_count++;
             if (retry_count >= MAX_RETRY) {
-                ESP_LOGE(TAG, "Too many retries, exit version check");
+                Log::Error(TAG, "Too many retries, exit version check");
                 return;
             }
 
@@ -287,7 +286,7 @@ void Application::CheckNewVersion(Ota& ota) {
             snprintf(buffer, sizeof(buffer), Lang::Strings::CHECK_NEW_VERSION_FAILED, retry_delay, ota.GetCheckVersionUrl().c_str());
             Alert(Lang::Strings::ERROR, buffer, "sad");
 
-            ESP_LOGW(TAG, "Check new version failed, retry in %d seconds (%d/%d)", retry_delay, retry_count, MAX_RETRY);
+            Log::Warn(TAG, "Check new version failed, retry in %d seconds (%d/%d)", retry_delay, retry_count, MAX_RETRY);
             for (int i = 0; i < retry_delay; i++) {
                 vTaskDelay(pdMS_TO_TICKS(1000));
                 if (device_state_ == kDeviceStateIdle) {
@@ -323,7 +322,7 @@ void Application::CheckNewVersion(Ota& ota) {
 
             if (!upgrade_success) {
                 // Upgrade failed, restart audio service and continue running
-                ESP_LOGE(TAG, "Firmware upgrade failed, restarting audio service and continuing operation...");
+                Log::Error(TAG, "Firmware upgrade failed, restarting audio service and continuing operation...");
                 //audio_service_.Start(); // Restart audio service
                 board.SetPowerSaveMode(true); // Restore power save mode
                 Alert(Lang::Strings::ERROR, Lang::Strings::UPGRADE_FAILED, "sad");
@@ -331,7 +330,7 @@ void Application::CheckNewVersion(Ota& ota) {
                 // Continue to normal operation (don't break, just fall through)
             } else {
                 // Upgrade success, reboot immediately
-                ESP_LOGI(TAG, "Firmware upgrade successful, rebooting...");
+                Log::Info(TAG, "Firmware upgrade successful, rebooting...");
                 display->SetText("Upgrade successful, rebooting...");
                 vTaskDelay(pdMS_TO_TICKS(1000)); // Brief pause to show message
                 Reboot();
@@ -375,8 +374,8 @@ void Application::EventLoop() {
             event_handler_->HandleEvent(bits);
         }
     } catch (const std::exception& e) {
-        // ESP_LOGE( TAG, "Caught exception: " );
-        // ESP_LOGE( TAG, e.what() );
+        // Log::Error( TAG, "Caught exception: " );
+        // Log::Error( TAG, e.what() );
     }
 
     vTaskDelay(pdMS_TO_TICKS(1)); //1ms

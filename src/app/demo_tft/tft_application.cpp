@@ -8,7 +8,7 @@
 #if APP_DEMO_TFT==1
 
 #include "tft_application.h"
-#include "esp_log.h"
+#include "src/sys/log.h"
 #include "src/boards/board.h"
 #include "src/lang/lang_zh_cn.h"
 #include "src/display/tft_display.h"
@@ -39,7 +39,7 @@ void TftApplication::Start() {
     Board& board = Board::GetInstance();
     board.GetLed()->Blink(-1, 1000);
     board.GetDisplay()->SetStatus("工作中");
-    //board.GetDisplay()->SetText("Hello World!");
+    board.GetDisplay()->SetText("Hello world!");
 }
 
 #endif //APP_DEMO_TFT

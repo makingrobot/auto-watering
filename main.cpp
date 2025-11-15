@@ -7,9 +7,9 @@
 #define LOG_LOCAL_LEVEL ESP_LOG_DEBUG
 
 #include <Arduino.h>
-#include <esp_log.h>
 #include "config.h"
 #include "board_def.h"
+#include "src/sys/log.h"
 #include "src/app/application.h"
 
 #define TAG "Main"
@@ -19,8 +19,7 @@ Application *app = nullptr;
 void setup() {
     Serial.begin(115200);
 
-    Serial.println("application starting.");
-    ESP_LOGI(TAG, "application starting.");
+    Log::Info(TAG, "application starting.");
 
     // 创建应用实例
     app = &Application::GetInstance();

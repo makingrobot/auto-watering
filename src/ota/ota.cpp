@@ -4,7 +4,6 @@
 #include "ota.h"
 
 #include <cJSON.h>
-#include <esp_log.h>
 #include <esp_partition.h>
 #include <esp_ota_ops.h>
 #include <esp_efuse.h>
@@ -19,6 +18,7 @@
 #include <algorithm>
 
 #include "board_def.h"
+#include "src/sys/log.h"
 #include "src/sys/system_info.h"
 #include "src/sys/settings.h"
 #include "src/lang/lang_zh_cn.h"
@@ -82,11 +82,11 @@ bool Ota::CheckVersion() {
     
     // Check if there is a new firmware version available
     current_version_ = app.GetAppVersion();
-    ESP_LOGI(TAG, "Current version: %s", current_version_.c_str());
+    Log::Info(TAG, "Current version: %s", current_version_.c_str());
 
     std::string url = GetCheckVersionUrl();
     if (url.length() < 10) {
-        ESP_LOGE(TAG, "Check version URL is not properly set");
+        Log::Error(TAG, "Check version URL is not properly set");
         return false;
     }
 
@@ -96,13 +96,13 @@ bool Ota::CheckVersion() {
     std::string method = data.length() > 0 ? "POST" : "GET";
 
     if (!http->begin(String(url.c_str()))) {
-        ESP_LOGE(TAG, "Failed to open HTTP connection");
+        Log::Error(TAG, "Failed to open HTTP connection");
         return false;
     }
 
     auto status_code = http->POST(String(std::move(data).c_str()));
     if (status_code != 200) {
-        ESP_LOGE(TAG, "Failed to check version, status code: %d", status_code);
+        Log::Error(TAG, "Failed to check version, status code: %d", status_code);
         return false;
     }
 
@@ -115,7 +115,7 @@ bool Ota::CheckVersion() {
     
     cJSON *root = cJSON_Parse(data.c_str());
     if (root == NULL) {
-        ESP_LOGE(TAG, "Failed to parse JSON response");
+        Log::Error(TAG, "Failed to parse JSON response");
         return false;
     }
 
@@ -161,7 +161,7 @@ bool Ota::CheckVersion() {
         }
         has_mqtt_config_ = true;
     } else {
-        ESP_LOGI(TAG, "No mqtt section found !");
+        Log::Info(TAG, "No mqtt section found !");
     }
 
     has_websocket_config_ = false;
@@ -182,7 +182,7 @@ bool Ota::CheckVersion() {
         }
         has_websocket_config_ = true;
     } else {
-        ESP_LOGI(TAG, "No websocket section found!");
+        Log::Info(TAG, "No websocket section found!");
     }
 
     has_server_time_ = false;
@@ -207,7 +207,7 @@ bool Ota::CheckVersion() {
             has_server_time_ = true;
         }
     } else {
-        ESP_LOGW(TAG, "No server_time section found!");
+        Log::Warn(TAG, "No server_time section found!");
     }
 
     has_new_version_ = false;
@@ -226,9 +226,9 @@ bool Ota::CheckVersion() {
             // Check if the version is newer, for example, 0.1.0 is newer than 0.0.1
             has_new_version_ = IsNewVersionAvailable(current_version_, firmware_version_);
             if (has_new_version_) {
-                ESP_LOGI(TAG, "New version available: %s", firmware_version_.c_str());
+                Log::Info(TAG, "New version available: %s", firmware_version_.c_str());
             } else {
-                ESP_LOGI(TAG, "Current is the latest version");
+                Log::Info(TAG, "Current is the latest version");
             }
             // If the force flag is set to 1, the given version is forced to be installed
             cJSON *force = cJSON_GetObjectItem(firmware, "force");
@@ -237,7 +237,7 @@ bool Ota::CheckVersion() {
             }
         }
     } else {
-        ESP_LOGW(TAG, "No firmware section found!");
+        Log::Warn(TAG, "No firmware section found!");
     }
 
     cJSON_Delete(root);
@@ -247,51 +247,51 @@ bool Ota::CheckVersion() {
 void Ota::MarkCurrentVersionValid() {
     auto partition = esp_ota_get_running_partition();
     if (strcmp(partition->label, "factory") == 0) {
-        ESP_LOGI(TAG, "Running from factory partition, skipping");
+        Log::Info(TAG, "Running from factory partition, skipping");
         return;
     }
 
-    ESP_LOGI(TAG, "Running partition: %s", partition->label);
+    Log::Info(TAG, "Running partition: %s", partition->label);
     esp_ota_img_states_t state;
     if (esp_ota_get_state_partition(partition, &state) != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to get state of partition");
+        Log::Error(TAG, "Failed to get state of partition");
         return;
     }
 
     if (state == ESP_OTA_IMG_PENDING_VERIFY) {
-        ESP_LOGI(TAG, "Marking firmware as valid");
+        Log::Info(TAG, "Marking firmware as valid");
         esp_ota_mark_app_valid_cancel_rollback();
     }
 }
 
 bool Ota::Upgrade(const std::string& firmware_url) {
-    ESP_LOGI(TAG, "Upgrading firmware from %s", firmware_url.c_str());
+    Log::Info(TAG, "Upgrading firmware from %s", firmware_url.c_str());
     esp_ota_handle_t update_handle = 0;
     auto update_partition = esp_ota_get_next_update_partition(NULL);
     if (update_partition == NULL) {
-        ESP_LOGE(TAG, "Failed to get update partition");
+        Log::Error(TAG, "Failed to get update partition");
         return false;
     }
 
-    ESP_LOGI(TAG, "Writing to partition %s at offset 0x%lx", update_partition->label, update_partition->address);
+    Log::Info(TAG, "Writing to partition %s at offset 0x%lx", update_partition->label, update_partition->address);
     bool image_header_checked = false;
     std::string image_header;
 
     auto http = std::unique_ptr<HTTPClient>(SetupHttp());
     if (!http->begin(String(firmware_url.c_str()))) {
-        ESP_LOGE(TAG, "Failed to open HTTP connection");
+        Log::Error(TAG, "Failed to open HTTP connection");
         return false;
     }
 
     int status_code = http->GET();
     if (status_code != 200) {
-        ESP_LOGE(TAG, "Failed to get firmware, status code: %d", status_code);
+        Log::Error(TAG, "Failed to get firmware, status code: %d", status_code);
         return false;
     }
 
     size_t content_length = http->getSize();
     if (content_length == 0) {
-        ESP_LOGE(TAG, "Failed to get content length");
+        Log::Error(TAG, "Failed to get content length");
         return false;
     }
 
@@ -303,7 +303,7 @@ bool Ota::Upgrade(const std::string& firmware_url) {
     while (true) {
         int ret = stream->readBytes(buffer, sizeof(buffer));
         if (ret < 0) {
-            ESP_LOGE(TAG, "Failed to read HTTP data: %s", esp_err_to_name(ret));
+            Log::Error(TAG, "Failed to read HTTP data: %s", esp_err_to_name(ret));
             return false;
         }
 
@@ -312,7 +312,7 @@ bool Ota::Upgrade(const std::string& firmware_url) {
         total_read += ret;
         if (esp_timer_get_time() - last_calc_time >= 1000000 || ret == 0) {
             size_t progress = total_read * 100 / content_length;
-            ESP_LOGI(TAG, "Progress: %u%% (%u/%u), Speed: %uB/s", progress, total_read, content_length, recent_read);
+            Log::Info(TAG, "Progress: %u%% (%u/%u), Speed: %uB/s", progress, total_read, content_length, recent_read);
             if (upgrade_callback_) {
                 upgrade_callback_(progress, recent_read);
             }
@@ -329,17 +329,17 @@ bool Ota::Upgrade(const std::string& firmware_url) {
         //     if (image_header.size() >= sizeof(esp_image_header_t) + sizeof(esp_image_segment_header_t) + sizeof(esp_app_desc_t)) {
         //         esp_app_desc_t new_app_info;
         //         memcpy(&new_app_info, image_header.data() + sizeof(esp_image_header_t) + sizeof(esp_image_segment_header_t), sizeof(esp_app_desc_t));
-        //         ESP_LOGI(TAG, "New firmware version: %s", new_app_info.version);
+        //         Log::Info(TAG, "New firmware version: %s", new_app_info.version);
 
         //         auto current_version = esp_app_get_description()->version;
         //         if (memcmp(new_app_info.version, current_version, sizeof(new_app_info.version)) == 0) {
-        //             ESP_LOGE(TAG, "Firmware version is the same, skipping upgrade");
+        //             Log::Error(TAG, "Firmware version is the same, skipping upgrade");
         //             return false;
         //         }
 
         //         if (esp_ota_begin(update_partition, OTA_WITH_SEQUENTIAL_WRITES, &update_handle)) {
         //             esp_ota_abort(update_handle);
-        //             ESP_LOGE(TAG, "Failed to begin OTA");
+        //             Log::Error(TAG, "Failed to begin OTA");
         //             return false;
         //         }
 
@@ -349,7 +349,7 @@ bool Ota::Upgrade(const std::string& firmware_url) {
         // }
         auto err = esp_ota_write(update_handle, buffer, ret);
         if (err != ESP_OK) {
-            ESP_LOGE(TAG, "Failed to write OTA data: %s", esp_err_to_name(err));
+            Log::Error(TAG, "Failed to write OTA data: %s", esp_err_to_name(err));
             esp_ota_abort(update_handle);
             return false;
         }
@@ -359,20 +359,20 @@ bool Ota::Upgrade(const std::string& firmware_url) {
     esp_err_t err = esp_ota_end(update_handle);
     if (err != ESP_OK) {
         if (err == ESP_ERR_OTA_VALIDATE_FAILED) {
-            ESP_LOGE(TAG, "Image validation failed, image is corrupted");
+            Log::Error(TAG, "Image validation failed, image is corrupted");
         } else {
-            ESP_LOGE(TAG, "Failed to end OTA: %s", esp_err_to_name(err));
+            Log::Error(TAG, "Failed to end OTA: %s", esp_err_to_name(err));
         }
         return false;
     }
 
     err = esp_ota_set_boot_partition(update_partition);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to set boot partition: %s", esp_err_to_name(err));
+        Log::Error(TAG, "Failed to set boot partition: %s", esp_err_to_name(err));
         return false;
     }
 
-    ESP_LOGI(TAG, "Firmware upgrade successful");
+    Log::Info(TAG, "Firmware upgrade successful");
     return true;
 }
 
@@ -420,7 +420,7 @@ std::string Ota::GetActivationPayload() {
     // 使用Key0计算HMAC
     esp_err_t ret = esp_hmac_calculate(HMAC_KEY0, (uint8_t*)activation_challenge_.data(), activation_challenge_.size(), hmac_result);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "HMAC calculation failed: %s", esp_err_to_name(ret));
+        Log::Error(TAG, "HMAC calculation failed: %s", esp_err_to_name(ret));
         return "{}";
     }
 
@@ -441,13 +441,13 @@ std::string Ota::GetActivationPayload() {
     cJSON_free(json_str);
     cJSON_Delete(payload);
 
-    ESP_LOGI(TAG, "Activation payload: %s", json.c_str());
+    Log::Info(TAG, "Activation payload: %s", json.c_str());
     return json;
 }
 
 esp_err_t Ota::Activate() {
     if (!has_activation_challenge_) {
-        ESP_LOGW(TAG, "No activation challenge found");
+        Log::Warn(TAG, "No activation challenge found");
         return ESP_FAIL;
     }
 
@@ -463,7 +463,7 @@ esp_err_t Ota::Activate() {
     std::string data = GetActivationPayload();
 
     if (!http->begin(String(url.c_str()))) {
-        ESP_LOGE(TAG, "Failed to open HTTP connection");
+        Log::Error(TAG, "Failed to open HTTP connection");
         return ESP_FAIL;
     }
     
@@ -472,11 +472,11 @@ esp_err_t Ota::Activate() {
         return ESP_ERR_TIMEOUT;
     }
     if (status_code != 200) {
-        ESP_LOGE(TAG, "Failed to activate, code: %d, body: %s", status_code, http->getString().c_str());
+        Log::Error(TAG, "Failed to activate, code: %d, body: %s", status_code, http->getString().c_str());
         return ESP_FAIL;
     }
 
-    ESP_LOGI(TAG, "Activation successful");
+    Log::Info(TAG, "Activation successful");
     return ESP_OK;
 }
 

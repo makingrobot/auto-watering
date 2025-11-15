@@ -5,7 +5,7 @@
  * Author: Billy Zhang（billy_zh@126.com）
  */
 #include "i2c_device.h"
-#include <esp_log.h>
+#include "src/sys/log.h"
 
 #define TAG "I2cDevice"
 

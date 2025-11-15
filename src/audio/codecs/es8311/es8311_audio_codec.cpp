@@ -7,7 +7,7 @@
 #if CONFIG_USE_AUDIO_ES8311==1
 
 #include "es8311_audio_codec.h"
-#include <esp_log.h>
+#include "src/sys/log.h"
 
 #define TAG "Es8311AudioCodec"
 
@@ -59,7 +59,7 @@ Es8311AudioCodec::Es8311AudioCodec(void* i2c_master_handle, i2c_port_t i2c_port,
     codec_if_ = es8311_codec_new(&es8311_cfg);
     assert(codec_if_ != NULL);
 
-    ESP_LOGI(TAG, "Es8311AudioCodec initialized");
+    Log::Info(TAG, "Es8311AudioCodec initialized");
 }
 
 Es8311AudioCodec::~Es8311AudioCodec() {
@@ -154,7 +154,7 @@ void Es8311AudioCodec::CreateDuplexChannels(gpio_num_t mclk, gpio_num_t bclk, gp
 
     ESP_ERROR_CHECK(i2s_channel_init_std_mode(tx_handle_, &std_cfg));
     ESP_ERROR_CHECK(i2s_channel_init_std_mode(rx_handle_, &std_cfg));
-    ESP_LOGI(TAG, "Duplex channels created");
+    Log::Info(TAG, "Duplex channels created");
 }
 
 void Es8311AudioCodec::SetOutputVolume(int volume) {

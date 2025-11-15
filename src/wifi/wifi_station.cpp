@@ -7,10 +7,10 @@
 #include "wifi_station.h"
 
 #include <WiFi.h>
-#include <esp_log.h>
 #include <esp_mac.h>
 #include <esp_wifi.h>
 #include "ssid_manager.h"
+#include "src/sys/log.h"
 
 #define TAG "WiFiStation"
 
@@ -44,7 +44,7 @@ void WifiStation::Start() {
     std::vector<std::string> ap_list;
 
     for (int i=0; i<n; ++i) {
-        //ESP_LOGD(TAG, "SSID: %s, RSSI: %d, Authmode: %d",
+        //Log::Debug(TAG, "SSID: %s, RSSI: %d, Authmode: %d",
         //    WiFi.SSID(i).c_str(), WiFi.RSSI(i), WiFi.encryptionType(i) );
         ap_list.push_back(std::string(WiFi.SSID(i).c_str()));
     }
@@ -77,10 +77,6 @@ bool WifiStation::WaitForConnected(uint32_t timeout_ms) {
     if (ssid==nullptr) {
         return false;
     }
-
-    // WiFi.onEvent([this]{
-    //     this.
-    // })
 
     // step3: 连接
     WiFi.begin(current_ssid_.c_str(), ssid->password.c_str());

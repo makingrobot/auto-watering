@@ -33,7 +33,7 @@ void* create_board() {
 }
 
 void XPSTEM_S3_ELECTRONIC_SUIT::InitializeI2c() {
-    ESP_LOGI( TAG, "Init I2C ......" );
+    Log::Info( TAG, "Init I2C ......" );
     // Initialize I2C peripheral
     i2c_master_bus_config_t i2c_bus_cfg = {
         .i2c_port = I2C_NUM_0,
@@ -51,7 +51,7 @@ void XPSTEM_S3_ELECTRONIC_SUIT::InitializeI2c() {
 }
 
 void XPSTEM_S3_ELECTRONIC_SUIT::InitializePowerSaveTimer() {
-    ESP_LOGI( TAG, "Init power save timer ......" );
+    Log::Info( TAG, "Init power save timer ......" );
     power_save_timer_ = new PowerSaveTimer(-1, 180, 900);
     power_save_timer_->OnEnterSleepMode([this]() {
         EnterSleepMode();
@@ -67,15 +67,15 @@ void XPSTEM_S3_ELECTRONIC_SUIT::InitializePowerSaveTimer() {
 }
 
 void XPSTEM_S3_ELECTRONIC_SUIT::InitializeDisplay() {
-    ESP_LOGI( TAG, "Init lcd display ......" );
+    Log::Info( TAG, "Init lcd display ......" );
 
 #if CONFIG_USE_LCD_PANEL==1
-    ESP_LOGI( TAG, "Create st7796 driver." );
+    Log::Info( TAG, "Create st7796 driver." );
     LcdDriver* driver = new ST7796Driver(DISPLAY_WIDTH, DISPLAY_HEIGHT,
                                     DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY, 
                                     DISPLAY_OFFSET_X, DISPLAY_OFFSET_Y);
                                     
-    ESP_LOGI( TAG, "Init st7796 on spi mode." );
+    Log::Info( TAG, "Init st7796 on spi mode." );
     driver->InitSpi(SPI3_HOST, DISPLAY_SPI_MODE, DISPLAY_CS_PIN, DISPLAY_DC_PIN, DISPLAY_RST_PIN, 
         DISPLAY_MOSI_PIN, DISPLAY_MISO_PIN, DISPLAY_SCK_PIN, DISPLAY_RGB_ORDER, DISPLAY_INVERT_COLOR);
 
@@ -121,37 +121,20 @@ void XPSTEM_S3_ELECTRONIC_SUIT::I2cDetect() {
 }
 
 void XPSTEM_S3_ELECTRONIC_SUIT::InitializeButtons() {
-//     ESP_LOGI( TAG, "Init button ......" );
-//     //配置 GPIO
-//     gpio_config_t io_conf = {
-//         .pin_bit_mask = 1ULL << BUILTIN_LED_PIN,  // 设置需要配置的 GPIO 引脚
-//         .mode = GPIO_MODE_OUTPUT,           // 设置为输出模式
-//         .pull_up_en = GPIO_PULLUP_DISABLE,  // 禁用上拉
-//         .pull_down_en = GPIO_PULLDOWN_DISABLE,  // 禁用下拉
-//         .intr_type = GPIO_INTR_DISABLE      // 禁用中断
-//     };
-//     gpio_config(&io_conf);  // 应用配置
+    Log::Info( TAG, "Init button ......" );
 
-//     boot_button_ = new Button(BOOT_BUTTON_PIN);
-//     boot_button_->OnClick([this]() {
-//         GetLed()->BlinkOnce();  // 闪烁1次
-//         // do something.
-//         auto& app = Application::GetInstance();
-//         app.ToggleWorkState();
-//     });
+    boot_button_ = new Button(kBootButton, BUTTON_0_PIN);
+    boot_button_->OnClick([this]() {
+        OnPhysicalButtonEvent(kBootButton, ButtonAction::Click);
+    });
 
-//     boot_button_->OnDoubleClick([this]() {
-//         auto& app = Application::GetInstance();
-//         app.Shutdown();
-
-//         ESP_LOGI( TAG, "Entering deep sleep mode");
-//         GetLed()->TurnOff();
-//         esp_deep_sleep_start();
-//     });
+    boot_button_->OnDoubleClick([this]() {
+        OnPhysicalButtonEvent(kBootButton, ButtonAction::DoubleClick);
+    });
 }
 
 void XPSTEM_S3_ELECTRONIC_SUIT::InitializeFt6336TouchPad() {
-    ESP_LOGI( TAG, "Init FT6336 touch ......" );
+    Log::Info( TAG, "Init FT6336 touch ......" );
     ft6336_ = new Ft6336(i2c_bus_, TOUCH_FT6336_ADDR);
     ft6336_->OnTouched([this](const TouchPoint_t& tp) {
         OnDisplayTouchEvent(tp);
@@ -160,29 +143,29 @@ void XPSTEM_S3_ELECTRONIC_SUIT::InitializeFt6336TouchPad() {
 }
 
 void XPSTEM_S3_ELECTRONIC_SUIT::InitializeFileSystem() {
-    // ESP_LOGI( TAG, "Init SD MMC ......" );
+    // Log::Info( TAG, "Init SD MMC ......" );
 
     // SPIClass *spi = new SPIClass(3); //SPI3_HOST
     // if (!SD.begin(2, *spi)) {
-    //     ESP_LOGW(TAG, "SD Card mount failed!");
+    //     Log::Warn(TAG, "SD Card mount failed!");
     //     return;
     // }
 
     // uint8_t cardType = SD.cardType();
     // if (cardType == CARD_NONE) {
-    //     ESP_LOGW(TAG, "No SD_MMC card attached");
+    //     Log::Warn(TAG, "No SD_MMC card attached");
     //     return;
     // }
 
     // uint64_t cardSize = SD.cardSize() / (1024 * 1024);
-    // ESP_LOGI(TAG, "SD_MMC Card Size: %lluMB\n", cardSize);
+    // Log::Info(TAG, "SD_MMC Card Size: %lluMB\n", cardSize);
 
     // file_system_ = new FileSystem(SD);
 }
 
 XPSTEM_S3_ELECTRONIC_SUIT::XPSTEM_S3_ELECTRONIC_SUIT() : WifiBoard() {
 
-    ESP_LOGI(TAG, "===== Create Board ...... =====");
+    Log::Info(TAG, "===== Create Board ...... =====");
 
     InitializeI2c();
     //I2cDetect();
@@ -199,11 +182,11 @@ XPSTEM_S3_ELECTRONIC_SUIT::XPSTEM_S3_ELECTRONIC_SUIT() : WifiBoard() {
 
     //time_ = new NTPTime();
 
-    ESP_LOGI( TAG, "Init backlight ......" );
+    Log::Info( TAG, "Init backlight ......" );
     backlight_ = new PwmBacklight(DISPLAY_LED_PIN, DISPLAY_BACKLIGHT_OUTPUT_INVERT);
     backlight_->RestoreBrightness();
 
-    ESP_LOGI( TAG, "Init audio codec ......" );
+    Log::Info( TAG, "Init audio codec ......" );
     /* 使用ES8311 驱动 */
     audio_codec_ = new NoAudioCodecSimplex(
         AUDIO_INPUT_SAMPLE_RATE, 
@@ -215,7 +198,7 @@ XPSTEM_S3_ELECTRONIC_SUIT::XPSTEM_S3_ELECTRONIC_SUIT() : WifiBoard() {
         AUDIO_MIC_WS_PIN, 
         AUDIO_MIC_DAT_PIN);
 
-    ESP_LOGI( TAG, "===== Board config completed. =====");
+    Log::Info( TAG, "===== Board config completed. =====");
 }
 
 XPSTEM_S3_ELECTRONIC_SUIT::~XPSTEM_S3_ELECTRONIC_SUIT() {

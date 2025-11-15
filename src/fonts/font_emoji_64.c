@@ -2,7 +2,6 @@
 #if CONFIG_USE_LVGL==1
 
 #include "lvgl.h"
-#include <esp_log.h>
 
 extern const lv_image_dsc_t emoji_1f636_64; // neutral
 extern const lv_image_dsc_t emoji_1f642_64; // happy
@@ -70,7 +69,6 @@ const lv_font_t* font_emoji_64_init(void) {
     if (font == NULL) {
         font = lv_imgfont_create(64, get_imgfont_path, NULL);
         if (font == NULL) {
-            LV_LOG_ERROR("Failed to allocate memory for emoji font");
             return NULL;
         }
         font->base_line = 0;

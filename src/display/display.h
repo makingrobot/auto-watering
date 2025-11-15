@@ -9,9 +9,9 @@
 
 #include <string>
 #include <chrono>
-#include <esp_log.h>
 
 #include "config.h"
+#include "src/sys/log.h"
 
 class Display {
 public:
@@ -45,7 +45,7 @@ class DisplayLockGuard {
 public:
     DisplayLockGuard(Display *display) : display_(display) {
         if (!display_->Lock(30000)) {
-            ESP_LOGE("Display", "Failed to lock display");
+            Log::Error("Display", "Failed to lock display");
         }
     }
     ~DisplayLockGuard() {

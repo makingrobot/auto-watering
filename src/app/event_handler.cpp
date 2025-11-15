@@ -33,8 +33,8 @@ void EventHandler::ScheduleTask(std::deque<callback_function_t>& tasks) {
         try {
             task();
         } catch (const std::exception& e) {
-            // ESP_LOGE( TAG, "Caught exception: " );
-            // ESP_LOGE( TAG, e.what() );
+            // Log::Error( TAG, "Caught exception: " );
+            // Log::Error( TAG, e.what() );
         }
     }
 }

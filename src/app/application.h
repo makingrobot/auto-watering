@@ -46,8 +46,10 @@ public:
     virtual void ShowWifiConfigHit(std::string ssid, std::string config_url, std::string mac_address);
     virtual bool CanEnterSleepMode();
 
-    virtual bool OnPhysicalButtonEvent(const std::string& button_name, const std::string& event_type);
+    virtual bool OnPhysicalButtonEvent(const std::string& button_name, const ButtonAction action);
     virtual bool OnDisplayTouchEvent(const TouchPoint_t& point);
+    virtual bool OnSensorData(const std::string& sensor_name, int value) { }
+    virtual bool OnSensorData(const std::string& sensor_name, const std::string& sensor_value) { }
 
     const std::string& GetLastErrorMessage() const { return last_error_message_; }
 

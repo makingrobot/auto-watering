@@ -1,5 +1,7 @@
 #include "ntp_time.h"
-#include <esp_log.h>
+
+#include "src/sys/log.h"
+
 #define TAG "NTPTimer"
 
 const char* ntpServer = "ntp1.aliyun.com";
@@ -21,6 +23,6 @@ std::string NTPTime::GetHourMinute() {
 
 void NTPTime::Update() {
     if (!getLocalTime(&time_info_, 50)) { // try 5 times.
-        ESP_LOGI(TAG, "Failed to obtain time.");
+        Log::Info(TAG, "Failed to obtain time.");
     }
 }

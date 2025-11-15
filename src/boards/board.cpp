@@ -6,12 +6,12 @@
  */
 #include "board.h"
 
-#include <esp_log.h>
 #include <esp_ota_ops.h>
 #include <esp_chip_info.h>
 #include <esp_random.h>
 
 #include "board_def.h"
+#include "src/sys/log.h"
 #include "src/sys/settings.h"
 #include "src/sys/system_info.h"
 #include "src/lang/lang_zh_cn.h"
@@ -26,7 +26,7 @@ Board::Board() {
        uuid_ = GenerateUuid();
        settings.SetString("uuid", uuid_);
    }
-   ESP_LOGI( TAG, "UUID=%s SKU=%s", uuid_.c_str(), BOARD_NAME);
+   Log::Info( TAG, "UUID=%s SKU=%s", uuid_.c_str(), BOARD_NAME);
 }
 
 std::string Board::GenerateUuid() {
@@ -82,19 +82,19 @@ void Board::Shutdown() {
     esp_deep_sleep_start();
 }
 
-bool Board::OnPhysicalButtonEvent(const std::string& button_name, const std::string& event_type) {
+bool Board::OnPhysicalButtonEvent(const std::string& button_name, const ButtonAction action) {
 
     Application& app = Application::GetInstance();
-    bool handled = app.OnPhysicalButtonEvent(button_name, event_type);
+    bool handled = app.OnPhysicalButtonEvent(button_name, action);
     if (handled) {
         return true;
     }
 
-    if (strcmp(button_name.c_str(), "boot")==0) {
-        if (strcmp(event_type.c_str(), "double_click") == 0) {
+    if (strcmp(button_name.c_str(), kBootButton)==0) {
+        if (action == ButtonAction::DoubleClick) {
             Shutdown();
 
-            ESP_LOGI( TAG, "Entering deep sleep mode");
+            Log::Info( TAG, "Entering deep sleep mode");
             GetLed()->TurnOff();
             esp_deep_sleep_start();
 

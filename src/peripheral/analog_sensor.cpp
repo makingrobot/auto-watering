@@ -6,7 +6,7 @@
  */
 #include "analog_sensor.h"
 #include <Arduino.h>
-#include <esp_log.h>
+#include "src/sys/log.h"
 
 #define TAG "AnalogSensor"
 
@@ -31,8 +31,8 @@ void AnalogSensor::Start(uint32_t interval) {
         sensor_ticker_->detach();
     }
     
-    sensor_ticker_->attach(1, TickerCallback, this);
-    ESP_LOGI(TAG, "sensor timer started.");
+    sensor_ticker_->attach(interval, TickerCallback, this);
+    Log::Info(TAG, "sensor timer started.");
 }
 
 void AnalogSensor::Stop() {

@@ -14,8 +14,8 @@
 #include <esp_err.h>
 #include <esp_heap_caps.h>
 #include <cstring>
-#include <esp_log.h>
 
+#include "src/sys/log.h"
 #include "src/sys/settings.h"
 #include "src/boards/board.h"
 #include "src/app/device_state.h"
@@ -31,7 +31,7 @@
 LvglDisplay::LvglDisplay(DispDriver* driver, DisplayFonts fonts)
         : driver_(driver), fonts_(fonts) {
             
-    ESP_LOGD(TAG, "LvglDisplay constructor.");
+    Log::Debug(TAG, "LvglDisplay constructor.");
 
     width_ = driver->width();
     height_ = driver->height();
@@ -77,7 +77,7 @@ void LvglDisplay::SetWindow(LvglWindow* window) {
 }
 
 void LvglDisplay::SetupUI() {
-    ESP_LOGI(TAG, "SetupUI ......");
+    Log::Info(TAG, "SetupUI ......");
 
     DisplayLockGuard lock(this);
 
@@ -117,7 +117,7 @@ void LvglDisplay::SetupUI() {
         window_->SetupUI(container_, current_theme_, fonts_);
     }
 
-    ESP_LOGI( TAG, "SetupUI completed." );
+    Log::Info( TAG, "SetupUI completed." );
 }
 
 bool LvglDisplay::Lock(int timeout_ms) {
@@ -137,7 +137,7 @@ void LvglDisplay::SetTheme(const std::string& theme_name) {
         current_theme_ = LIGHT_THEME;
     } else {
         // Invalid theme name, return false
-        ESP_LOGE( TAG, "Invalid theme name: %s", theme_name.c_str());
+        Log::Error( TAG, "Invalid theme name: %s", theme_name.c_str());
         return;
     }
     

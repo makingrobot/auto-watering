@@ -9,10 +9,11 @@
 
 #include "ssd1306_driver.h"
 
-#include <esp_log.h>
 #include <esp_lcd_panel_vendor.h>
 #include <esp_lcd_panel_io.h>
 #include <esp_lcd_panel_ops.h>
+
+#include "src/sys/log.h"
 
 #define TAG "SSD1306Driver"
 
@@ -38,7 +39,7 @@ void SSD1306Driver::InitI2c(i2c_master_bus_handle_t i2c_bus, uint8_t address) {
 
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c_v2(i2c_bus, &io_config, &panel_io_));
 
-    ESP_LOGI(TAG, "Install SSD1306 driver");
+    Log::Info(TAG, "Install SSD1306 driver");
     esp_lcd_panel_dev_config_t panel_config = {};
     panel_config.reset_gpio_num = -1;
     panel_config.bits_per_pixel = 1;
@@ -49,7 +50,7 @@ void SSD1306Driver::InitI2c(i2c_master_bus_handle_t i2c_bus, uint8_t address) {
     panel_config.vendor_config = &ssd1306_config;
 
     ESP_ERROR_CHECK(esp_lcd_new_panel_ssd1306(panel_io_, &panel_config, &panel_));
-    ESP_LOGI(TAG, "SSD1306 driver installed");
+    Log::Info(TAG, "SSD1306 driver installed");
 
     // Reset the display
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_));
@@ -61,7 +62,7 @@ void SSD1306Driver::InitI2c(i2c_master_bus_handle_t i2c_bus, uint8_t address) {
     ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_, mirror_x_, mirror_y_));
     
     // Set the display to on
-    ESP_LOGI(TAG, "Turning display on");
+    LogInfo(TAG, "Turning display on");
     ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_, true));
 
 }

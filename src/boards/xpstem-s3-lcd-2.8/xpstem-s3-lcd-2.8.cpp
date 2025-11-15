@@ -20,7 +20,7 @@ void* create_board() {
 }
 
 void XPSTEM_S3_LCD_2_80::InitializeI2c() {
-    ESP_LOGI( TAG, "Init I2C ......" );
+    Log::Info( TAG, "Init I2C ......" );
     // Initialize I2C peripheral
     i2c_master_bus_config_t i2c_bus_cfg = {
         .i2c_port = I2C_NUM_0,
@@ -38,7 +38,7 @@ void XPSTEM_S3_LCD_2_80::InitializeI2c() {
 }
 
 void XPSTEM_S3_LCD_2_80::InitializePowerSaveTimer() {
-    ESP_LOGI( TAG, "Init power save timer ......" );
+    Log::Info( TAG, "Init power save timer ......" );
     power_save_timer_ = new PowerSaveTimer(-1, 180, 900);
     power_save_timer_->OnEnterSleepMode([this]() {
         EnterSleepMode();
@@ -54,16 +54,16 @@ void XPSTEM_S3_LCD_2_80::InitializePowerSaveTimer() {
 }
 
 void XPSTEM_S3_LCD_2_80::InitializeDisplay() {
-    ESP_LOGI( TAG, "Init lcd display ......" );
+    Log::Info( TAG, "Init lcd display ......" );
 
 #if CONFIG_USE_LCD_PANEL==1
-    ESP_LOGI( TAG, "Create ili9341 driver." );
+    Log::Info( TAG, "Create ili9341 driver." );
     LcdDriver* driver = new ILI9341Driver(DISPLAY_WIDTH, DISPLAY_HEIGHT,
                                     DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY, 
                                     DISPLAY_OFFSET_X, DISPLAY_OFFSET_Y);
 
                                     
-    ESP_LOGI( TAG, "Init ili9341 on spi mode." );
+    Log::Info( TAG, "Init ili9341 on spi mode." );
     driver->InitSpi(SPI3_HOST, DISPLAY_SPI_MODE, DISPLAY_CS_PIN, DISPLAY_DC_PIN, DISPLAY_RST_PIN, 
         DISPLAY_MOSI_PIN, GPIO_NUM_NC, DISPLAY_CLK_PIN, DISPLAY_RGB_ORDER, DISPLAY_INVERT_COLOR);
 
@@ -99,7 +99,7 @@ void XPSTEM_S3_LCD_2_80::I2cDetect() {
 }
 
 void XPSTEM_S3_LCD_2_80::InitializeButtons() {
-    ESP_LOGI( TAG, "Init button ......" );
+    Log::Info( TAG, "Init button ......" );
     //配置 GPIO
     gpio_config_t io_conf = {
         .pin_bit_mask = 1ULL << BUILTIN_LED_PIN,  // 设置需要配置的 GPIO 引脚
@@ -110,18 +110,18 @@ void XPSTEM_S3_LCD_2_80::InitializeButtons() {
     };
     gpio_config(&io_conf);  // 应用配置
 
-    boot_button_ = new Button(BOOT_BUTTON_PIN);
+    boot_button_ = new Button(kBootButton, BOOT_BUTTON_PIN);
     boot_button_->OnClick([this]() {
-        OnPhysicalButtonEvent("boot", "click");
+        OnPhysicalButtonEvent(kBootButton, ButtonAction::Click);
     });
 
     boot_button_->OnDoubleClick([this]() {
-        OnPhysicalButtonEvent("boot", "double_click");
+        OnPhysicalButtonEvent(kBootButton, ButtonAction::DoubleClick);
     });
 }
 
 void XPSTEM_S3_LCD_2_80::InitializeFt6336TouchPad() {
-    ESP_LOGI( TAG, "Init FT6336 touch ......" );
+    Log::Info( TAG, "Init FT6336 touch ......" );
     ft6336_ = new Ft6336(i2c_bus_, TOUCH_FT6336_ADDR);
     ft6336_->OnTouched([this](const TouchPoint_t& tp) {
         OnDisplayTouchEvent(tp);
@@ -130,34 +130,34 @@ void XPSTEM_S3_LCD_2_80::InitializeFt6336TouchPad() {
 }
 
 void XPSTEM_S3_LCD_2_80::InitializeFileSystem() {
-    ESP_LOGI( TAG, "Init SD MMC ......" );
+    Log::Info( TAG, "Init SD MMC ......" );
     if (!SD_MMC.setPins(SD_MMC_CLK, SD_MMC_CMD, SD_MMC_D1, SD_MMC_D2, SD_MMC_D3, SD_MMC_D4)) {
-        ESP_LOGW(TAG, "Set SD MMC pin change failed!");
+        Log::Warn(TAG, "Set SD MMC pin change failed!");
         return;
     }
 
     if (!SD_MMC.begin()) {
-        ESP_LOGW(TAG, "SD Card mount failed!");
+        Log::Warn(TAG, "SD Card mount failed!");
         return;
     }
 
     uint8_t cardType = SD_MMC.cardType();
     if (cardType == CARD_NONE) {
-        ESP_LOGW(TAG, "No SD_MMC card attached");
+        Log::Warn(TAG, "No SD_MMC card attached");
         return;
     }
 
     uint64_t cardSize = SD_MMC.cardSize() / (1024 * 1024);
-    ESP_LOGI(TAG, "SD_MMC Card Size: %lluMB\n", cardSize);
+    Log::Info(TAG, "SD_MMC Card Size: %lluMB\n", cardSize);
 
     file_system_ = new FileSystem(SD_MMC);
 }
 
 XPSTEM_S3_LCD_2_80::XPSTEM_S3_LCD_2_80() : WifiBoard() {
 
-    ESP_LOGI(TAG, "===== Create Board ...... =====");
+    Log::Info(TAG, "===== Create Board ...... =====");
 
-    ESP_LOGI( TAG, "Init led ......" );
+    Log::Info( TAG, "Init led ......" );
     led_ = new Ws2812Led(BUILTIN_LED_PIN);
 
     InitializeI2c();
@@ -167,13 +167,13 @@ XPSTEM_S3_LCD_2_80::XPSTEM_S3_LCD_2_80() : WifiBoard() {
 
     InitializeDisplay();
 
-    ESP_LOGI( TAG, "Init backlight ......" );
+    Log::Info( TAG, "Init backlight ......" );
     backlight_ = new PwmBacklight(DISPLAY_BACKLIGHT_PIN, DISPLAY_BACKLIGHT_OUTPUT_INVERT);
     backlight_->RestoreBrightness();
 
     InitializeFt6336TouchPad();
 
-    ESP_LOGI( TAG, "Init audio codec ......" );
+    Log::Info( TAG, "Init audio codec ......" );
     /* 使用ES8311 驱动 */
     audio_codec_ = new Es8311AudioCodec(
         i2c_bus_, 
@@ -194,12 +194,12 @@ XPSTEM_S3_LCD_2_80::XPSTEM_S3_LCD_2_80() : WifiBoard() {
 
     //time_ = new NTPTime();
 
-    ESP_LOGI( TAG, "Init battery monitor ......" );
+    Log::Info( TAG, "Init battery monitor ......" );
     battery_monitor_ = new AdcBatteryMonitor(BATTERY_ADC_PIN, BATTERY_ADC_UNIT, BATTERY_ADC_CHANNEL, 200000, 200000);
 
     InitializePowerSaveTimer();
 
-    ESP_LOGI( TAG, "===== Board config completed. =====");
+    Log::Info( TAG, "===== Board config completed. =====");
 }
 
 XPSTEM_S3_LCD_2_80::~XPSTEM_S3_LCD_2_80() {

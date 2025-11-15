@@ -6,10 +6,9 @@
  */
 #include "backlight.h"
 
-#include <esp_log.h>
 #include <driver/ledc.h>
-#include <esp_log.h>
 
+#include "src/sys/log.h"
 #include "src/sys/settings.h"
 
 #define TAG "Backlight"
@@ -33,7 +32,7 @@ void Backlight::RestoreBrightness() {
     
     // 检查亮度值是否为0或过小，设置默认值
     if (saved_brightness <= 0) {
-        ESP_LOGW( TAG, "Brightness value (%d) is too small, setting to default (10)", saved_brightness);
+        Log::Warn( TAG, "Brightness value (%d) is too small, setting to default (10)", saved_brightness);
         saved_brightness = 10;  // 设置一个较低的默认值
     }
     
@@ -63,15 +62,15 @@ void Backlight::SetBrightness(uint8_t brightness, bool permanent) {
 
     // 启动定时器，每 5ms 更新一次
     transition_ticker_->attach_ms(5, TickerCallback, this);
-    ESP_LOGI( TAG, "transition timer started" );
+    Log::Info( TAG, "transition timer started" );
         
-    ESP_LOGI(TAG, "Set brightness to %d", brightness);
+    Log::Info(TAG, "Set brightness to %d", brightness);
 }
 
 void Backlight::OnTransitionTimer() {
     if (brightness_ == target_brightness_) {
         transition_ticker_->detach();
-        ESP_LOGI(TAG, "transition timer stopped.");
+        Log::Info(TAG, "transition timer stopped.");
         return;
     }
 
@@ -80,7 +79,7 @@ void Backlight::OnTransitionTimer() {
 
     if (brightness_ == target_brightness_) {
         transition_ticker_->detach();
-        ESP_LOGI(TAG, "transition timer stopped.");
+        Log::Info(TAG, "transition timer stopped.");
     }
 }
 

@@ -8,7 +8,7 @@
 #if APP_DEMO_MP3==1
 
 #include "mp3_window.h"
-#include <esp_log.h>
+#include "src/sys/log.h"
 #include "src/fonts/font_awesome_symbols.h"
 #include "src/lang/lang_zh_cn.h"
 
@@ -16,7 +16,7 @@
 
 Mp3Window::Mp3Window() {
             
-    ESP_LOGD(TAG, "Mp3Window constructor.");
+    Log::Debug(TAG, "Mp3Window constructor.");
 
 }
 
@@ -37,7 +37,7 @@ Mp3Window::~Mp3Window() {
 }
 
 void Mp3Window::SetupUI(lv_obj_t* container, const ThemeColors& theme, const DisplayFonts& fonts) {
-    ESP_LOGI(TAG, "SetupUI ......");
+    Log::Info(TAG, "SetupUI ......");
 
     /* Content */
     content_ = lv_obj_create(container);
@@ -66,7 +66,7 @@ void Mp3Window::SetupUI(lv_obj_t* container, const ThemeColors& theme, const Dis
     lv_obj_set_style_text_align(content_label_, LV_TEXT_ALIGN_CENTER, 0); // 设置文本居中对齐
     lv_obj_set_style_text_color(content_label_, theme.text, 0);
 
-    ESP_LOGI( TAG, "SetupUI completed." );
+    Log::Info( TAG, "SetupUI completed." );
 }
 
 void Mp3Window::SetTheme(const ThemeColors& theme) {
@@ -84,7 +84,7 @@ void Mp3Window::SetTheme(const ThemeColors& theme) {
 
 void Mp3Window::SetTitle(const char* title) {
     if (title_label_ == nullptr) {
-        ESP_LOGW(TAG, "title label not setup.");
+        Log::Warn(TAG, "title label not setup.");
         return;
     }
     lv_label_set_text(title_label_, title);
@@ -92,7 +92,7 @@ void Mp3Window::SetTitle(const char* title) {
 
 void Mp3Window::SetContent(const char* content) {
     if (content_label_ == nullptr) {
-        ESP_LOGW(TAG, "content label not setup.");
+        Log::Warn(TAG, "content label not setup.");
         return;
     }
     lv_label_set_text(content_label_, content);

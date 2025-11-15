@@ -8,7 +8,7 @@
 #if APP_DEMO_U8G2==1
 
 #include "u8g2_application.h"
-#include "esp_log.h"
+#include "src/sys/log.h"
 #include "src/boards/board.h"
 #include "src/lang/lang_zh_cn.h"
 #include "src/display/u8g2_display.h"
