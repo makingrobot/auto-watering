@@ -8,6 +8,7 @@
 #define _WATERING_APPLICATION_H
 
 #include "../application.h"
+#include "mqtt_service.h"
 
 class WateringApplication : public Application {
 public:
@@ -24,8 +25,11 @@ public:
     const std::string& GetAppVersion() const override { return "1.0.0"; }
 
 private:
+    void OnIotMessage(const std::string& topic, const std::string& payload);
     void DoWatering(uint8_t seconds);
-    
+    MqttService *mqtt_service_ = nullptr;
+    int collect_count_ = 0;
+
 };
 
 #endif //_WATERING_APPLICATION_H

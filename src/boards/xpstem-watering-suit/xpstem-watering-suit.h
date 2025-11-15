@@ -6,9 +6,9 @@
 #ifndef _XPSTEM_WATERING_SUIT_H
 #define _XPSTEM_WATERING_SUIT_H
 
-#include <esp_log.h>
 #include <driver/gpio.h>
 
+#include "src/sys/log.h"
 #include "src/boards/button.h"
 #include "src/app/application.h"
 #include "src/boards/wifi_board.h"
@@ -20,10 +20,12 @@
 class XPSTEM_WATERING_SUIT : public WifiBoard {
 private:
     Button* boot_button_ = nullptr;
+    Button* manual_button_ = nullptr;
     Display* display_ = nullptr;
     Led* led_ = nullptr;
 
     void InitializeDisplay();
+    void InitializeButtons();
     void InitializePeripherals();
 
 public:

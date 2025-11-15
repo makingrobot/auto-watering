@@ -25,7 +25,7 @@ void* create_board() {
 
 XPSTEM_WATERING_SUIT::XPSTEM_WATERING_SUIT() : WifiBoard() {
 
-    ESP_LOGI(TAG, "===== Create Board ...... =====");
+    Log::Info(TAG, "===== Create Board ...... =====");
 
     led_ = new GpioLed(BUILTIN_LED_PIN);
 
@@ -33,12 +33,12 @@ XPSTEM_WATERING_SUIT::XPSTEM_WATERING_SUIT() : WifiBoard() {
 
     InitializePeripherals();
 
-    ESP_LOGI( TAG, "===== Board config completed. =====");
+    Log::Info( TAG, "===== Board config completed. =====");
 }
 
 void XPSTEM_WATERING_SUIT::InitializeDisplay() {
 
-    ESP_LOGI( TAG, "Init ssd1306 display ......" );
+    Log::Info( TAG, "Init ssd1306 display ......" );
     U8G2 *u8g2 = new U8G2_SSD1306_128X64_NONAME_F_SW_I2C(U8G2_R0, 
         /* i2c clk */ I2C_SCL_PIN,
         /* i2c data */ I2C_SDA_PIN,
@@ -50,8 +50,28 @@ void XPSTEM_WATERING_SUIT::InitializeDisplay() {
 
 }
 
+void XPSTEM_WATERING_SUIT::InitializeButtons() {
+    Log::Info( TAG, "Init buttons ......");
+
+    boot_button_ = new Button(kBootButton, BOOT_BUTTON_PIN);
+    boot_button_->OnClick([this]() {
+        OnPhysicalButtonEvent(kBootButton, ButtonAction::Click);
+    });
+
+    boot_button_->OnDoubleClick([this]() {
+        OnPhysicalButtonEvent(kBootButton, ButtonAction::DoubleClick);
+    });
+
+    manual_button_ = new Button(kManualButton, MANUAL_BUTTON_PIN);
+    boot_button_->OnClick([this]() {
+        OnPhysicalButtonEvent(kManualButton, ButtonAction::Click);
+    });
+}
+
 void XPSTEM_WATERING_SUIT::InitializePeripherals() {
     
+    Log::Info( TAG, "Init peripherals ......");
+
     AnalogSensor* soil_moisture = new AnalogSensor(SOIL_MOISTURE_PIN);
     soil_moisture->OnNewData([](int val) {
         auto& app = Application::GetInstance();
