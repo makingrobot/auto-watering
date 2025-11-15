@@ -63,6 +63,10 @@ public:
 protected:
     virtual void OnStateChanged();
 
+#if CONFIG_OTA_ENABLE==1
+    virtual void CheckNewVersion();
+#endif
+
     DeviceState* device_state_ = const_cast<DeviceState*>(kDeviceStateUnknown);
     std::string last_error_message_;
     EventGroupHandle_t event_group_;
@@ -79,10 +83,6 @@ private:
 
 #if CONFIG_CLOCK_ENABLE==1
     Ticker* clock_ticker_;
-#endif
-
-#if CONFIG_OTA_ENABLE==1
-    void CheckNewVersion(Ota& ota);
 #endif
 
 };

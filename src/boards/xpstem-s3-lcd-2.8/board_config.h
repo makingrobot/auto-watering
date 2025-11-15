@@ -106,16 +106,6 @@
 #define CONFIG_USE_LED_WS2812               1
 
 
-//////////////////////////////////////////////////////////////////////////////////
-// 特性
-
-#define CONFIG_WIFI_CONFIGURE_ENABLE        1  // WIFI配置
-#define CONFIG_CLOCK_ENABLE                 1  // 时钟（刷新界面）
-#define CONFIG_OTA_ENABLE                   1  // OTA
-
-#define CONFIG_OTA_URL                      "http://xiaozhi.xpstem.com/xiaozhi/ota/"
-
-
 #endif //_BOARD_CONFIG_H
 
 #endif

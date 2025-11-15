@@ -89,13 +89,11 @@ void Application::Start() {
 #if CONFIG_WIFI_CONFIGURE_ENABLE==1    
     /* Wait for the network to be ready */
     WifiBoard* wifi_board = static_cast<WifiBoard *>(&board);
-    wifi_board->StartNetwork();
+    wifi_board->Configure();
 #endif
 
 #if CONFIG_OTA_ENABLE==1
-    // Check for new firmware version or get the MQTT broker address
-    Ota ota;
-    CheckNewVersion(ota);
+    CheckNewVersion();
 #endif
 
     SetDeviceState(kDeviceStateIdle);
@@ -264,12 +262,19 @@ void Application::Reboot() {
 }
 
 #if CONFIG_OTA_ENABLE==1
-void Application::CheckNewVersion(Ota& ota) {
+void Application::CheckNewVersion() {
+    
+    auto& board = Board::GetInstance();
+    WifiBoard* wifi_board = static_cast<WifiBoard *>(&board);
+    wifi_board->StartNetwork();
+    
+    // Check for new firmware version or get the MQTT broker address
+    Ota ota;
+
     const int MAX_RETRY = 10;
     int retry_count = 0;
     int retry_delay = 10; // 初始重试延迟为10秒
 
-    auto& board = Board::GetInstance();
     while (true) {
         //SetDeviceState(kDeviceStateActivating);
         auto display = board.GetDisplay();

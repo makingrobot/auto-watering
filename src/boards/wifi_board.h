@@ -25,10 +25,11 @@ public:
     virtual void SetPowerSaveMode(bool enabled) override;
     virtual const char* GetNetworkStateIconName() override;
 
+    virtual void StartNetwork();
     virtual void StartNetwork(const std::string& ssid, const std::string& password);
 
 #if CONFIG_WIFI_CONFIGURE_ENABLE==1
-    virtual void StartNetwork();
+    virtual void Configure();
     virtual void ResetWifiConfiguration();
 #endif
 };

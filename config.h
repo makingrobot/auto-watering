@@ -15,6 +15,16 @@
 #define APP_DEMO_U8G2                       0   // SSD1306 + U8G2 显示DEMO
 #define APP_DEMO_MP3                        0   // MP3播放，需要音频外设
 
+#if APP_DEMO_LCD == 1
+#include "src/app/demo_lcd/app_config.h"
+#elif APP_DEMO_TFT == 1
+#include "src/app/demo_tft/app_config.h"
+#elif APP_DEMO_U8G2 == 1
+#include "src/app/demo_u8g2/app_config.h"
+#elif APP_DEMO_MP3 == 1
+#include "src/app/demo_mp3/app_config.h"
+#endif
+
 
 //////////////////////////////////////////////////////////////////////////////////
 // 主板（只能设置一个为1，其余必须为0）

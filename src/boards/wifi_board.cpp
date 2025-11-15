@@ -68,7 +68,7 @@ void WifiBoard::EnterWifiConfigMode() {
     }
 }
 
-void WifiBoard::StartNetwork() {
+void WifiBoard::Configure() {
     // User can press BOOT button while starting to enter WiFi configuration mode
     if (wifi_config_mode_) {
         EnterWifiConfigMode();
@@ -83,8 +83,29 @@ void WifiBoard::StartNetwork() {
         EnterWifiConfigMode();
         return;
     }
+}
 
+void WifiBoard::ResetWifiConfiguration() {
+    // Set a flag and reboot the device to enter the network configuration mode
+    {
+        Settings settings("wifi", true);
+        settings.SetInt("force_ap", 1);
+    }
+    GetDisplay()->ShowNotification(Lang::Strings::ENTERING_WIFI_CONFIG_MODE);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    // Reboot the device
+    Log::Info( TAG, "重启设备......" );
+    esp_restart();
+}
+#endif //CONFIG_WIFI_CONFIGURE_ENABLE
+
+void WifiBoard::StartNetwork() {
+    
     auto& wifi_station = WifiStation::GetInstance();
+    if (wifi_station.IsConnected()) {
+        return;
+    }
+    
     wifi_station.OnScanBegin([this]() {
         auto display = Board::GetInstance().GetDisplay();
         display->ShowNotification(Lang::Strings::SCANNING_WIFI, 30000);
@@ -114,23 +135,13 @@ void WifiBoard::StartNetwork() {
     }
 }
 
-void WifiBoard::ResetWifiConfiguration() {
-    // Set a flag and reboot the device to enter the network configuration mode
-    {
-        Settings settings("wifi", true);
-        settings.SetInt("force_ap", 1);
-    }
-    GetDisplay()->ShowNotification(Lang::Strings::ENTERING_WIFI_CONFIG_MODE);
-    vTaskDelay(pdMS_TO_TICKS(1000));
-    // Reboot the device
-    Log::Info( TAG, "重启设备......" );
-    esp_restart();
-}
-#endif //CONFIG_WIFI_CONFIGURE_ENABLE
-
 void WifiBoard::StartNetwork(const std::string& ssid, const std::string& password) {
 
     auto& wifi_station = WifiStation::GetInstance();
+    if (wifi_station.IsConnected() && wifi_station.GetSsid()==ssid) {
+        return;
+    }
+    
     wifi_station.OnScanBegin([this]() {
         auto display = Board::GetInstance().GetDisplay();
         display->ShowNotification(Lang::Strings::SCANNING_WIFI, 30000);

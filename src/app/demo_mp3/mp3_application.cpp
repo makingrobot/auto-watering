@@ -11,11 +11,10 @@
 #include "mp3_application.h"
 #include "mp3_state.h"
 #include "src/sys/log.h"
-#include "src/boards/board.h"
+#include "src/boards/wifi_board.h"
 #include "src/display/lvgl_display.h"
 #include "src/audio/audio_codec.h"
 #include "src/lang/lang_zh_cn.h"
-#include "board_def.h"
 
 #define TAG "Mp3Application"
 
@@ -83,12 +82,16 @@ void AudioTask(void *param) {
 void Mp3Application::Start() {
     Application::Start();
 
-    Board& board = Board::GetInstance();
-    AudioCodec* codec = board.GetAudioCodec();
+    // 启动Wifi
+    WifiBoard* board = static_cast<WifiBoard*>(&Board::GetInstance());
+    board->StartNetwork();
+
+    // 设置音频编解码
+    AudioCodec* codec = board->GetAudioCodec();
     codec->Start();
     codec->SetOutputVolume(50);
 
-    audio_ = new Audio(I2C_NUM_1);
+    audio_ = new Audio(I2S_NUM_1);
 
     audio_->setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
     audio_->setVolume(8);  //0-21
