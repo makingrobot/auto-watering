@@ -9,6 +9,10 @@
 
 #include "config.h"
 
+#if __has_include("board_def_ext.h")
+#include "board_def_ext.h"
+#endif
+
 #if BOARD_XPSTEM_S3_LCD_2_80 == 1
 #define BOARD_NAME "xpstem-s3-lcd-2.80"
 #include "src/boards/xpstem-s3-lcd-2.8/xpstem-s3-lcd-2.8.h"

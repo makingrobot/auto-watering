@@ -7,6 +7,10 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
+#if __has_include("config_ext.h")
+#include "config_ext.h"
+#endif
+
 //////////////////////////////////////////////////////////////////////////////////
 // 应用（至多设置一个为1，其余必须为0）
 

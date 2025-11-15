@@ -130,7 +130,7 @@ void WifiBoard::StartNetwork() {
     if (!wifi_station.WaitForConnected(60 * 1000)) {
         wifi_station.Stop();
         wifi_config_mode_ = true;
-        EnterWifiConfigMode();
+        // EnterWifiConfigMode();
         return;
     }
 }
