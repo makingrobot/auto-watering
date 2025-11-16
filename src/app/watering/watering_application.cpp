@@ -7,10 +7,14 @@
 #include <cJSON.h>
 #include "src/sys/log.h"
 #include "src/boards/board.h"
+#include "src/boards/wifi_board.h"
 #include "src/lang/lang_zh_cn.h"
 #include "src/display/u8g2_display.h"
 #include "src/peripheral/digital_actuator.h"
 #include "src/peripheral/analog_sensor.h"
+#include "src/wifi/wifi_station.h"
+#include "src/sys/settings.h"
+#include "src/wifi/wifi_station.h"
 
 #define TAG "WateringApplication"
 
@@ -30,14 +34,21 @@ void WateringApplication::Init() {
     Application::Init();
 
     // do your init.
+    Settings settings("watering", true);
+    iot_broker_ = settings.GetString("iot_broker", "");
+    iot_username_ = settings.GetString("iot_username", "");
+    iot_password_ = settings.GetString("iot_password", "");
+    pump_control_topic_ = settings.GetString("pump_control_topic", "");
+    soil_moilture_topic_ = settings.GetString("soil_moilture_topic", "");
+
     mqtt_service_ = new MqttService();
-    mqtt_service_->SubscribeTopic("pump_control_topic_ctrl", [this](const std::string& payload) {
-        OnIotMessage("pump_control_topic_ctrl", payload);
+    mqtt_service_->SubscribeTopic(pump_control_topic_, [this](const std::string& payload) {
+        OnIotMessage(pump_control_topic_, payload);
     });
 }
 
 void WateringApplication::Start() {
-    //Application::Start();
+    Application::Start();
 
     Board& board = Board::GetInstance();
     board.GetLed()->Blink(-1, 1000);
@@ -72,16 +83,25 @@ bool WateringApplication::OnSensorData(const std::string& sensor_name, int value
     snprintf(buffer, 127, "{\"data\":{\"temp\":%d}}", value);
 
     // 连接WiFi
+    WifiBoard* wifi_board = static_cast<WifiBoard*>(&Board::GetInstance());
+    wifi_board->StartNetwork();
 
     // 连接MQTT
+    if (!mqtt_service_->Connect(iot_broker_, iot_username_, iot_password_)) {
+        // 连接失败
+        //ESP.deepSleep(5 * 60); //5分钟
+        return false;
+    }
 
     // 上传数据
-    mqtt_service_->PublishData("soil_moilture_data", std::string(buffer));
+    mqtt_service_->PublishData(soil_moilture_topic_, std::string(buffer));
 
     // 等待30秒
     vTaskDelay(pdMS_TO_TICKS(30000));
 
     // 关闭连接（省电）
+    mqtt_service_->Disconnect();
+    WifiStation::GetInstance().Stop();
 
     collect_count_++;
     // 已经采集了10次，进入深度睡眠23h
@@ -91,6 +111,7 @@ bool WateringApplication::OnSensorData(const std::string& sensor_name, int value
         //    sleepSeconds<3600 ? "分钟" : "小时");
         ESP.deepSleep(23 * 3600 * 1e6);
     }
+
     return true;
 }
 

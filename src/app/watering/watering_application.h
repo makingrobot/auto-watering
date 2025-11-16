@@ -9,6 +9,7 @@
 
 #include "../application.h"
 #include "mqtt_service.h"
+#include <string>
 
 class WateringApplication : public Application {
 public:
@@ -29,7 +30,12 @@ private:
     void DoWatering(uint8_t seconds);
     MqttService *mqtt_service_ = nullptr;
     int collect_count_ = 0;
-
+    
+    std::string iot_broker_;
+    std::string iot_username_;
+    std::string iot_password_;
+    std::string pump_control_topic_;
+    std::string soil_moilture_topic_;
 };
 
 #endif //_WATERING_APPLICATION_H
