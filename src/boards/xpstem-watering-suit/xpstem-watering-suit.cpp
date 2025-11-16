@@ -57,14 +57,19 @@ void XPSTEM_WATERING_SUIT::InitializeButtons() {
     boot_button_->OnClick([this]() {
         OnPhysicalButtonEvent(kBootButton, ButtonAction::Click);
     });
-
     boot_button_->OnDoubleClick([this]() {
         OnPhysicalButtonEvent(kBootButton, ButtonAction::DoubleClick);
     });
 
     manual_button_ = new Button(kManualButton, MANUAL_BUTTON_PIN);
-    boot_button_->OnClick([this]() {
+    manual_button_->OnClick([this]() {
         OnPhysicalButtonEvent(kManualButton, ButtonAction::Click);
+    });
+    manual_button_->OnDoubleClick([this]() {
+        OnPhysicalButtonEvent(kManualButton, ButtonAction::DoubleClick);
+    });
+    manual_button_->OnLongPress([this]() {
+        OnPhysicalButtonEvent(kManualButton, ButtonAction::LongPress);
     });
 }
 
@@ -75,7 +80,7 @@ void XPSTEM_WATERING_SUIT::InitializePeripherals() {
     AnalogSensor* soil_moisture = new AnalogSensor(SOIL_MOISTURE_PIN);
     soil_moisture->OnNewData([](int val) {
         auto& app = Application::GetInstance();
-        app.OnSensorData(kSoilMositureName, val);
+        app.OnSensorDataEvent(kSoilMositureName, val);
     });
     AddSensor(kSoilMositureName, soil_moisture);
 

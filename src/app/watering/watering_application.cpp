@@ -18,6 +18,18 @@
 
 #define TAG "WateringApplication"
 
+// 传感器数据采集间隔
+static const int kCollectInterval = 180;  //second
+
+// 上传数据后等待多少秒（等待回调）
+static const int kWaitSecondsAfterPublished = 30;  //second
+
+// 每个周期采集多少次数据
+static const int kTotalCountPerPeriod = 20;
+
+// 深度睡眠时长（23小时）
+static const long kDeepSleepSeconds = 23 * 3600 * 1e6;  //second
+
 void* create_application() {
     return new WateringApplication();
 }
@@ -43,7 +55,7 @@ void WateringApplication::Init() {
 
     mqtt_service_ = new MqttService();
     mqtt_service_->SubscribeTopic(pump_control_topic_, [this](const std::string& payload) {
-        OnIotMessage(pump_control_topic_, payload);
+        OnIotMessageEvent(pump_control_topic_, payload);
     });
 }
 
@@ -58,26 +70,39 @@ void WateringApplication::Start() {
     Sensor* sensor = board.GetSensor(kSoilMositureName);
     if (sensor != nullptr) {
         AnalogSensor* soil_mositure = static_cast<AnalogSensor*>(sensor);
-        soil_mositure->Start(180);  //180s 
+        soil_mositure->Start(kCollectInterval);  //180s 
     }
 }
 
+/**
+ * 物理按键事件处理
+ */
 bool WateringApplication::OnPhysicalButtonEvent(const std::string& button_name, const ButtonAction action) {
 
-     if (strcmp(button_name.c_str(), kManualButton)==0) {
+    Log::Info(TAG, "响应按钮：%s 的操作：%d", button_name, action);
 
-        if (action == ButtonAction::Click) {
+    if (strcmp(button_name.c_str(), kManualButton)==0) {
+
+        if (action == ButtonAction::DoubleClick) {
             DoWatering(5);
             return true;
+        } else if (action == ButtonAction::LongPress) {
+            // todo:
         }
+
     }
 
     return Application::OnPhysicalButtonEvent(button_name, action);
 
 }
 
-bool WateringApplication::OnSensorData(const std::string& sensor_name, int value) {
+/**
+ * 传感器数据事件处理
+ */
+bool WateringApplication::OnSensorDataEvent(const std::string& sensor_name, int value) {
     
+    Log::Info(TAG, "接收到传感器：%s 的数据：%d", sensor_name.c_str(), value);
+
     // 接收到传感器数据、上传IOT
     char buffer[128] = { 0 };
     snprintf(buffer, 127, "{\"data\":{\"temp\":%d}}", value);
@@ -97,7 +122,7 @@ bool WateringApplication::OnSensorData(const std::string& sensor_name, int value
     mqtt_service_->PublishData(soil_moilture_topic_, std::string(buffer));
 
     // 等待30秒
-    vTaskDelay(pdMS_TO_TICKS(30000));
+    vTaskDelay(pdMS_TO_TICKS(kWaitSecondsAfterPublished * 1000));
 
     // 关闭连接（省电）
     mqtt_service_->Disconnect();
@@ -105,17 +130,22 @@ bool WateringApplication::OnSensorData(const std::string& sensor_name, int value
 
     collect_count_++;
     // 已经采集了10次，进入深度睡眠23h
-    if (collect_count_ > 10) {
+    if (collect_count_ > kTotalCountPerPeriod) {
         //Serial.printf("进入深度休眠状态(%d%s)。\n", 
         //    sleepSeconds<3600 ? sleepSeconds/60 : sleepSeconds/3600,
         //    sleepSeconds<3600 ? "分钟" : "小时");
-        ESP.deepSleep(23 * 3600 * 1e6);
+        ESP.deepSleep(kDeepSleepSeconds);
     }
 
     return true;
 }
 
-void WateringApplication::OnIotMessage(const std::string& topic, const std::string& payload) {
+/**
+ * 物联网消息事件处理
+ */
+void WateringApplication::OnIotMessageEvent(const std::string& topic, const std::string& payload) {
+
+    Log::Info(TAG, "处理IoT消息，主题：%s", topic.c_str());
 
     if (strcmp("pump_control_topic_ctrl", topic.c_str()) == 0) {
         // 浇水动作。
@@ -139,10 +169,19 @@ void WateringApplication::DoWatering(uint8_t seconds) {
     Board& board = Board::GetInstance();
     Actuator* actuator = board.GetActuator(kPumpControlName);
     if (actuator != nullptr) {
-        // 打开
+        Log::Info(TAG, "浇水 %d 秒", seconds);
         DigitalActuator* pump_control = static_cast<DigitalActuator*>(actuator);
         pump_control->On();
         vTaskDelay(pdMS_TO_TICKS(seconds * 1000));
         pump_control->Off();
     }
+}
+
+
+void WateringApplication::ShowSensorValue(int value) {
+    
+}
+
+void WateringApplication::ShowStatus(const AppStatus status) {
+
 }
