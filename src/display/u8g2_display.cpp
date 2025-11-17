@@ -32,36 +32,30 @@ void U8g2Display::Unlock() {
     
 }
 
+void U8g2Display::SetWindow(U8g2Window* window) {
+    window_ = window;
+}
+
 void U8g2Display::Init() {
-
+    Log::Info(TAG, "Init ......");
+    
     driver_->begin();
-    driver_->enableUTF8Print();		
-    driver_->setFont(fonts_);
+    if (window_==nullptr) {
+        window_ = new U8g2Window();
+    }
+    window_->Setup(driver_, fonts_);
 }
     
-void U8g2Display::SetStatus(const char* status) {
-    status_ = status;
-
-    Update();
+void U8g2Display::SetStatus(const std::string& status) {
+    if (window_!=nullptr) {
+        window_->SetStatus(status);
+    }
 }
 
-void U8g2Display::SetText(const char* text) {
-    text_ = text;
-
-    Update();
-}
-
-void U8g2Display::Update() {
-    
-    driver_->clearBuffer();
-
-    driver_->setCursor(4, 20);   
-    driver_->print(status_); 
-
-    driver_->setCursor(4, 40); 
-    driver_->print(text_);
-
-    driver_->sendBuffer();
+void U8g2Display::SetText(const std::string& text) {
+    if (window_!=nullptr) {
+        window_->SetText(text);
+    }
 }
 
 #endif //CONFIG_USE_U8G2

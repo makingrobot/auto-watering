@@ -11,6 +11,7 @@
 #define LVGL_TEXT_WINDOW_H
 
 #include "lvgl_window.h"
+#include <string>
 
 class LvglTextWindow : public LvglWindow {
 public:
@@ -20,7 +21,7 @@ public:
     void SetupUI(lv_obj_t* container, const ThemeColors& theme, const DisplayFonts& fonts) override;
     void SetTheme(const ThemeColors& theme) override;
     
-    void SetText(const char* text);
+    void SetText(const std::string& text);
 
 protected:
 
@@ -28,6 +29,8 @@ protected:
     lv_obj_t* content_ = nullptr;
     lv_obj_t* text_label_ = nullptr;
 
+    std::string text_;
+    
 };
 
 #endif //LVGL_TEXT_WINDOW_H

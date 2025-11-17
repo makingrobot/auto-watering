@@ -12,7 +12,7 @@
 
 #include "display.h"
 #include <lvgl.h>
-
+#include <string>
 #include "disp_driver.h"
 #include "lvgl_style.h"
 #include "lvgl_window.h"
@@ -59,7 +59,7 @@ public:
     void ShowNotification(const char* notification, int duration_ms = 3000) override;
     void ShowNotification(const std::string &notification, int duration_ms = 3000) override;
 
-    void SetStatus(const char* status) override;
+    void SetStatus(const std::string& status) override;
     void UpdateStatusBar(bool update_all = false) override;
    
     // Add theme switching function

@@ -9,7 +9,7 @@
 
 #include <string>
 #include <chrono>
-
+#include <string>
 #include "config.h"
 #include "src/sys/log.h"
 
@@ -22,9 +22,9 @@ public:
 
     virtual void ShowNotification(const char* notification, int duration_ms = 3000) { };
     virtual void ShowNotification(const std::string &notification, int duration_ms = 3000) { };
-    virtual void SetStatus(const char* status) { };
+    virtual void SetStatus(const std::string& status) { };
+    virtual void SetText(const std::string& text) { };
     virtual void UpdateStatusBar(bool update_all = false) { };
-    virtual void SetText(const char* text) { };
 
     inline int width() const { return width_; }
     inline int height() const { return height_; }

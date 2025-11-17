@@ -63,15 +63,12 @@ void XPSTEM_IOT_DEVKIT_SUIT::InitializeDisplay() {
 #endif
 
 #if CONFIG_USE_TFT_ESPI==1
-    Log::Info( TAG, "Init ssd1306 display ......" );
+    Log::Info( TAG, "Init ili9341 display ......" );
     /**
      * 注意！！！
      * 请在TFT_eSPI库包内的User_Setup.h中配置引脚
      */
     TFT_eSPI *tft = new TFT_eSPI(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    tft->init();
-    tft->setRotation(3);
-    tft->fillScreen(TFT_BLACK);
     //tft->invertDisplay(DISPLAY_INVERT_COLOR);
     
     //u8g2_font_unifont_t_chinese2

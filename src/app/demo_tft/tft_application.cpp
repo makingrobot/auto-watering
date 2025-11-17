@@ -34,7 +34,7 @@ void TftApplication::Init() {
 }
 
 void TftApplication::Start() {
-    //Application::Start();
+    Application::Start();
 
     Board& board = Board::GetInstance();
     board.GetLed()->Blink(-1, 1000);

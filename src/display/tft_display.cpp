@@ -26,6 +26,10 @@ TftDisplay::~TftDisplay() {
 
 }
 
+void TftDisplay::SetWindow(TftWindow* window) {
+    window_ = window;
+}
+
 bool TftDisplay::Lock(int timeout_ms) {
     return true;
 }
@@ -34,21 +38,25 @@ void TftDisplay::Unlock() {
 }
 
 void TftDisplay::Init() {
+    Log::Info(TAG, "Init ......");
 
-    driver_->setTextColor(TFT_WHITE);
-   
+    driver_->init();
+    if (window_ == nullptr) {
+        window_ = new TftWindow();
+    }
+    window_->Setup(driver_);
 }
     
-void TftDisplay::SetStatus(const char* status) {
-
-    driver_->setCursor(4, 20, 2);
-    driver_->println(status);
+void TftDisplay::SetStatus(const std::string& status) {
+    if (window_!=nullptr) {
+        window_->SetStatus(status);
+    }
 }
 
-void TftDisplay::SetText(const char* text) {
-
-    driver_->setCursor(4, 60, 4);
-    driver_->println(text);
+void TftDisplay::SetText(const std::string& text) {
+    if (window_!=nullptr) {
+        window_->SetText(text);
+    }
 }
 
 #endif //CONFIG_USE_TFT_ESPI

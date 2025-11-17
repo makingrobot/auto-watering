@@ -12,6 +12,8 @@
 
 #include "display.h"
 #include <U8g2lib.h>
+#include <string>
+#include "u8g2_window.h"
 
 class U8g2Display : public Display {
 public:
@@ -20,9 +22,12 @@ public:
 
     void Init() override;
     
-    void SetStatus(const char* status) override;
-    void SetText(const char* text) override;
+    void SetStatus(const std::string& status) override;
+    void SetText(const std::string& text) override;
    
+    void SetWindow(U8g2Window* window);
+    U8g2Window* GetWindow() { return window_; }
+
     const U8G2* u8g2() const { return driver_; }
 
 protected:
@@ -32,11 +37,8 @@ protected:
 private:
     U8G2* driver_ = nullptr;
     const uint8_t* fonts_ = nullptr;
+    U8g2Window* window_ = nullptr;
 
-    const char* status_ = "";
-    const char* text_ = "";
-
-    void Update();
 };
 
 #endif //_U8G2_DISPLAY_H

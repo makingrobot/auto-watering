@@ -12,7 +12,7 @@
 
 #include <lvgl.h>
 #include <Ticker.h>
-
+#include <string>
 #include "lvgl_style.h"
 #include "src/fonts/font_emoji.h"
 
@@ -43,7 +43,7 @@ public:
     void SetupUI(lv_obj_t* container, const ThemeColors& theme, const DisplayFonts& fonts);
     
     void ShowNotification(const char* notification, int duration_ms = 3000);
-    void SetStatus(const char* status);
+    void SetStatus(const std::string& status);
     void Update(bool update_all = false);
    
     virtual void SetTheme(const ThemeColors& theme);
@@ -52,7 +52,7 @@ public:
 
 private:
     const char* GetWifiIcon();
-
+    std::string status_;
 };
 
 #endif // LVGL_STATUSBAR_H

@@ -8,6 +8,7 @@
 #if APP_DEMO_MP3==1
 
 #include <lvgl.h>
+#include <string>
 #include "src/display/lvgl_style.h"
 #include "src/display/lvgl_window.h"
 
@@ -19,8 +20,8 @@ public:
     void SetupUI(lv_obj_t* container, const ThemeColors& theme, const DisplayFonts& fonts) override;
     void SetTheme(const ThemeColors& theme) override;
     
-    void SetTitle(const char* content);
-    void SetContent(const char* content);
+    void SetTitle(const std::string& title);
+    void SetContent(const std::string& content);
 
 protected:
 
@@ -29,6 +30,9 @@ protected:
     lv_obj_t* title_label_ = nullptr;
     lv_obj_t* content_label_ = nullptr;
 
+    std::string title_;
+    std::string content_;
+    
 };
 
 #endif //APP_DEMO_MP3

@@ -82,20 +82,22 @@ void Mp3Window::SetTheme(const ThemeColors& theme) {
     
 }
 
-void Mp3Window::SetTitle(const char* title) {
+void Mp3Window::SetTitle(const std::string& title) {
     if (title_label_ == nullptr) {
         Log::Warn(TAG, "title label not setup.");
         return;
     }
-    lv_label_set_text(title_label_, title);
+    title_ = title;
+    lv_label_set_text(title_label_, title_.c_str());
 }
 
-void Mp3Window::SetContent(const char* content) {
+void Mp3Window::SetContent(const std::string& content) {
     if (content_label_ == nullptr) {
         Log::Warn(TAG, "content label not setup.");
         return;
     }
-    lv_label_set_text(content_label_, content);
+    content_ = content;
+    lv_label_set_text(content_label_, content_.c_str());
 }
 
 #endif //APP_DEMO_MP3

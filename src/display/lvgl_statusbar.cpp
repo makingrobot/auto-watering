@@ -147,11 +147,12 @@ void LvglStatusBar::OnNotificationTimer() {
     lv_obj_clear_flag(status_label_, LV_OBJ_FLAG_HIDDEN);
 }
 
-void LvglStatusBar::SetStatus(const char* status) {
+void LvglStatusBar::SetStatus(const std::string& status) {
     if (status_label_ == nullptr) {
         return;
     }
-    lv_label_set_text(status_label_, status);
+    status_ = status;
+    lv_label_set_text(status_label_, status_.c_str());
     lv_obj_clear_flag(status_label_, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(notification_label_, LV_OBJ_FLAG_HIDDEN);
 }
