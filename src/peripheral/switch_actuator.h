@@ -4,34 +4,34 @@
  * 
  * Author: Billy Zhang（billy_zh@126.com）
  */
-#ifndef _DIGITAL_EXECUTOR_H
-#define _DIGITAL_EXECUTOR_H
+#ifndef _SWITCH_EXECUTOR_H
+#define _SWITCH_EXECUTOR_H
 
 #include <Arduino.h>
 #include "actuator.h"
 
 /**
- * 数字量执行器
+ * 开关类执行器，如继电器，小电机驱动等
  */
-class DigitalActuator : public Actuator {
+class SwitchActuator : public Actuator {
 public:
-    DigitalActuator(gpio_num_t pin, bool output_invert) 
+    SwitchActuator(gpio_num_t pin, bool output_invert) 
             : sensor_pin_(pin), output_invert_(output_invert) { 
 
         pinMode(sensor_pin_, OUTPUT);
         Off();
     }
 
-    virtual ~DigitalActuator() { 
+    virtual ~SwitchActuator() { 
         Off(); 
     };
 
-    void On() {
+    virtual void On() {
         digitalWrite(sensor_pin_, output_invert_ ? 0 : 1);
         state_ = 1; //on
     }
 
-    void Off() {
+    virtual void Off() {
         digitalWrite(sensor_pin_, output_invert_ ? 1 : 0);
         state_ = 0; //off
     }
@@ -43,4 +43,4 @@ private:
 
 };
 
-#endif //_DIGITAL_EXECUTOR_H
+#endif //_SWITCH_EXECUTOR_H
