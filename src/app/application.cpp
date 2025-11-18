@@ -57,7 +57,10 @@ Application::~Application() {
 
 void Application::Init() {
     Log::Info(TAG, "Initialize ......");
-    
+        
+    auto& board = Board::GetInstance();
+    board.GetDisplay()->Init();
+
 #if CONFIG_CLOCK_ENABLE==1
     clock_ticker_ = new Ticker();
 #endif
@@ -74,8 +77,6 @@ void Application::Start() {
 
     auto& board = Board::GetInstance();
     Display* display = board.GetDisplay();
-
-    display->Init();
 
 #if CONFIG_CLOCK_ENABLE==1
     clock_ticker_->attach(1, TickerCallback, this);
@@ -112,14 +113,14 @@ void Application::Alert(const char* status, const char* message, const char* emo
     Log::Info(TAG, "Alert %s: %s [%s]", status, message, emotion);
     auto display = Board::GetInstance().GetDisplay();
     display->SetStatus(status);
-    //display->SetText(message);
+    display->SetText(message);
 }
 
 void Application::DismissAlert() {
     if (device_state_ == kDeviceStateIdle) {
         auto display = Board::GetInstance().GetDisplay();
         display->SetStatus(Lang::Strings::STANDBY);
-        //display->SetText("");
+        display->SetText("");
     }
 }
 
@@ -190,7 +191,7 @@ bool Application::CanEnterSleepMode() {
     return true;
 }
 
-void Application::ShowWifiConfigHit(std::string ssid, std::string config_url, std::string mac_address) {
+void Application::ShowWifiConfigHit(const std::string& ssid, const std::string& config_url, const std::string& mac_address) {
 #if CONFIG_WIFI_CONFIGURE_ENABLE==1
     // 显示 WiFi 配置 AP 的 SSID 和 Web 服务器 URL
     std::string hint = Lang::Strings::CONNECT_TO_HOTSPOT;
@@ -223,6 +224,8 @@ void Application::SetDeviceState(const DeviceState* state) {
     if (state == kDeviceStateUnknown ||
             state == kDeviceStateIdle) {
         display->SetStatus(Lang::Strings::STANDBY);
+    } else if (state == kDeviceStateWifiConfiguring) {
+        display->SetStatus(Lang::Strings::WIFI_CONFIG_MODE);
     } else if (state == kDeviceStateConnecting) {
         display->SetStatus(Lang::Strings::CONNECTING);
     } else if (state == kDeviceStateWorking) {

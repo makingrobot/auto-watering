@@ -20,14 +20,14 @@ public:
 
     virtual void Setup(U8G2* driver, const uint8_t* fonts);
     virtual void SetStatus(const std::string& status);
-    virtual void SetText(const std::string& text);
+    virtual void SetText(uint8_t line, const std::string& text);
    
 private:
     void Update();
 
     U8G2* driver_ = nullptr;
     std::string status_ = "";
-    std::string text_ = "";
+    std::string text_line_[3] = {"", "", ""};
 };
 
 #endif //U8g2_WINDOW_H

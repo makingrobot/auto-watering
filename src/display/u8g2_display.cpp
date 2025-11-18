@@ -54,7 +54,7 @@ void U8g2Display::SetStatus(const std::string& status) {
 
 void U8g2Display::SetText(const std::string& text) {
     if (window_!=nullptr) {
-        window_->SetText(text);
+        window_->SetText(1, text);
     }
 }
 

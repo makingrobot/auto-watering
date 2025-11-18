@@ -43,7 +43,7 @@ public:
     virtual void SetDeviceState(const DeviceState* state);
     virtual void DismissAlert();
     virtual void ToggleWorkState();
-    virtual void ShowWifiConfigHit(std::string ssid, std::string config_url, std::string mac_address);
+    virtual void ShowWifiConfigHit(const std::string& ssid, const std::string& config_url, const std::string& mac_address);
     virtual bool CanEnterSleepMode();
 
     // event.

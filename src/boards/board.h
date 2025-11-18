@@ -45,9 +45,6 @@ protected:
     virtual void ExitSleepMode();
     virtual void Shutdown();
 
-    virtual bool OnPhysicalButtonEvent(const std::string& button_name, const ButtonAction action);
-    virtual bool OnDisplayTouchEvent(const TouchPoint_t& point);
-
     virtual void AddActuator(const std::string& name, Actuator* actuator) {
         actuator_map_[name] = actuator;
     }
@@ -74,6 +71,9 @@ public:
     virtual bool GetBatteryLevel(int &level, bool& charging, bool& discharging) { return false; }
 
     virtual const char* GetNetworkStateIconName() = 0;
+
+    virtual bool OnPhysicalButtonEvent(const std::string& button_name, const ButtonAction action);
+    virtual bool OnDisplayTouchEvent(const TouchPoint_t& point);
 
     virtual Led* GetLed();
 

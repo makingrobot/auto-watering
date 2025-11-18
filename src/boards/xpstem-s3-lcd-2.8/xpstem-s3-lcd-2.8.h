@@ -8,9 +8,9 @@
 #include <driver/i2c_master.h>
 #include <driver/spi_common.h>
 #include <driver/gpio.h>
+#include <OneButton.h>
 
 #include "src/sys/log.h"
-#include "src/boards/button.h"
 #include "src/boards/wifi_board.h"
 #include "src/display/display.h"
 #include "src/display/disp_driver.h"
@@ -29,7 +29,7 @@ class XPSTEM_S3_LCD_2_80 : public WifiBoard {
 private:
     i2c_master_bus_handle_t i2c_bus_;
     Ws2812Led* led_ = nullptr;
-    Button* boot_button_ = nullptr;
+    OneButton* boot_button_ = nullptr;
     PowerSaveTimer* power_save_timer_ = nullptr;
     AdcBatteryMonitor* battery_monitor_ = nullptr;
     DispDriver* disp_driver_ = nullptr;

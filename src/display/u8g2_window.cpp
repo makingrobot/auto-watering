@@ -25,8 +25,12 @@ void U8g2Window::SetStatus(const std::string& status) {
     Update();
 }
 
-void U8g2Window::SetText(const std::string& text) {
-    text_ = text;
+void U8g2Window::SetText(uint8_t line, const std::string& text) {
+    if (line < 1 || line > 3) {
+        return;
+    }
+
+    text_line_[line-1] = text;
 
     Update();
 }
@@ -38,8 +42,12 @@ void U8g2Window::Update() {
     driver_->setCursor(4, 14);   
     driver_->print(status_.c_str()); 
 
-    driver_->setCursor(4, 30); 
-    driver_->print(text_.c_str());
+    driver_->drawLine(0, 16, 128, 16);
+    
+    for (uint8_t i=0; i<3; i++) {
+        driver_->setCursor(4, (i+2)*16-2); 
+        driver_->print(text_line_[i].c_str());
+    }
 
     driver_->sendBuffer();
 }

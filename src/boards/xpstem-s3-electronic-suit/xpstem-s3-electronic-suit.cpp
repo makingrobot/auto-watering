@@ -120,17 +120,29 @@ void XPSTEM_S3_ELECTRONIC_SUIT::I2cDetect() {
     }
 }
 
+void buttonTickTask(void *pvParam) {
+    OneButton* button = static_cast<OneButton *>(pvParam);
+    while (1) {
+        button->tick();
+        vTaskDelay(pdMS_TO_TICKS(2)); //2ms
+    }
+}
+
 void XPSTEM_S3_ELECTRONIC_SUIT::InitializeButtons() {
     Log::Info( TAG, "Init button ......" );
 
-    boot_button_ = new Button(kBootButton, BUTTON_0_PIN);
-    boot_button_->OnClick([this]() {
-        OnPhysicalButtonEvent(kBootButton, ButtonAction::Click);
+    boot_button_ = new Button(BUTTON_0_PIN);
+    boot_button_->attachClick([]() {
+        Board& board = Board::GetInstance();
+        board.OnPhysicalButtonEvent(kBootButton, ButtonAction::Click);
     });
 
-    boot_button_->OnDoubleClick([this]() {
-        OnPhysicalButtonEvent(kBootButton, ButtonAction::DoubleClick);
+    boot_button_->attachDoubleClick([]() {
+        Board& board = Board::GetInstance();
+        board.OnPhysicalButtonEvent(kBootButton, ButtonAction::DoubleClick);
     });
+
+    xTaskCreate(buttonTickTask, "ButtonTick_Task", 2048, boot_button_, 1, NULL);
 }
 
 void XPSTEM_S3_ELECTRONIC_SUIT::InitializeFt6336TouchPad() {

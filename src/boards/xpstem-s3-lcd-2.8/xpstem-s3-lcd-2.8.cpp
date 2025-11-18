@@ -98,26 +98,29 @@ void XPSTEM_S3_LCD_2_80::I2cDetect() {
     }
 }
 
+void buttonTickTask(void *pvParam) {
+    OneButton* button = static_cast<OneButton *>(pvParam);
+    while (1) {
+        button->tick();
+        vTaskDelay(pdMS_TO_TICKS(2)); //2ms
+    }
+}
+
 void XPSTEM_S3_LCD_2_80::InitializeButtons() {
     Log::Info( TAG, "Init button ......" );
-    //配置 GPIO
-    gpio_config_t io_conf = {
-        .pin_bit_mask = 1ULL << BUILTIN_LED_PIN,  // 设置需要配置的 GPIO 引脚
-        .mode = GPIO_MODE_OUTPUT,           // 设置为输出模式
-        .pull_up_en = GPIO_PULLUP_DISABLE,  // 禁用上拉
-        .pull_down_en = GPIO_PULLDOWN_DISABLE,  // 禁用下拉
-        .intr_type = GPIO_INTR_DISABLE      // 禁用中断
-    };
-    gpio_config(&io_conf);  // 应用配置
 
-    boot_button_ = new Button(kBootButton, BOOT_BUTTON_PIN);
-    boot_button_->OnClick([this]() {
-        OnPhysicalButtonEvent(kBootButton, ButtonAction::Click);
+    boot_button_ = new OneButton(BOOT_BUTTON_PIN);
+    boot_button_->attachClick([]() {
+        Board& board = Board::GetInstance();
+        board.OnPhysicalButtonEvent(kBootButton, ButtonAction::Click);
     });
 
-    boot_button_->OnDoubleClick([this]() {
-        OnPhysicalButtonEvent(kBootButton, ButtonAction::DoubleClick);
+    boot_button_->attachDoubleClick([]() {
+        Board& board = Board::GetInstance();
+        board.OnPhysicalButtonEvent(kBootButton, ButtonAction::DoubleClick);
     });
+
+    xTaskCreate(buttonTickTask, "ButtonTick_Task", 2048, boot_button_, 1, NULL);
 }
 
 void XPSTEM_S3_LCD_2_80::InitializeFt6336TouchPad() {

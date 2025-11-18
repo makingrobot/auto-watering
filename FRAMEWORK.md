@@ -43,7 +43,6 @@ Arduino开发环境下适用于ESP32芯片系列开发板的应用开发框架�
 ## 使用的库
 
 ### 集成的库
-* button - 按键库 [链接](https://components.espressif.com/components/espressif/button)
 * esp_codec_dev - 音频编解码库 [链接](https://components.espressif.com/components/espressif/esp_codec_dev)
 * esp_lcd_ili9341 - ILI9341驱动库 [链接](https://components.espressif.com/components/espressif/esp_lcd_ili9341)
 * esp_lcd_st7796 - ST7796 LCD驱动库 [链接](https://components.espressif.com/components/espressif/esp_lcd_st7796)
@@ -65,6 +64,7 @@ Arduino开发环境下适用于ESP32芯片系列开发板的应用开发框架�
 * U8g2 - OLED屏显示开发库
 * TFT_eSPI - TFT-LCD屏显示开发库
 * GFX_Library - TFT-LCD屏显示开发库
+* OneButton - 按键库 
 * ESP32-audioI2S - I2S音频库 （DEMO_MP3使用）
 
 ## 架构预览
