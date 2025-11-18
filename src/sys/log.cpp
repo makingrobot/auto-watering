@@ -21,7 +21,7 @@ void Log::Info(const char* tag, const char* format, ...) {
 #if CONFIG_USE_ESP_LOG==1
     ESP_LOGI(tag, fmt_str.c_str());
 #else
-    Serial.println(String("[")+String(tag)+String("] ") + fmt_str);
+    Serial.printf("%d [%s] %s\n", millis(), tag, fmt_str.c_str());
 #endif
 }
 
@@ -36,7 +36,7 @@ void Log::Warn(const char* tag, const char* format, ...) {
 #if CONFIG_USE_ESP_LOG==1
     ESP_LOGI(tag, fmt_str.c_str());
 #else
-    Serial.println(String("[")+String(tag)+String("] ") + fmt_str);
+    Serial.printf("%d [%s] %s\n", millis(), tag, fmt_str.c_str());
 #endif
 }
 
@@ -51,7 +51,7 @@ void Log::Debug(const char* tag, const char* format, ...) {
 #if CONFIG_USE_ESP_LOG==1
     ESP_LOGI(tag, fmt_str.c_str());
 #else
-    Serial.println(String("[")+String(tag)+String("] ") + fmt_str);
+    Serial.printf("%d [%s] %s\n", millis(), tag, fmt_str.c_str());
 #endif
 }
 
@@ -66,6 +66,6 @@ void Log::Error(const char* tag, const char* format, ...) {
 #if CONFIG_USE_ESP_LOG==1
     ESP_LOGI(tag, fmt_str.c_str());
 #else
-    Serial.println(String("[")+String(tag)+String("] ") + fmt_str);
+    Serial.printf("%d [%s] %s\n", millis(), tag, fmt_str.c_str());
 #endif
 }

@@ -9,6 +9,8 @@
 
 #include <string>
 #include <map>
+#include <cstdint>
+
 #include "config.h"
 #include "src/led/led.h"
 #include "src/display/display.h"
@@ -61,6 +63,7 @@ public:
     // virtual methods
     virtual ~Board() = default;
 
+    void Sleep(uint32_t time_ms);
     virtual std::string GetUuid() { return uuid_; }
     virtual std::string GetJson();
     virtual std::string GetBoardType() = 0;

@@ -230,6 +230,8 @@ void Application::SetDeviceState(const DeviceState* state) {
         display->SetStatus(Lang::Strings::CONNECTING);
     } else if (state == kDeviceStateWorking) {
         display->SetStatus(Lang::Strings::WORKING);
+    } else if (state == kDeviceStateWarning) {
+        display->SetStatus(Lang::Strings::WARNING);
     }
 
     OnStateChanged();

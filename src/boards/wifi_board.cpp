@@ -135,11 +135,11 @@ void WifiBoard::StartNetwork() {
     }
 }
 
-void WifiBoard::StartNetwork(const std::string& ssid, const std::string& password) {
+bool WifiBoard::StartNetwork(const std::string& ssid, const std::string& password) {
 
     auto& wifi_station = WifiStation::GetInstance();
     if (wifi_station.IsConnected() && wifi_station.GetSsid()==ssid) {
-        return;
+        return true;
     }
     
     wifi_station.OnScanBegin([this]() {
@@ -164,8 +164,10 @@ void WifiBoard::StartNetwork(const std::string& ssid, const std::string& passwor
     // Try to connect to WiFi, if failed, launch the WiFi configuration AP
     if (!wifi_station.WaitForConnected(ssid, password, 60 * 1000)) {
         wifi_station.Stop();
-        return;
+        return false;
     }
+
+    return true;
 }
 
 const char* WifiBoard::GetNetworkStateIconName() {

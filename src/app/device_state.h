@@ -45,7 +45,8 @@ public:
     }
 };
 
-static const DeviceState* kDeviceStateFatalError         = DeviceState::Create(-1, "fatal_error");
+static const DeviceState* kDeviceStateFatalError         = DeviceState::Create(-2, "fatal_error");
+static const DeviceState* kDeviceStateWarning            = DeviceState::Create(-1, "warning");
 static const DeviceState* kDeviceStateUnknown            = DeviceState::Create(0, "unknown");
 static const DeviceState* kDeviceStateIdle               = DeviceState::Create(1, "idle");
 static const DeviceState* kDeviceStateStarting           = DeviceState::Create(2, "starting");

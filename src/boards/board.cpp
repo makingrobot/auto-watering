@@ -29,6 +29,11 @@ Board::Board() {
    Log::Info( TAG, "UUID=%s SKU=%s", uuid_.c_str(), BOARD_NAME);
 }
 
+void Board::Sleep(uint32_t time_ms) {
+    Log::Info(TAG, "deepsleep %d ms", time_ms);
+    ESP.deepSleep(time_ms * 1000);
+}
+
 std::string Board::GenerateUuid() {
     // UUID v4 需要 16 字节的随机数据
     uint8_t uuid[16];

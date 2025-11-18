@@ -81,7 +81,7 @@ bool WifiStation::WaitForConnected(uint32_t timeout_ms) {
     // step3: 连接
     WiFi.begin(current_ssid_.c_str(), ssid->password.c_str());
     int n = 0;
-    int step = 100;
+    int step = 500;
     while (n < timeout_ms) {
         vTaskDelay(pdMS_TO_TICKS(step));
         if (WiFi.status() == WL_CONNECTED) {
@@ -111,7 +111,7 @@ bool WifiStation::WaitForConnected(const std::string& ssid, const std::string& p
     // step3: 连接
     WiFi.begin(ssid.c_str(), password.c_str());
     int n = 0;
-    int step = 100;
+    int step = 500;
     while (n < timeout_ms) {
         vTaskDelay(pdMS_TO_TICKS(step));
         if (WiFi.status() == WL_CONNECTED) {
