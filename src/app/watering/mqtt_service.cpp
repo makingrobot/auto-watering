@@ -1,6 +1,8 @@
 
 #include "mqtt_service.h"
 #include "src/sys/log.h"
+#include "src/boards/board.h"
+#include "watering_application.h"
 
 #define TAG "MqttService"
 
@@ -32,34 +34,25 @@ MqttService::~MqttService() {
 }
 
 bool MqttService::Connect(const std::string& broker_server, const std::string& username, const std::string& password) {
+    
+    if (mqtt_client_->connected()) {
+        return true;
+    }
+
     mqtt_client_->setServer(broker_server.c_str(), 1833);
     mqtt_client_->setKeepAlive(60);
 
-    int retryCount = 0;
-    while (!mqtt_client_->connected()) {
-        //stateInfo = "";
-        String client_id = "esp32-client-test";
-        Log::Info(TAG, "正在连接小鹏AIoT平台: %s .....\n", broker_server.c_str());
-        if (mqtt_client_->connect(client_id.c_str(), username.c_str(), password.c_str())) {
-            Log::Info(TAG, "连接到小鹏AIoT平台.");
-            return true;
-        } 
+    //stateInfo = "";
+    String client_id = "esp32-client-test";
+    Log::Info(TAG, "正在连接小鹏AIoT平台: %s .....", broker_server.c_str());
+    if (mqtt_client_->connect(client_id.c_str(), username.c_str(), password.c_str())) {
+        Log::Info(TAG, "连接到小鹏AIoT平台.");
+        return true;
+    } 
 
-        Log::Info(TAG, "连接失败, rc=");
-        Log::Info(TAG, String(mqtt_client_->state()).c_str());
-        Log::Info(TAG, "，5秒后重试。");
-        //stateInfo = "iot connect fail.";
-        retryCount ++;
-        vTaskDelay(pdMS_TO_TICKS(5000));
+    Log::Info(TAG, "连接失败, rc=%d", mqtt_client_->state());
 
-        if (retryCount>10) {
-            // 超过10次未连上，进入休眠
-            Log::Info(TAG, "未连接到小鹏AIoT平台，进入睡眠状态。");
-            return false;
-        }
-    }
-
-    return true;
+    return false;
 }
 
 void MqttService::Disconnect() {

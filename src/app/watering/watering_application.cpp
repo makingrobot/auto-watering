@@ -10,16 +10,17 @@
 #include "src/boards/wifi_board.h"
 #include "src/lang/lang_zh_cn.h"
 #include "src/display/u8g2_display.h"
-#include "src/peripheral/digital_actuator.h"
-#include "src/peripheral/analog_sensor.h"
 #include "src/wifi/wifi_station.h"
 #include "src/sys/settings.h"
 #include "src/wifi/wifi_station.h"
+#include "src/peripheral/analog_sensor.h"
+#include "src/peripheral/switch_actuator.h"
+#include "src/boards/xpstem-watering-suit/l9110_driver.h"
 
 #define TAG "WateringApplication"
 
 // 传感器数据采集间隔
-static const int kCollectInterval = 180;  //second
+static const int kCollectInterval = 120;  //second
 
 // 上传数据后等待多少秒（等待回调）
 static const int kWaitSecondsAfterPublished = 30;  //second
@@ -28,7 +29,10 @@ static const int kWaitSecondsAfterPublished = 30;  //second
 static const int kTotalCountPerPeriod = 20;
 
 // 深度睡眠时长（23小时）
-static const long kDeepSleepSeconds = 23 * 3600 * 1e6;  //second
+static const long kDeepSleepSeconds = 23 * 3600;  //second
+
+static const std::string kSsid = "qwer_1234";
+static const std::string kPassword = "billyhome";
 
 void* create_application() {
     return new WateringApplication();
@@ -54,24 +58,36 @@ void WateringApplication::Init() {
     soil_moilture_topic_ = settings.GetString("soil_moilture_topic", "");
 
     mqtt_service_ = new MqttService();
-    mqtt_service_->SubscribeTopic(pump_control_topic_, [this](const std::string& payload) {
-        OnIotMessageEvent(pump_control_topic_, payload);
-    });
 }
 
 void WateringApplication::Start() {
-    Application::Start();
 
     Board& board = Board::GetInstance();
     board.GetLed()->Blink(-1, 1000);
-    board.GetDisplay()->SetStatus("工作中");
-    //board.GetDisplay()->SetText("你好,世界!");
 
+    // 启动传感器
     Sensor* sensor = board.GetSensor(kSoilMositureName);
     if (sensor != nullptr) {
         AnalogSensor* soil_mositure = static_cast<AnalogSensor*>(sensor);
-        soil_mositure->Start(kCollectInterval);  //180s 
+        soil_mositure->Start(kCollectInterval);  //120s 
     }
+
+    Application::Start();
+
+    // 主题订阅
+    mqtt_service_->SubscribeTopic(pump_control_topic_, [this](const std::string& payload) {
+        OnIotMessageEvent(pump_control_topic_, payload);
+    });
+
+    started_ = true;
+}
+
+void WateringApplication::ShowWifiConfigHit(const std::string& ssid, const std::string& config_url, const std::string& mac_address) {
+    // 显示 WiFi 配置 AP 的 SSID 和 Web 服务器 URL
+    Board& board = Board::GetInstance();
+    U8g2Display* display = static_cast<U8g2Display*>(board.GetDisplay());
+    display->GetWindow()->SetText(1, "热点" + ssid);
+    display->GetWindow()->SetText(2, "访问" + config_url);
 }
 
 /**
@@ -100,24 +116,62 @@ bool WateringApplication::OnPhysicalButtonEvent(const std::string& button_name, 
  * 传感器数据事件处理
  */
 bool WateringApplication::OnSensorDataEvent(const std::string& sensor_name, int value) {
-    
-    Log::Info(TAG, "接收到传感器：%s 的数据：%d", sensor_name.c_str(), value);
 
-    // 接收到传感器数据、上传IOT
-    char buffer[128] = { 0 };
-    snprintf(buffer, 127, "{\"data\":{\"temp\":%d}}", value);
+    Log::Info(TAG, "接收到传感器:%s 的数据:%d", sensor_name.c_str(), value);
 
-    // 连接WiFi
+    if (value>0) {
+        // 映射到 0-100
+        soil_moilture_value_ = map(value, 1, 4095, 100, 1);
+    }
+
     WifiBoard* wifi_board = static_cast<WifiBoard*>(&Board::GetInstance());
-    wifi_board->StartNetwork();
+    U8g2Display* display = static_cast<U8g2Display*>(wifi_board->GetDisplay());
 
-    // 连接MQTT
-    if (!mqtt_service_->Connect(iot_broker_, iot_username_, iot_password_)) {
-        // 连接失败
-        //ESP.deepSleep(5 * 60); //5分钟
+    if (!started_) {
+        display->GetWindow()->SetText(3, "湿度: " + std::to_string(soil_moilture_value_) );
         return false;
     }
 
+    display->GetWindow()->SetText(1, "湿度: " + std::to_string(soil_moilture_value_) );
+
+    SetDeviceState(kDeviceStateConnecting);
+
+#if CONFIG_WIFI_CONFIGURE_ENABLE==1
+    wifi_board->StartNetwork();
+#else
+    // 连接WiFi
+    if (!wifi_board->StartNetwork(kSsid, kPassword)) {
+        Log::Info(TAG, "Wifi connect failure.");
+        ShowMessage("WiFi连接失败。");
+        SetDeviceState(kDeviceStateWarning);
+        return false;
+    }
+#endif
+
+    int retry_count = 5;
+    // 连接MQTT
+    while (!mqtt_service_->Connect(iot_broker_, iot_username_, iot_password_)) {
+        // 连接失败
+        SetDeviceState(kDeviceStateWarning);
+        ShowMessage("MQTT连接失败。");
+
+        Log::Info(TAG, "5秒后重试。");
+        vTaskDelay(pdMS_TO_TICKS(5000));
+
+        retry_count--;
+        if (retry_count == 0) {
+            Log::Info(TAG, "未连接到小鹏AIoT平台，进入睡眠状态。");
+            wifi_board->GetDisplay()->Sleep();
+            wifi_board->Sleep(300 * 1000); //300s
+            return false;
+        }
+    }
+
+    SetDeviceState(kDeviceStateWorking);
+
+    // 上传IOT
+    char buffer[128] = { 0 };
+    snprintf(buffer, 127, "{\"data\":{\"temp\":%d}}", value);
     // 上传数据
     mqtt_service_->PublishData(soil_moilture_topic_, std::string(buffer));
 
@@ -134,7 +188,7 @@ bool WateringApplication::OnSensorDataEvent(const std::string& sensor_name, int 
         //Serial.printf("进入深度休眠状态(%d%s)。\n", 
         //    sleepSeconds<3600 ? sleepSeconds/60 : sleepSeconds/3600,
         //    sleepSeconds<3600 ? "分钟" : "小时");
-        ESP.deepSleep(kDeepSleepSeconds);
+        wifi_board->Sleep(kDeepSleepSeconds * 1000);
     }
 
     return true;
@@ -170,7 +224,7 @@ void WateringApplication::DoWatering(uint8_t seconds) {
     Actuator* actuator = board.GetActuator(kPumpControlName);
     if (actuator != nullptr) {
         Log::Info(TAG, "浇水 %d 秒", seconds);
-        DigitalActuator* pump_control = static_cast<DigitalActuator*>(actuator);
+        L9110Driver* pump_control = static_cast<L9110Driver*>(actuator);
         pump_control->On();
         vTaskDelay(pdMS_TO_TICKS(seconds * 1000));
         pump_control->Off();
@@ -178,10 +232,9 @@ void WateringApplication::DoWatering(uint8_t seconds) {
 }
 
 
-void WateringApplication::ShowSensorValue(int value) {
-    
-}
+void WateringApplication::ShowMessage(const std::string& message) {
+    last_message_ = message;
 
-void WateringApplication::ShowStatus(const AppStatus status) {
-
+    U8g2Display* display = static_cast<U8g2Display*>( Board::GetInstance().GetDisplay() );
+    display->GetWindow()->SetText(3, last_message_);
 }

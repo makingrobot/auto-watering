@@ -7,9 +7,11 @@
 #define _XPSTEM_WATERING_SUIT_H
 
 #include <driver/gpio.h>
+#include <OneButton.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 
 #include "src/sys/log.h"
-#include "src/boards/button.h"
 #include "src/app/application.h"
 #include "src/boards/wifi_board.h"
 #include "src/display/display.h"
@@ -19,11 +21,11 @@
 
 class XPSTEM_WATERING_SUIT : public WifiBoard {
 private:
-    Button* boot_button_ = nullptr;
-    Button* manual_button_ = nullptr;
+    OneButton* manual_button_ = nullptr;
     Display* display_ = nullptr;
     Led* led_ = nullptr;
-
+    TaskHandle_t button_taskhandle_;
+    
     void InitializeDisplay();
     void InitializeButtons();
     void InitializePeripherals();

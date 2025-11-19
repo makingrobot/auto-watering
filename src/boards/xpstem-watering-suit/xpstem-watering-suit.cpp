@@ -11,11 +11,10 @@
 
 #include "src/display/u8g2_display.h"
 #include "src/sys/system_reset.h"
-#include "src/boards/board.h"
 #include "src/boards/i2c_device.h"
 #include "src/led/gpio_led.h"
 #include "src/peripheral/analog_sensor.h"
-#include "src/peripheral/digital_actuator.h"
+#include "l9110_driver.h"
 
 #define TAG "XPSTEM_WATERING_SUIT"
 
@@ -31,6 +30,8 @@ XPSTEM_WATERING_SUIT::XPSTEM_WATERING_SUIT() : WifiBoard() {
 
     InitializeDisplay();
 
+    InitializeButtons();
+
     InitializePeripherals();
 
     Log::Info( TAG, "===== Board config completed. =====");
@@ -44,33 +45,52 @@ void XPSTEM_WATERING_SUIT::InitializeDisplay() {
         /* i2c data */ I2C_SDA_PIN,
         /* reset=*/ U8X8_PIN_NONE
     );
+    u8g2->setI2CAddress(OLED_I2C_ADDRESS << 1);
 
     //u8g2_font_unifont_t_chinese2
     display_ = new U8g2Display(u8g2, DISPLAY_WIDTH, DISPLAY_HEIGHT, u8g2_font_wqy14_t_gb2312);
 
 }
 
+void buttonTickTask(void *pvParam) {
+    OneButton* button = static_cast<OneButton *>(pvParam);
+    while (1) {
+        button->tick();
+        vTaskDelay(pdMS_TO_TICKS(2)); //2ms
+    }
+}
+
+uint32_t __press_start_time = 0;
+
+void longPressStart(void* pvParam) {
+    Log::Info(TAG, "Button longpress start.");
+    __press_start_time = ((OneButton*)pvParam)->getPressedMs();
+}
+
+void longPressStop(void* pvParam) {
+    Log::Info(TAG, "Button longpress stop.");
+    uint32_t press_stop_time = ((OneButton*)pvParam)->getPressedMs();
+    uint32_t duration = press_stop_time - __press_start_time;
+    if (duration > 8000) {  // 8s
+        Board& board = Board::GetInstance();
+        board.OnPhysicalButtonEvent(kManualButton, ButtonAction::LongPress);
+    }
+}
+
 void XPSTEM_WATERING_SUIT::InitializeButtons() {
     Log::Info( TAG, "Init buttons ......");
 
-    boot_button_ = new Button(kBootButton, BOOT_BUTTON_PIN);
-    boot_button_->OnClick([this]() {
-        OnPhysicalButtonEvent(kBootButton, ButtonAction::Click);
+    //pinMode(MANUAL_BUTTON_PIN, INPUT);
+    manual_button_ = new OneButton(MANUAL_BUTTON_PIN, false);
+    manual_button_->attachDoubleClick([]() {
+        Log::Info(TAG, "Manual button doubleclick.");
+        Board& board = Board::GetInstance();
+        board.OnPhysicalButtonEvent(kManualButton, ButtonAction::DoubleClick);
     });
-    boot_button_->OnDoubleClick([this]() {
-        OnPhysicalButtonEvent(kBootButton, ButtonAction::DoubleClick);
-    });
+    manual_button_->attachLongPressStart(longPressStart, manual_button_);
+    manual_button_->attachLongPressStop(longPressStop, manual_button_);
 
-    manual_button_ = new Button(kManualButton, MANUAL_BUTTON_PIN);
-    manual_button_->OnClick([this]() {
-        OnPhysicalButtonEvent(kManualButton, ButtonAction::Click);
-    });
-    manual_button_->OnDoubleClick([this]() {
-        OnPhysicalButtonEvent(kManualButton, ButtonAction::DoubleClick);
-    });
-    manual_button_->OnLongPress([this]() {
-        OnPhysicalButtonEvent(kManualButton, ButtonAction::LongPress);
-    });
+    xTaskCreate(buttonTickTask, "ButtonTick_Task", 2048, manual_button_, 1, &button_taskhandle_);
 }
 
 void XPSTEM_WATERING_SUIT::InitializePeripherals() {
@@ -84,7 +104,7 @@ void XPSTEM_WATERING_SUIT::InitializePeripherals() {
     });
     AddSensor(kSoilMositureName, soil_moisture);
 
-    DigitalActuator* pump_control = new DigitalActuator(PUMP_CONTROL_PIN, PUMP_CONTROL_OUPUT_INVERT);
+    L9110Driver* pump_control = new L9110Driver(L9110_PIN_A, L9110_PIN_B, L9110_OUPUT_INVERT);
     AddActuator(kPumpControlName, pump_control);
 
 }
