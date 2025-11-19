@@ -34,7 +34,7 @@ void U8g2Application::Init() {
 }
 
 void U8g2Application::Start() {
-    //Application::Start();
+    Application::Start();
 
     Board& board = Board::GetInstance();
     board.GetLed()->Blink(-1, 1000);

@@ -65,6 +65,7 @@ void WifiStation::Start() {
 void WifiStation::Stop() {
 
     WiFi.disconnect();
+    is_connected_ = false;
 }
 
 bool WifiStation::WaitForConnected(uint32_t timeout_ms) {

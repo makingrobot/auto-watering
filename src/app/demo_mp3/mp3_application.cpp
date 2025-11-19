@@ -84,7 +84,7 @@ void Mp3Application::Start() {
 
     // 启动Wifi
     WifiBoard* board = static_cast<WifiBoard*>(&Board::GetInstance());
-    board->StartNetwork();
+    board->StartNetwork(30000);
 
     // 设置音频编解码
     AudioCodec* codec = board->GetAudioCodec();

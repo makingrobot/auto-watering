@@ -99,7 +99,7 @@ void WifiBoard::ResetWifiConfiguration() {
 }
 #endif //CONFIG_WIFI_CONFIGURE_ENABLE
 
-void WifiBoard::StartNetwork() {
+void WifiBoard::StartNetwork(uint32_t timeout_ms) {
     
     auto& wifi_station = WifiStation::GetInstance();
     if (wifi_station.IsConnected()) {
@@ -127,7 +127,7 @@ void WifiBoard::StartNetwork() {
     Log::Info( TAG, "进入 WiFi STA 联网模式。");
 
     // Try to connect to WiFi, if failed, launch the WiFi configuration AP
-    if (!wifi_station.WaitForConnected(60 * 1000)) {
+    if (!wifi_station.WaitForConnected(timeout_ms)) {
         wifi_station.Stop();
         wifi_config_mode_ = true;
         // EnterWifiConfigMode();
@@ -135,7 +135,7 @@ void WifiBoard::StartNetwork() {
     }
 }
 
-bool WifiBoard::StartNetwork(const std::string& ssid, const std::string& password) {
+bool WifiBoard::StartNetwork(const std::string& ssid, const std::string& password, uint32_t timeout_ms) {
 
     auto& wifi_station = WifiStation::GetInstance();
     if (wifi_station.IsConnected() && wifi_station.GetSsid()==ssid) {
@@ -162,12 +162,22 @@ bool WifiBoard::StartNetwork(const std::string& ssid, const std::string& passwor
     Log::Info( TAG, "进入 WiFi STA 联网模式。");
 
     // Try to connect to WiFi, if failed, launch the WiFi configuration AP
-    if (!wifi_station.WaitForConnected(ssid, password, 60 * 1000)) {
+    if (!wifi_station.WaitForConnected(ssid, password, timeout_ms)) {
         wifi_station.Stop();
         return false;
     }
 
     return true;
+}
+
+void WifiBoard::Disconnect() {
+    auto& wifi_station = WifiStation::GetInstance();
+    wifi_station.Stop();
+}
+
+std::string WifiBoard::GetIpAddress() {
+    auto& wifi_station = WifiStation::GetInstance();
+    return wifi_station.GetIpAddress();
 }
 
 const char* WifiBoard::GetNetworkStateIconName() {

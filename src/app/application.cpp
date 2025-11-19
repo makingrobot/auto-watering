@@ -370,7 +370,7 @@ void Application::EventLoop() {
         event_handler_->GetEventBits(),
         pdTRUE, /* 自动清除，避免重复响应 */
         pdFALSE, /* 任一事件位被设置就返回 */
-        portMAX_DELAY /* 无限期等待（即阻塞），也可以指定时长 */
+        pdMS_TO_TICKS(1000) /* 指定时长 */
     );
 
     try {
@@ -388,5 +388,5 @@ void Application::EventLoop() {
         // Log::Error( TAG, e.what() );
     }
 
-    vTaskDelay(pdMS_TO_TICKS(1)); //1ms
+    delay(1); //1ms
 }

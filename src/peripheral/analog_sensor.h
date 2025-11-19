@@ -9,7 +9,8 @@
 
 #include <driver/gpio.h>
 #include <functional>
-#include <Ticker.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/timers.h>
 
 #include "sensor.h"
 
@@ -33,7 +34,7 @@ public:
 private:
     gpio_num_t sensor_pin_;
     int sensor_val_;
-    Ticker* sensor_ticker_;
+    TimerHandle_t timer_handle_ = nullptr;
     std::function<void(int)> on_newdata_callback_;
 
 };

@@ -12,32 +12,35 @@
 
 AnalogSensor::AnalogSensor(gpio_num_t sensor_pin) : sensor_pin_(sensor_pin) {
 
-    sensor_ticker_ = new Ticker();
 }
 
 AnalogSensor::~AnalogSensor() {
-    if (sensor_ticker_ != nullptr) {
-        sensor_ticker_->detach();
-        sensor_ticker_ = nullptr;
+    if (timer_handle_ != nullptr) {
+        xTimerDelete(timer_handle_, 0);
     }
 }
 
-void TickerCallback(AnalogSensor *arg) {
-    arg->ReadData();
+void timerCallback(TimerHandle_t param) {
+    AnalogSensor* sensor = (AnalogSensor*)pvTimerGetTimerID(param);
+    sensor->ReadData();
 }
 
 void AnalogSensor::Start(uint32_t interval) {
-    if (sensor_ticker_ != nullptr) {
-        sensor_ticker_->detach();
+    if (timer_handle_ != nullptr) {
+        xTimerDelete(timer_handle_, 0);
     }
     
-    sensor_ticker_->attach(interval, TickerCallback, this);
-    Log::Info(TAG, "sensor timer started.");
+    timer_handle_ = xTimerCreate("Analog_Timer", pdMS_TO_TICKS(interval * 1000), pdTRUE, this, timerCallback);
+    if (xTimerStart(timer_handle_, pdMS_TO_TICKS(1000)) == pdPASS) {
+        Log::Info(TAG, "sensor timer started.");
+    } else {
+        Log::Warn(TAG, "sensor timer start failure.");
+    }
 }
 
 void AnalogSensor::Stop() {
-    if (sensor_ticker_ != nullptr) {
-        sensor_ticker_->detach();
+    if (timer_handle_ != nullptr) {
+        xTimerDelete(timer_handle_, 0);
     }
 }
 
