@@ -32,6 +32,10 @@ void U8g2Display::Unlock() {
     
 }
 
+void U8g2Display::Sleep() {
+    driver_->sleepOn();
+}
+
 void U8g2Display::SetWindow(U8g2Window* window) {
     window_ = window;
 }

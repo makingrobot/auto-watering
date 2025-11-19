@@ -30,7 +30,7 @@ Board::Board() {
 }
 
 void Board::Sleep(uint32_t time_ms) {
-    Log::Info(TAG, "deepsleep %d ms", time_ms);
+    Log::Info(TAG, "进入深睡眠状态，时长: %d ms", time_ms);
     ESP.deepSleep(time_ms * 1000);
 }
 

@@ -21,7 +21,7 @@ public:
     virtual void Setup(U8G2* driver, const uint8_t* fonts);
     virtual void SetStatus(const std::string& status);
     virtual void SetText(uint8_t line, const std::string& text);
-   
+
 private:
     void Update();
 

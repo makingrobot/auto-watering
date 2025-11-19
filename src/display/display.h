@@ -25,6 +25,7 @@ public:
     virtual void SetStatus(const std::string& status) { };
     virtual void SetText(const std::string& text) { };
     virtual void UpdateStatusBar(bool update_all = false) { };
+    virtual void Sleep() { };
 
     inline int width() const { return width_; }
     inline int height() const { return height_; }

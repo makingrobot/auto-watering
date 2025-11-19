@@ -69,15 +69,21 @@ void WifiStation::Stop() {
 
 bool WifiStation::WaitForConnected(uint32_t timeout_ms) {
 
-    if (on_connect_handler_!=nullptr) {
-        on_connect_handler_(current_ssid_);
-    }
-    
     const SsidItem* ssid = SsidManager::GetInstance().GetSsid(current_ssid_);
     if (ssid==nullptr) {
         return false;
     }
+    
+    if (WiFi.status() == WL_CONNECTED) {
+        return true;
+    }
 
+    Log::Info(TAG, "连接热点:%s", current_ssid_.c_str());
+
+    if (on_connect_handler_!=nullptr) {
+        on_connect_handler_(current_ssid_);
+    }
+    
     // step3: 连接
     WiFi.begin(current_ssid_.c_str(), ssid->password.c_str());
     int n = 0;
@@ -85,6 +91,7 @@ bool WifiStation::WaitForConnected(uint32_t timeout_ms) {
     while (n < timeout_ms) {
         vTaskDelay(pdMS_TO_TICKS(step));
         if (WiFi.status() == WL_CONNECTED) {
+            Log::Info(TAG, "热点:%s 已连接", current_ssid_.c_str());
             break; //已连接，中止等待
         }
         n += step;
@@ -104,6 +111,12 @@ bool WifiStation::WaitForConnected(uint32_t timeout_ms) {
 
 bool WifiStation::WaitForConnected(const std::string& ssid, const std::string& password, uint32_t timeout_ms) {
 
+    if (WiFi.status() == WL_CONNECTED) {
+        return true;
+    }
+
+    Log::Info(TAG, "连接热点:%s", ssid.c_str());
+
     if (on_connect_handler_!=nullptr) {
         on_connect_handler_(current_ssid_);
     }
@@ -115,6 +128,7 @@ bool WifiStation::WaitForConnected(const std::string& ssid, const std::string& p
     while (n < timeout_ms) {
         vTaskDelay(pdMS_TO_TICKS(step));
         if (WiFi.status() == WL_CONNECTED) {
+            Log::Info(TAG, "热点:%s 已连接", ssid.c_str());
             break; //已连接，中止等待
         }
         n += step;

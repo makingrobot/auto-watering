@@ -24,6 +24,7 @@ public:
     
     void SetStatus(const std::string& status) override;
     void SetText(const std::string& text) override;
+    void Sleep() override;
    
     void SetWindow(U8g2Window* window);
     U8g2Window* GetWindow() { return window_; }
