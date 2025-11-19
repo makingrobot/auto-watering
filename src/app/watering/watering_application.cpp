@@ -32,7 +32,7 @@ static const int kTotalCountPerPeriod = 20;
 static const long kDeepSleepSeconds = 23 * 3600;  //second
 
 static const std::string kSsid = "qwer_1234";
-static const std::string kPassword = "billyhome";
+static const std::string kPassword = "abc123";
 
 void* create_application() {
     return new WateringApplication();
