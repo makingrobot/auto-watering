@@ -8,6 +8,7 @@
 #define _WIFI_BOARD_H
 
 #include "board.h"
+#include "src/wifi/wifi_configuration.h"
 
 class WifiBoard : public Board {
 protected:
@@ -33,6 +34,7 @@ public:
 #if CONFIG_WIFI_CONFIGURE_ENABLE==1
     virtual void Configure();
     virtual void ResetWifiConfiguration();
+    virtual WifiConfiguration* GetWifiConfiguration();
 #endif
 };
 

@@ -7,8 +7,8 @@
 #include "config.h"
 #if CONFIG_WIFI_CONFIGURE_ENABLE==1
 
-#ifndef _WIFI_HTML_H
-#define _WIFI_HTML_H
+#ifndef _WIFI_CONFIGURATION_HTML_H
+#define _WIFI_CONFIGURATION_HTML_H
 
 const char index_html[] = R"(<!DOCTYPE html>
 <html>
@@ -678,6 +678,6 @@ const char done_html[] = R"(<!DOCTYPE html>
 </body>
 </html>)";
 
-#endif //_WIFI_HTML_H
+#endif //_WIFI_CONFIGURATION_HTML_H
 
 #endif //CONFIG_WIFI_CONFIGURE_ENABLE

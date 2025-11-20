@@ -48,7 +48,6 @@ Arduino开发环境下适用于ESP32芯片系列开发板的应用开发框架�
 * esp_lcd_st7796 - ST7796 LCD驱动库 [链接](https://components.espressif.com/components/espressif/esp_lcd_st7796)
 * esp_lvgl_port - ESP32 LVGL库 [链接](https://components.espressif.com/components/espressif/esp_lvgl_port)
 * led_strip - LED灯珠库 [链接](https://components.espressif.com/components/espressif/led_strip)
-* esp_jpeg - Tjpegd解码库 [链接](https://components.espressif.com/components/espressif/esp_jpeg)
 
 ### ESP32库引用
 * WebServer - 网站服务库

@@ -24,7 +24,8 @@
 #include "src/audio/audio_codec.h"
 
 #if CONFIG_WIFI_CONFIGURE_ENABLE==1
-#include "src/wifi/wifi_configuration_ap.h"
+#include "src/wifi/wifi_configuration.h"
+#include "wifi_configuration_impl.h"
 #endif //CONFIG_WIFI_CONFIGURE_ENABLE
 
 #define TAG "WifiBoard"
@@ -47,16 +48,15 @@ void WifiBoard::EnterWifiConfigMode() {
     auto& application = Application::GetInstance();
     application.SetDeviceState(kDeviceStateWifiConfiguring);
 
-    auto& wifi_ap = WifiConfigurationAp::GetInstance();
-    wifi_ap.SetLanguage(Lang::CODE);
-    wifi_ap.SetSsidPrefix("XPSTEM");
-    wifi_ap.Start();
+    WifiConfiguration *conf = GetWifiConfiguration();
+    conf->SetLanguage(Lang::CODE);
+    conf->SetSsidPrefix("XPSTEM");
+    conf->Start();
 
     Log::Info( TAG, "进入 WiFi AP 配置模式。" );
     
     // 显示配置 WiFi 的提示
-    application.ShowWifiConfigHit(wifi_ap.GetSsid(), wifi_ap.GetWebServerUrl(), 
-        SystemInfo::GetMacAddress());
+    application.ShowWifiConfigHit(conf->GetSsid(), conf->GetWebServerUrl(), SystemInfo::GetMacAddress());
 
     // Wait forever until reset after configuration
     while (true) {
@@ -97,6 +97,11 @@ void WifiBoard::ResetWifiConfiguration() {
     Log::Info( TAG, "重启设备......" );
     esp_restart();
 }
+
+WifiConfiguration* WifiBoard::GetWifiConfiguration() {
+    return new WifiConfigurationImpl();
+}
+
 #endif //CONFIG_WIFI_CONFIGURE_ENABLE
 
 void WifiBoard::StartNetwork(uint32_t timeout_ms) {
