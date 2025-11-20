@@ -11,7 +11,7 @@
 #define TAG "AnalogSensor"
 
 AnalogSensor::AnalogSensor(gpio_num_t sensor_pin) : sensor_pin_(sensor_pin) {
-
+    pinMode(sensor_pin_, INPUT);
 }
 
 AnalogSensor::~AnalogSensor() {
@@ -25,6 +25,10 @@ void timerCallback(TimerHandle_t param) {
     sensor->ReadData();
 }
 
+/**
+ * 启动传感器，
+ * interval: 数据采集间隔，单位秒
+ */
 void AnalogSensor::Start(uint32_t interval) {
     if (timer_handle_ != nullptr) {
         xTimerDelete(timer_handle_, 0);
@@ -44,16 +48,11 @@ void AnalogSensor::Stop() {
     }
 }
 
+/**
+ * 读取传感器数据
+ */
 void AnalogSensor::ReadData() {
-    int count = 3;
-    int total_val = 0;
-    for (int i=0; i<count; i++) {
-        total_val += analogRead(sensor_pin_);
-        vTaskDelay(pdMS_TO_TICKS(1)); // 10ms
-    }
-
-    // 取均值
-    sensor_val_ = total_val / count;
+    sensor_val_ = analogRead(sensor_pin_);
 
     if (on_newdata_callback_) {
         on_newdata_callback_(sensor_val_);
