@@ -16,7 +16,6 @@ public:
 
         pinMode(pin_in_a_, OUTPUT);
         pinMode(pin_in_b_, OUTPUT);
-        //Off();
     }
 
     void On(uint8_t power) {

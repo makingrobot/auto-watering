@@ -15,6 +15,7 @@
 #include "src/boards/i2c_device.h"
 #include "src/led/gpio_led.h"
 #include "src/peripheral/analog_sensor.h"
+#include "src/peripheral/sensor_value.h"
 #include "l9110_driver.h"
 #include "wifi_configuration_ex.h"
 
@@ -103,7 +104,7 @@ void XPSTEM_WATERING_SUIT::InitializePeripherals() {
     Log::Info( TAG, "Init peripherals ......");
 
     AnalogSensor* soil_moisture = new AnalogSensor(SOIL_MOISTURE_PIN);
-    soil_moisture->OnNewData([](int val) {
+    soil_moisture->OnNewData([](const SensorValue& val) {
         auto& app = Application::GetInstance();
         app.OnSensorDataEvent(kSoilMositureName, val);
     });

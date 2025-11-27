@@ -21,7 +21,7 @@
 #define TAG "WateringApplication"
 
 // 传感器数据采集间隔
-static const int kCollectInterval = 120;  //second
+static const int kCollectInterval = 120000;  //ms
 
 // 上传数据后等待多少秒（等待回调）
 static const int kWaitSecondsAfterPublished = 30;  //second
@@ -56,7 +56,7 @@ void WateringApplication::Init() {
 void WateringApplication::Start() {
 
     Board& board = Board::GetInstance();
-    board.GetLed()->Blink(-1, 1000);
+    board.GetLed()->Blink(5, 1000);
 
     // 启动传感器
     Sensor* sensor = board.GetSensor(kSoilMositureName);
@@ -74,6 +74,7 @@ void WateringApplication::ShowWifiConfigHit(const std::string& ssid, const std::
     // 显示 WiFi 配置 AP 的 SSID 和 Web 服务器 URL
     Board& board = Board::GetInstance();
     U8g2Display* display = static_cast<U8g2Display*>(board.GetDisplay());
+    display->SetStatus("配置网络");
     display->GetWindow()->SetText(1, "热点" + ssid);
     display->GetWindow()->SetText(2, "访问" + config_url);
 }
@@ -103,20 +104,20 @@ bool WateringApplication::OnPhysicalButtonEvent(const std::string& button_name, 
 /**
  * 传感器数据事件处理
  */
-bool WateringApplication::OnSensorDataEvent(const std::string& sensor_name, int value) {
+bool WateringApplication::OnSensorDataEvent(const std::string& sensor_name, const SensorValue& value) {
 
-    Log::Info(TAG, "接收到传感器: %s 的数据: %d", sensor_name.c_str(), value);
+    Log::Info(TAG, "接收到传感器: %s 的数据: %d", sensor_name.c_str(), value.intValue());
 
     WifiBoard* wifi_board = static_cast<WifiBoard*>(&Board::GetInstance());
     U8g2Display* display = static_cast<U8g2Display*>(wifi_board->GetDisplay());
 
-    if (value == 0) {
+    if (value.intValue() == 0) {
         display->GetWindow()->SetText(started_ ? 1 : 3, "湿度: nodata");
         return false;
     }
 
     // 4095-1 映射到 1-100
-    soil_moilture_value_ = map(value, 1, 4095, 100, 1);
+    soil_moilture_value_ = map(value.intValue(), 1, 4095, 100, 1);
 
     if (!started_) {
         display->GetWindow()->SetText(3, "湿度: " + std::to_string(soil_moilture_value_) );
