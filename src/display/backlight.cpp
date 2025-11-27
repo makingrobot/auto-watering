@@ -10,18 +10,18 @@
 
 #include "src/sys/log.h"
 #include "src/sys/settings.h"
+#include "src/sys/sw_timer.h"
 
 #define TAG "Backlight"
 
 Backlight::Backlight() {
     // 创建背光渐变定时器
-    transition_ticker_ = new Ticker();
+    transition_timer_ = new SwTimer("Backlight");
 }
 
 Backlight::~Backlight() {
-    if (transition_ticker_!=nullptr) {
-        transition_ticker_->detach();
-        transition_ticker_=nullptr;
+    if (transition_timer_!=nullptr) {
+        transition_timer_->Stop();
     }
 }
 
@@ -37,10 +37,6 @@ void Backlight::RestoreBrightness() {
     }
     
     SetBrightness(saved_brightness);
-}
-
-void TickerCallback(Backlight *arg) {
-    arg->OnTransitionTimer();
 }
 
 void Backlight::SetBrightness(uint8_t brightness, bool permanent) {
@@ -61,15 +57,14 @@ void Backlight::SetBrightness(uint8_t brightness, bool permanent) {
     step_ = (target_brightness_ > brightness_) ? 1 : -1;
 
     // 启动定时器，每 5ms 更新一次
-    transition_ticker_->attach_ms(5, TickerCallback, this);
-    Log::Info( TAG, "transition timer started" );
+    transition_timer_->Start(5, [this](){ OnTransitionTimer();} );
         
     Log::Info(TAG, "Set brightness to %d", brightness);
 }
 
 void Backlight::OnTransitionTimer() {
     if (brightness_ == target_brightness_) {
-        transition_ticker_->detach();
+        transition_timer_->Stop();
         Log::Info(TAG, "transition timer stopped.");
         return;
     }
@@ -78,7 +73,7 @@ void Backlight::OnTransitionTimer() {
     SetBrightnessImpl(brightness_);
 
     if (brightness_ == target_brightness_) {
-        transition_ticker_->detach();
+        transition_timer_->Stop();
         Log::Info(TAG, "transition timer stopped.");
     }
 }

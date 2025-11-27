@@ -5,10 +5,10 @@
  * Author: Billy Zhang（billy_zh@126.com）
  */
 #include "config.h"
-#if CONFIG_USE_LED_GPIO==1
+#if CONFIG_USE_LED_RGB==1
 
-#ifndef _GPIO_LED_H_
-#define _GPIO_LED_H_
+#ifndef _RGB_LED_H_
+#define _RGB_LED_H_
 
 #include "led.h"
 #include <driver/gpio.h>
@@ -19,28 +19,31 @@
 #include "src/sys/sw_timer.h"
 
 /**
- * 单色LED
+ * 三色LED
  */
-class GpioLed : public Led {
+class RgbLed : public Led {
  public:
-    GpioLed(gpio_num_t gpio, bool pwm=true, bool output_invert=false);
-    virtual ~GpioLed();
+    RgbLed(gpio_num_t r_pin, gpio_num_t g_pin, gpio_num_t b_pin, bool output_invert=false);
+    virtual ~RgbLed();
 
     void TurnOn() override;
     void TurnOff() override;
     void BlinkOnce() override;
     void Blink(int times, int interval_ms) override;
-    void SetBrightness(uint8_t brightness) override;
-    void SetColor(uint8_t r, uint8_t g, uint8_t b) override { }
+    void SetBrightness(uint8_t brightness) override { }
+    void SetColor(uint8_t r, uint8_t g, uint8_t b) override;
 
     void OnBlinkTimer();
 
  private:
     std::mutex mutex_;
-    gpio_num_t led_pin_;
-    bool pwm_ = false;
+    gpio_num_t r_pin_;
+    gpio_num_t g_pin_;
+    gpio_num_t b_pin_;
     bool output_invert_ = false;
-    uint8_t brightness_ = 255;
+    uint8_t r_val_ = 0;
+    uint8_t g_val_ = 0;
+    uint8_t b_val_ = 0;
     int blink_counter_ = 0;
     int blink_interval_ms_ = 0;
     Timer* timer_ = nullptr;
@@ -50,6 +53,6 @@ class GpioLed : public Led {
 
 };
 
-#endif  // _GPIO_LED_H_
+#endif  // _RGB_LED_H_
 
-#endif //CONFIG_USE_LED_GPIO
+#endif //CONFIG_USE_LED_RGB

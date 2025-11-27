@@ -8,8 +8,8 @@
 #include <driver/i2c_master.h>
 #include <driver/spi_common.h>
 #include <driver/gpio.h>
+#include <OneButton.h>
 
-#include "src/boards/button.h"
 #include "src/app/application.h"
 #include "src/boards/wifi_board.h"
 #include "src/display/display.h"
@@ -29,7 +29,7 @@
 class XINGZHI_MATRIXBIT_V3 : public WifiBoard {
 private:
     i2c_master_bus_handle_t i2c_bus_;
-    Button* boot_button_ = nullptr;
+    OneButton* boot_button_ = nullptr;
     PowerSaveTimer* power_save_timer_ = nullptr;
     Display* display_ = nullptr;
     AudioCodec* audio_codec_ = nullptr;
@@ -58,11 +58,7 @@ public:
 
     Backlight* GetBacklight() override { return backlight_; }
     
-    void SetDisplay(Display* display) {
-        display_ = display;
-        LvglDisplay *disp = static_cast<LvglDisplay*>(display);
-        disp->SetupUI();
-    }
+    void SetDisplay(Display* display) { display_ = display; }
 #endif
 };
 

@@ -38,7 +38,7 @@ void TftApplication::Start() {
 
     Board& board = Board::GetInstance();
     board.GetLed()->Blink(-1, 1000);
-    board.GetDisplay()->SetStatus("工作中");
+    board.GetDisplay()->SetStatus("Work");
     board.GetDisplay()->SetText("Hello world!");
 }
 

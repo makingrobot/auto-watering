@@ -1,3 +1,6 @@
+#include "config.h"
+#if CONFIG_USE_WIFI==1
+
 #include "ntp_time.h"
 
 #include "src/sys/log.h"
@@ -26,3 +29,5 @@ void NTPTime::Update() {
         Log::Info(TAG, "Failed to obtain time.");
     }
 }
+
+#endif

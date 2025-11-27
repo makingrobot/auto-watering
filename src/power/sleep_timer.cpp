@@ -9,6 +9,7 @@
 #include "src/boards/board.h"
 #include "src/display/display.h"
 #include "src/sys/log.h"
+#include "src/sys/sw_timer.h"
 
 #include <esp_sleep.h>
 #include <esp_pm.h>
@@ -21,29 +22,25 @@
 
 SleepTimer::SleepTimer(int seconds_to_light_sleep, int seconds_to_deep_sleep)
     : seconds_to_light_sleep_(seconds_to_light_sleep), seconds_to_deep_sleep_(seconds_to_deep_sleep) {
-    sleep_ticker_ = new Ticker();
+    timer_ = new SwTimer("Sleep");
 }
 
 SleepTimer::~SleepTimer() {
-    if( sleep_ticker_ != nullptr) {
-        sleep_ticker_->detach();
-        sleep_ticker_=nullptr;
+    if (timer_ != nullptr) {
+        timer_->Stop();
     }
-}
-
-void TickerCallback(SleepTimer *arg) {
-    arg->CheckSleep();
 }
 
 void SleepTimer::SetEnabled(bool enabled) {
     if (enabled && !enabled_) {
         ticks_ = 0;
         enabled_ = enabled;
-        sleep_ticker_->attach(1, TickerCallback, this);
-        Log::Info( TAG, "Timer started" );
+        timer_->Start(1000, [this]() {CheckSleep(); });
+        
     } else if (!enabled && enabled_) {
-        sleep_ticker_->detach();
-        Log::Info( TAG, "Timer stopped" );
+        if (timer_ != nullptr) {
+            timer_->Stop();
+        }
         enabled_ = enabled;
         WakeUp();
     }

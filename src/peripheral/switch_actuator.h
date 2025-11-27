@@ -10,6 +10,8 @@
 #include <Arduino.h>
 #include "actuator.h"
 
+#define TAG "SwitchActuator"
+
 /**
  * 开关类执行器，如继电器，小电机驱动等
  */
@@ -19,7 +21,6 @@ public:
             : sensor_pin_(pin), output_invert_(output_invert) { 
 
         pinMode(sensor_pin_, OUTPUT);
-        Off();
     }
 
     virtual ~SwitchActuator() { 
@@ -27,6 +28,7 @@ public:
     };
 
     virtual void On() {
+        Log::Info(TAG, " On.");
         digitalWrite(sensor_pin_, output_invert_ ? 0 : 1);
         state_ = 1; //on
     }
@@ -34,6 +36,7 @@ public:
     virtual void Off() {
         digitalWrite(sensor_pin_, output_invert_ ? 1 : 0);
         state_ = 0; //off
+        Log::Info(TAG, " Off.");
     }
 
 private:

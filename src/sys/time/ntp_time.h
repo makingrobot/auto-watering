@@ -1,3 +1,6 @@
+#include "config.h"
+#if CONFIG_USE_WIFI==1
+
 #ifndef _NTP_TIME_H
 #define _NTP_TIME_H
 
@@ -19,3 +22,5 @@ private:
 };
 
 #endif //_TIME_H
+
+#endif

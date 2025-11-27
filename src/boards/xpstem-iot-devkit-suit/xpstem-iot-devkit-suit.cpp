@@ -57,6 +57,7 @@ void XPSTEM_IOT_DEVKIT_SUIT::InitializeDisplay() {
         /* i2c data */ I2C_SDA_PIN,
         /* reset=*/ U8X8_PIN_NONE
     );
+    u8g2->setI2CAddress(SSD1306_I2C_ADDR << 1);
 
     //u8g2_font_unifont_t_chinese2
     display_ = new U8g2Display(u8g2, 128, 64, u8g2_font_wqy14_t_gb2312);

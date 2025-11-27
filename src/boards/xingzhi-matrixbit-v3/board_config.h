@@ -92,28 +92,27 @@
 #define CONFIG_USE_CAMERA                   0   // 摄像头
 
 // LVGL
-#define CONFIG_USE_LVGL                     1  // LVGL
-#define LV_LVGL_H_INCLUDE_SIMPLE            1
+#define CONFIG_USE_LVGL                     0  // LVGL
 
 // 图形化（最多设置一个为1，其余必须为0）
-#define CONFIG_USE_LCD_PANEL                1   // 直接驱动
-#define CONFIG_USE_U8G2                     0   // U8G2
-#define CONFIG_USE_TFT_ESPI                 0   // TFT_eSPI
+#define CONFIG_USE_TFT_ESPI                 1   // TFT_eSPI
 #define CONFIG_USE_GFX_LIBRARY              0   // GFX_LIBRARY, 可与LVGL整合使用
 
-// 显示驱动（最多设置一个为1，其余必须为0）
-#define CONFIG_USE_DISPLAY_ILI9341          0
+#if CONFIG_USE_LVGL==1
+#define LV_LVGL_H_INCLUDE_SIMPLE            1
+#define CONFIG_USE_LCD_PANEL                1   // 直接驱动
 #define CONFIG_USE_DISPLAY_ST7789           1
-#define CONFIG_USE_DISPLAY_ST7796           0
-#define CONFIG_USE_DISPLAY_SSD1306          0
+#else
+#define CONFIG_USE_LCD_PANEL                0   // 直接驱动
+#define CONFIG_USE_DISPLAY_ST7789           0
+#endif
 
 // 音频驱动（最多设置一个为1，其余必须为0）
 #define CONFIG_USE_AUDIO_ES8311             1
-#define CONFIG_USE_AUDIO_ES8374             0
-#define CONFIG_USE_AUDIO_ES8388             0
 
 // LED驱动
 #define CONFIG_USE_LED_GPIO                 0
+#define CONFIG_USE_LED_RGB                  0
 #define CONFIG_USE_LED_WS2812               0
 
 

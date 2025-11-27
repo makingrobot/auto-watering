@@ -99,6 +99,7 @@
 
 // LED驱动
 #define CONFIG_USE_LED_GPIO                 0
+#define CONFIG_USE_LED_RGB                  0
 #define CONFIG_USE_LED_WS2812               0
 
 #endif // _BOARD_CONFIG_H

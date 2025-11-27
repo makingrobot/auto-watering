@@ -40,7 +40,6 @@ void TftDisplay::Unlock() {
 void TftDisplay::Init() {
     Log::Info(TAG, "Init ......");
 
-    driver_->init();
     if (window_ == nullptr) {
         window_ = new TftWindow();
     }

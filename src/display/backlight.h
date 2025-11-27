@@ -9,7 +9,7 @@
 #include <cstdint>
 #include <functional>
 #include <driver/gpio.h>
-#include <Ticker.h>
+#include "src/sys/timer.h"
 
 class Backlight {
 public:
@@ -24,7 +24,7 @@ public:
 protected:
     virtual void SetBrightnessImpl(uint8_t brightness) = 0;
 
-    Ticker* transition_ticker_ = nullptr;
+    Timer* transition_timer_ = nullptr;
     uint8_t brightness_ = 0;
     uint8_t target_brightness_ = 0;
     uint8_t step_ = 1;

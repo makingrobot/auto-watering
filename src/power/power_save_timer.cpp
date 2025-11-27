@@ -7,6 +7,7 @@
 #include "power_save_timer.h"
 #include "src/app/application.h"
 #include "src/sys/log.h"
+#include "src/sys/sw_timer.h"
 
 #include <esp_pm.h>
 
@@ -14,29 +15,25 @@
 
 PowerSaveTimer::PowerSaveTimer(int cpu_max_freq, int seconds_to_sleep, int seconds_to_shutdown)
     : cpu_max_freq_(cpu_max_freq), seconds_to_sleep_(seconds_to_sleep), seconds_to_shutdown_(seconds_to_shutdown) {
-    power_save_ticker_ = new Ticker();
+    timer_ = new SwTimer("Power_Save");
 }
 
 PowerSaveTimer::~PowerSaveTimer() {
-    if( power_save_ticker_ != nullptr) {
-        power_save_ticker_->detach();
-        power_save_ticker_ = nullptr;
+    if (timer_ != nullptr) {
+        timer_->Stop();
     }
-}
-
-void TickerCallback(PowerSaveTimer *arg) {
-    arg->CheckPowerSave();
 }
 
 void PowerSaveTimer::SetEnabled(bool enabled) {
     if (enabled && !enabled_) {
         ticks_ = 0;
         enabled_ = enabled;
-        power_save_ticker_->attach(1, TickerCallback, this);
-        Log::Info( TAG, "Timer started" );
+        timer_->Start(1000, [this](){ CheckPowerSave(); });
+
     } else if (!enabled && enabled_) {
-        power_save_ticker_->detach();
-        Log::Info( TAG, "Timer stopped" );
+        if (timer_ != nullptr) {
+            timer_->Stop();
+        }
         enabled_ = enabled;
         WakeUp();
     }

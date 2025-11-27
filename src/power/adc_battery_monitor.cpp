@@ -6,6 +6,7 @@
  */
 #include "adc_battery_monitor.h"
 #include "src/sys/log.h"
+#include "src/sys/sw_timer.h"
 #include <Arduino.h>
 
 #define TAG "AdcBatteryMonitor"
@@ -19,10 +20,6 @@ static const battery_point_t battery_point_table[]={
             { 3.1 ,  0},
             { 3.0 ,  -10}
         };
-
-void TimerCallback(AdcBatteryMonitor *arg) {
-    arg->CheckBatteryStatus();
-}
 
 AdcBatteryMonitor::AdcBatteryMonitor(gpio_num_t charging_pin, adc_unit_t adc_unit, adc_channel_t adc_channel, float upper_resistor, float lower_resistor)
     : AdcBatteryMonitor(charging_pin, adc_unit, adc_channel, upper_resistor, lower_resistor, battery_point_table) {
@@ -61,16 +58,13 @@ AdcBatteryMonitor::AdcBatteryMonitor(gpio_num_t charging_pin, adc_unit_t adc_uni
     adc_cfg.charging_detect_user_data = this;
     adc_battery_estimation_handle_ = adc_battery_estimation_create(&adc_cfg);
 
-    monitor_timer_ = new Ticker();
-    monitor_timer_->attach(20, TimerCallback, this);
-    Log::Info(TAG, "monitor ticker started");
-    Serial.println("");
+    timer_ = new SwTimer("Battery_Monitor");
+    timer_->Start(20*1000, [this](){CheckBatteryStatus();} );
 }
 
 AdcBatteryMonitor::~AdcBatteryMonitor() {
-    if (monitor_timer_!=nullptr) {
-        monitor_timer_->detach();
-        monitor_timer_ = nullptr;
+    if (timer_ != nullptr) {
+        timer_->Stop();
     }
     if (adc_battery_estimation_handle_) {
         adc_battery_estimation_destroy(adc_battery_estimation_handle_);

@@ -4,6 +4,9 @@
  * 
  * Author: Billy Zhang（billy_zh@126.com）
  */
+#include "config.h"
+#if CONFIG_USE_WIFI==1
+
 #ifndef _SSID_MANAGE_H
 #define _SSID_MANAGE_H
 
@@ -40,3 +43,5 @@ private:
 };
 
 #endif //_SSID_MANAGE_H
+
+#endif

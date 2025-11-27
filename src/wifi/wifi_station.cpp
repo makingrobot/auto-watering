@@ -4,6 +4,9 @@
  * 
  * Author: Billy Zhang（billy_zh@126.com）
  */
+#include "config.h"
+#if CONFIG_USE_WIFI==1
+
 #include "wifi_station.h"
 
 #include <WiFi.h>
@@ -163,3 +166,5 @@ std::string WifiStation::GetIpAddress() {
 void WifiStation::SetPowerSaveMode(bool enabled) {
     ESP_ERROR_CHECK(esp_wifi_set_ps(enabled ? WIFI_PS_MIN_MODEM : WIFI_PS_NONE));
 }
+
+#endif

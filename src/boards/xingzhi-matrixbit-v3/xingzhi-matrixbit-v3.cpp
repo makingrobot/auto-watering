@@ -3,7 +3,7 @@
 
 #include "xingzhi-matrixbit-v3.h"
 
-#if CONFIG_USE_TFT==1
+#if CONFIG_USE_TFT_ESPI==1
 #include <Arduino.h>
 #include <TFT_eSPI.h>
 #endif
@@ -13,7 +13,7 @@
 #include "src/boards/i2c_device.h"
 #include "src/audio/audio_codec.h"
 #include "src/audio/codecs/es8311/es8311_audio_codec.h"
-#if CONFIG_USE_TFT==1
+#if CONFIG_USE_TFT_ESPI==1
 #include "src/display/tft_display.h"
 #endif
 #if CONFIG_USE_LVGL==1
@@ -62,22 +62,20 @@ void XINGZHI_MATRIXBIT_V3::InitializePowerSaveTimer() {
 
 void XINGZHI_MATRIXBIT_V3::InitializeDisplay() {
 
-#if CONFIG_USE_TFT==1
+#if CONFIG_USE_TFT_ESPI==1
     Log::Info( TAG, "Init ssd1306 display ......" );
     TFT_eSPI *tft = new TFT_eSPI();
     tft->init();
-    //tft->setRotation(0);
+    tft->setRotation(1);
     //tft->invertDisplay(0);
 
     //u8g2_font_unifont_t_chinese2
-    TftDisplay* disp = new TftDisplay(tft, 240, 240);
-    disp->Setup();
-    display_ = disp;
+    display_ = new TftDisplay(tft, 240, 240);
 #endif
 
 #if CONFIG_USE_LCD_PANEL==1
     Log::Info( TAG, "Create st7789 driver." );
-    driver = new ST7789Driver(DISPLAY_WIDTH, DISPLAY_HEIGHT,
+    ST7789Driver *driver = new ST7789Driver(DISPLAY_WIDTH, DISPLAY_HEIGHT,
                                     DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY);
                                     
     Log::Info( TAG, "Init st7796 on spi mode." );
@@ -108,7 +106,7 @@ XINGZHI_MATRIXBIT_V3::XINGZHI_MATRIXBIT_V3() : WifiBoard() {
 
     // InitializePowerSaveTimer();
 
-    // InitializeButtons();
+    InitializeButtons();
 
     InitializeDisplay();
 

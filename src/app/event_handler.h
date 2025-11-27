@@ -24,8 +24,6 @@ public:
         return kEventError | kEventScheduleTask | kEventNewVersion;
     }
 
-    virtual void ScheduleTask(std::deque<callback_function_t>& tasks);
-
     virtual bool HandleEvent(uint32_t event_bits);
 
 };

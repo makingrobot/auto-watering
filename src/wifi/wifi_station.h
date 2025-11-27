@@ -4,6 +4,9 @@
  * 
  * Author: Billy Zhang（billy_zh@126.com）
  */
+#include "config.h"
+#if CONFIG_USE_WIFI==1
+
 #ifndef _WIFI_STATION_H
 #define _WIFI_STATION_H
 
@@ -46,3 +49,5 @@ private:
 };
 
 #endif //_WIFI_STATION_H
+
+#endif

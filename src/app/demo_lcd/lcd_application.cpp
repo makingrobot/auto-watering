@@ -10,6 +10,7 @@
 #include "lcd_application.h"
 #include "src/sys/log.h"
 #include "src/boards/board.h"
+#include "src/boards/wifi_board.h"
 #include "src/lang/lang_zh_cn.h"
 #include "src/display/lvgl_display.h"
 #include "src/display/lvgl_text_window.h"
@@ -38,6 +39,10 @@ void LcdApplication::Init() {
 
 void LcdApplication::Start() {
     Application::Start();
+
+    // 启动Wifi
+    WifiBoard* board = static_cast<WifiBoard*>(&Board::GetInstance());
+    board->StartNetwork(30000);
 
     window_->SetText("Hello world!");
 }

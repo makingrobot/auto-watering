@@ -10,7 +10,7 @@
 #include <functional>
 #include <vector>
 #include <driver/gpio.h>
-#include <Ticker.h>
+#include "src/sys/timer.h"
 #include "src/libs/adc_battery_estimation/adc_battery_estimation.h"
 
 /**
@@ -34,10 +34,9 @@ public:
 private:
     gpio_num_t charging_pin_;
     adc_battery_estimation_handle_t adc_battery_estimation_handle_ = nullptr;
-    esp_timer_handle_t timer_handle_ = nullptr;
     bool is_charging_ = false;
     std::function<void(bool)> on_charging_status_changed_;
-    Ticker* monitor_timer_ = nullptr;
+    Timer* timer_ = nullptr;
     
 };
 

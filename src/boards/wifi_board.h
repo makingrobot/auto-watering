@@ -4,6 +4,9 @@
  * 
  * Author: Billy Zhang（billy_zh@126.com）
  */
+#include "config.h"
+#if CONFIG_USE_WIFI==1
+
 #ifndef _WIFI_BOARD_H
 #define _WIFI_BOARD_H
 
@@ -39,3 +42,5 @@ public:
 };
 
 #endif // _WIFI_BOARD_H
+
+#endif

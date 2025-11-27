@@ -11,10 +11,10 @@
 #define LVGL_STATUSBAR_H
 
 #include <lvgl.h>
-#include <Ticker.h>
 #include <string>
 #include "lvgl_style.h"
 #include "src/fonts/font_emoji.h"
+#include "src/sys/timer.h"
 
 class LvglStatusBar {
 protected:
@@ -34,7 +34,7 @@ protected:
     const char* network_icon_ = nullptr;
     bool muted_ = false;
 
-    Ticker* notification_ticker_ = nullptr;
+    Timer* notification_timer_ = nullptr;
 
 public:
     LvglStatusBar();

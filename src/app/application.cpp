@@ -15,13 +15,17 @@
 #include "config.h"
 #include "src/display/display.h"
 #include "src/boards/board.h"
-#include "src/boards/wifi_board.h"
 #include "src/sys/system_info.h"
-#include "src/wifi/wifi_station.h"
 #include "src/fonts/font_awesome_symbols.h"
 #include "src/lang/lang_zh_cn.h"
 #include "src/app/types.h"
 #include "src/sys/log.h"
+#include "src/sys/sw_timer.h"
+
+#if CONFIG_USE_WIFI==1
+#include "src/boards/wifi_board.h"
+#include "src/wifi/wifi_station.h"
+#endif
 
 #define TAG "Application"
 
@@ -45,9 +49,8 @@ Application::Application() {
 Application::~Application() {
 
 #if CONFIG_CLOCK_ENABLE==1
-    if (clock_ticker_!=nullptr) {
-        clock_ticker_->detach();
-        clock_ticker_ = nullptr;
+    if (clock_timer_!=nullptr) {
+        clock_timer_->Stop();
     }
 #endif
 
@@ -62,15 +65,9 @@ void Application::Init() {
     board.GetDisplay()->Init();
 
 #if CONFIG_CLOCK_ENABLE==1
-    clock_ticker_ = new Ticker();
+    clock_timer_ = new SwTimer("Clock");
 #endif
 }
-
-#if CONFIG_CLOCK_ENABLE==1
-void TickerCallback(Application *arg) {
-    arg->OnClockTimer();
-}
-#endif
 
 void Application::Start() {
     Log::Info(TAG, "Starting ......");
@@ -79,7 +76,7 @@ void Application::Start() {
     Display* display = board.GetDisplay();
 
 #if CONFIG_CLOCK_ENABLE==1
-    clock_ticker_->attach(1, TickerCallback, this);
+    clock_timer_->Start(1000, [this](){ OnClockTimer(); });
     Log::Info(TAG, "clock timer started.");
 #endif
 
@@ -155,10 +152,17 @@ bool Application::OnPhysicalButtonEvent(const std::string& button_name, const Bu
         if (action == ButtonAction::Click) {
             ToggleWorkState();
             return true;
+
+        } else if (action == ButtonAction::DoubleClick) {
+            Board& board = Board::GetInstance();
+            board.Shutdown();
+            return true;
         }
     }
 
-    return false; // 未处理
+    // 未处理
+    Log::Info(TAG, "%s event unhandle.", button_name.c_str());
+    return false;
 }
 
 bool Application::OnDisplayTouchEvent(const TouchPoint_t& point) {
@@ -379,13 +383,16 @@ void Application::EventLoop() {
             auto tasks = std::move(app_tasks_);
             lock.unlock();
 
-            event_handler_->ScheduleTask(tasks);
+            Log::Info( TAG, "execute tasks.");
+            for (auto task : tasks) {
+                task();
+            }
+            
         } else {
             event_handler_->HandleEvent(bits);
         }
     } catch (const std::exception& e) {
-        // Log::Error( TAG, "Caught exception: " );
-        // Log::Error( TAG, e.what() );
+        Log::Error( TAG, "Caught exception: %s", e.what() );
     }
 
     delay(1); //1ms

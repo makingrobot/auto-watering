@@ -17,20 +17,20 @@
 #include "src/app/device_state.h"
 #include "src/fonts/font_awesome_symbols.h"
 #include "src/lang/lang_zh_cn.h"
+#include "src/sys/sw_timer.h"
 
 #define TAG "LvglStatusBar"
 
 LvglStatusBar::LvglStatusBar() {
     
-    notification_ticker_ = new Ticker();
+    notification_timer_ = new SwTimer("StatusBar");
 
 }
 
 LvglStatusBar::~LvglStatusBar() {
 
-    if( notification_ticker_!=nullptr ) {
-        notification_ticker_->detach();
-        notification_ticker_=nullptr;
+    if( notification_timer_!=nullptr ) {
+        notification_timer_->Stop();
     }
 
     if (status_bar_ != nullptr) {
@@ -126,10 +126,6 @@ void LvglStatusBar::SetTheme(const ThemeColors& theme) {
     
 }
 
-void TickerCallback(LvglStatusBar *arg) {
-    arg->OnNotificationTimer();
-}
-
 void LvglStatusBar::ShowNotification(const char* notification, int duration_ms) {
     if (notification_label_ == nullptr) {
         return;
@@ -138,8 +134,7 @@ void LvglStatusBar::ShowNotification(const char* notification, int duration_ms) 
     lv_obj_clear_flag(notification_label_, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(status_label_, LV_OBJ_FLAG_HIDDEN);
 
-    notification_ticker_->once(1, TickerCallback, this);
-    Log::Info( TAG, "notification timer started" );
+    notification_timer_->Start(1000, [this](){ OnNotificationTimer(); }, true);
 }
 
 void LvglStatusBar::OnNotificationTimer() {

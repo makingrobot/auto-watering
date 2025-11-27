@@ -4,6 +4,9 @@
  * 
  * Author: Billy Zhang（billy_zh@126.com）
  */
+#include "config.h"
+#if CONFIG_USE_WIFI==1
+
 #include "ssid_manager.h"
 
 #include <algorithm>
@@ -140,3 +143,5 @@ void SsidManager::SetDefaultSsid(int index) {
     ssid_list_.insert(ssid_list_.begin(), item);
     SaveToNvs();
 }
+
+#endif

@@ -4,6 +4,9 @@
  * 
  * Author: Billy Zhang（billy_zh@126.com）
  */
+#include "config.h"
+#if CONFIG_USE_WIFI==1
+
 #include "wifi_board.h"
 
 #include <freertos/FreeRTOS.h>
@@ -313,3 +316,5 @@ std::string WifiBoard::GetDeviceStatusJson() {
     cJSON_Delete(root);
     return json;
 }
+
+#endif

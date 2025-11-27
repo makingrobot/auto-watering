@@ -45,7 +45,6 @@ protected:
 
     virtual void EnterSleepMode();
     virtual void ExitSleepMode();
-    virtual void Shutdown();
 
     virtual void AddActuator(const std::string& name, Actuator* actuator) {
         actuator_map_[name] = actuator;
@@ -64,16 +63,17 @@ public:
     virtual ~Board() = default;
 
     void Sleep(uint32_t time_ms);
+    virtual void Shutdown();
     virtual std::string GetUuid() { return uuid_; }
     virtual std::string GetJson();
-    virtual std::string GetBoardType() = 0;
-    virtual std::string GetBoardJson() = 0;
-    virtual std::string GetDeviceStatusJson() = 0;
-    virtual void SetPowerSaveMode(bool enabled) = 0; 
+    virtual std::string GetBoardType() { return ""; }
+    virtual std::string GetBoardJson() { return "{}"; }
+    virtual std::string GetDeviceStatusJson() { return "{}"; }
+    virtual void SetPowerSaveMode(bool enabled) { } 
     virtual bool GetTemperature(float& temp) { return false; }
     virtual bool GetBatteryLevel(int &level, bool& charging, bool& discharging) { return false; }
 
-    virtual const char* GetNetworkStateIconName() = 0;
+    virtual const char* GetNetworkStateIconName() { return ""; }
 
     virtual bool OnPhysicalButtonEvent(const std::string& button_name, const ButtonAction action);
     virtual bool OnDisplayTouchEvent(const TouchPoint_t& point);

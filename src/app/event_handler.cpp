@@ -26,15 +26,3 @@ bool EventHandler::HandleEvent(uint32_t event_bits) {
 
     return false;
 }
-
-void EventHandler::ScheduleTask(std::deque<callback_function_t>& tasks) {
-      
-    for (auto& task : tasks) {
-        try {
-            task();
-        } catch (const std::exception& e) {
-            // Log::Error( TAG, "Caught exception: " );
-            // Log::Error( TAG, e.what() );
-        }
-    }
-}

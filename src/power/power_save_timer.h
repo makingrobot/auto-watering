@@ -8,7 +8,7 @@
 #define _POWER_SAVE_TIMER_H
 
 #include <functional>
-#include <Ticker.h>
+#include "src/sys/timer.h"
 
 /**
  * 节能定时器
@@ -28,7 +28,7 @@ public:
 
 private:
 
-    Ticker* power_save_ticker_ = nullptr;
+    Timer* timer_ = nullptr;
     bool enabled_ = false;
     bool in_sleep_mode_ = false;
     int ticks_ = 0;

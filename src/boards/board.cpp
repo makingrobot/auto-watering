@@ -82,6 +82,7 @@ void Board::ExitSleepMode() {
 }
 
 void Board::Shutdown() {
+    Log::Info( TAG, "Entering deep sleep mode");
     //GetBacklight()->SetBrightness(0);
     GetLed()->TurnOff();
     esp_deep_sleep_start();
@@ -90,24 +91,7 @@ void Board::Shutdown() {
 bool Board::OnPhysicalButtonEvent(const std::string& button_name, const ButtonAction action) {
 
     Application& app = Application::GetInstance();
-    bool handled = app.OnPhysicalButtonEvent(button_name, action);
-    if (handled) {
-        return true;
-    }
-
-    if (strcmp(button_name.c_str(), kBootButton)==0) {
-        if (action == ButtonAction::DoubleClick) {
-            Shutdown();
-
-            Log::Info( TAG, "Entering deep sleep mode");
-            GetLed()->TurnOff();
-            esp_deep_sleep_start();
-
-            return true;
-        }
-    }
-
-    return false;
+    return app.OnPhysicalButtonEvent(button_name, action);
 }
 
 bool Board::OnDisplayTouchEvent(const TouchPoint_t& point) {

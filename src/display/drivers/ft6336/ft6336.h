@@ -9,8 +9,8 @@
 
 #include <driver/i2c_master.h>
 #include "src/boards/i2c_device.h"
-#include <Ticker.h>
 #include "src/app/types.h"
+#include "src/sys/timer.h"
 
 class Ft6336 : public I2cDevice {
 public:
@@ -35,7 +35,7 @@ private:
 
     TouchPoint_t tp_;
     uint8_t* read_buffer_ = nullptr;
-    Ticker* touchpad_ticker_ = nullptr;
+    Timer* touchpad_timer_ = nullptr;
     std::function<void(const TouchPoint_t&)> on_touched_;
 };
 

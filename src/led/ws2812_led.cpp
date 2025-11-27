@@ -9,39 +9,26 @@
 
 #include "ws2812_led.h"
 #include "src/sys/log.h"
+#include "src/sys/sw_timer.h"
 
 #define TAG "Ws2812Led"
 
-Ws2812Led::Ws2812Led(gpio_num_t gpio) {
-    // If the gpio is not connected, you should use NoLed class
-    assert(gpio != GPIO_NUM_NC);
+Ws2812Led::Ws2812Led(gpio_num_t pin, uint8_t num_pixels) : pin_(pin), num_pixels_(num_pixels) {
+    pixels_ = new Adafruit_NeoPixel(1, num_pixels, pin, NEO_GRB + NEO_KHZ800);
+    pixels_->begin();
 
-    led_strip_config_t strip_config = {};
-    strip_config.strip_gpio_num = gpio;
-    strip_config.max_leds = 1;
-    strip_config.led_pixel_format = LED_PIXEL_FORMAT_GRB;
-    strip_config.led_model = LED_MODEL_WS2812;
-
-    led_strip_rmt_config_t rmt_config = {};
-    rmt_config.resolution_hz = 10 * 1000 * 1000; // 10MHz
-
-    ESP_ERROR_CHECK(led_strip_new_rmt_device(&strip_config, &rmt_config, &led_strip_));
-    led_strip_clear(led_strip_);
-
-    blink_ticker_ = new Ticker();
+    timer_ = new SwTimer("Ws2812_Led");
 }
 
 Ws2812Led::~Ws2812Led() {
     Stop();
 
-    if (led_strip_ != nullptr) {
-        led_strip_del(led_strip_);
-    }
+    pixels_->clear();
 }
 
 void Ws2812Led::Stop() {
-    if( blink_ticker_!=nullptr ) {
-        blink_ticker_->detach();
+    if (timer_ != nullptr) {
+        timer_->Stop();
     }
 }
 
@@ -54,27 +41,27 @@ void Ws2812Led::SetColor(uint8_t r, uint8_t g, uint8_t b) {
 
 void Ws2812Led::TurnOn() {
     Log::Debug(TAG, "turn on");
-    if (led_strip_ == nullptr) {
+    if (pixels_ == nullptr) {
         return;
     }
-    
+
     std::lock_guard<std::mutex> lock(mutex_);
     Stop();
 
-    led_strip_set_pixel(led_strip_, 0, r_, g_, b_);
-    led_strip_refresh(led_strip_);
+    pixels_->setPixelColor(0, pixels_->Color(r_, g_, b_));
+    pixels_->show();
 }
 
 void Ws2812Led::TurnOff() {
     Log::Debug(TAG, "turn off");
-    if (led_strip_ == nullptr) {
+    if (pixels_ == nullptr) {
         return;
     }
 
     std::lock_guard<std::mutex> lock(mutex_);
     Stop();
 
-    led_strip_clear(led_strip_);
+    pixels_->clear();
 }
 
 void Ws2812Led::BlinkOnce() {
@@ -91,12 +78,8 @@ void Ws2812Led::StartContinuousBlink(int interval_ms) {
     StartBlinkTask(BLINK_INFINITE, interval_ms);
 }
 
-void TickerCallback(Ws2812Led *arg) {
-    arg->OnBlinkTimer();
-}
-
 void Ws2812Led::StartBlinkTask(int times, int interval_ms) {
-    if (led_strip_ == nullptr) {
+    if (pixels_ == nullptr) {
         return;
     }
 
@@ -106,18 +89,17 @@ void Ws2812Led::StartBlinkTask(int times, int interval_ms) {
     blink_counter_ = times * 2;
     blink_interval_ms_ = interval_ms;
     
-    blink_ticker_->attach_ms(interval_ms, TickerCallback, this);
-    Log::Info( TAG, "blink timer started" );
+    timer_->Start(interval_ms, [this](){ OnBlinkTimer(); });
 }
 
 void Ws2812Led::OnBlinkTimer() {
     std::lock_guard<std::mutex> lock(mutex_);
     blink_counter_--;
     if (blink_counter_ & 1) {
-        led_strip_set_pixel(led_strip_, 0, r_, g_, b_);
-        led_strip_refresh(led_strip_);
+        pixels_->setPixelColor(0, pixels_->Color(r_, g_, b_));
+        pixels_->show();
     } else {
-        led_strip_clear(led_strip_);
+        pixels_->clear();
 
         if (blink_counter_ == 0) {
             Stop();

@@ -13,10 +13,12 @@
 #include <driver/gpio.h>
 #include <atomic>
 #include <mutex>
-#include <Ticker.h>
+
+#include <Arduino.h>
+#include <Adafruit_NeoPixel.h>
 
 #include "led.h"
-#include "src/libs/led_strip/led_strip.h"
+#include "src/sys/timer.h"
 
 /**
  * Ws2812灯珠类
@@ -38,12 +40,13 @@ public:
 
 private:
     std::mutex mutex_;
+    gpio_num_t pin_;
     TaskHandle_t blink_task_ = nullptr;
-    led_strip_handle_t led_strip_ = nullptr;
     uint8_t r_ = 0, g_ = 0, b_ = 0;
     int blink_counter_ = 0;
     int blink_interval_ms_ = 0;
-    Ticker* blink_ticker_ = nullptr;
+    Timer* timer_ = nullptr;
+    Adafruit_NeoPixel *pixels = nullptr;
 
     void StartContinuousBlink(int interval_ms);
     void StartBlinkTask(int times, int interval_ms);

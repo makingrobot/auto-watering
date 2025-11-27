@@ -8,7 +8,7 @@
 #define _SLEEP_TIMER_H
 
 #include <functional>
-#include <Ticker.h>
+#include "src/sys/timer.h"
 
 class SleepTimer {
 public:
@@ -24,7 +24,7 @@ public:
 
 private:
 
-    Ticker* sleep_ticker_ = nullptr;
+    Timer* timer_ = nullptr;
     bool enabled_ = false;
     int ticks_ = 0;
     int seconds_to_light_sleep_;

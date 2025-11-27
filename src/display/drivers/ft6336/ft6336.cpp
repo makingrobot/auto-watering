@@ -6,6 +6,7 @@
  */
 #include "ft6336.h"
 #include "src/sys/log.h"
+#include "src/sys/sw_timer.h"
 
 #define TAG "Ft6336"
 
@@ -13,25 +14,19 @@ Ft6336::Ft6336(i2c_master_bus_handle_t i2c_bus, uint8_t addr) : I2cDevice(i2c_bu
     uint8_t chip_id = ReadReg(0xA3);
     Log::Info(TAG, "Get chip ID: 0x%02X", chip_id);
     read_buffer_ = new uint8_t[6];
-    touchpad_ticker_ = new Ticker();
+    touchpad_timer_ = new SwTimer("Ft6336");
 }
 
 Ft6336::~Ft6336() {
     delete[] read_buffer_;
-    if (touchpad_ticker_!=nullptr) {
-        touchpad_ticker_->detach();
-        touchpad_ticker_=nullptr;
+    if (touchpad_timer_!=nullptr) {
+        touchpad_timer_->Stop();
     }
-}
-
-void TickerCallback(Ft6336 *arg) {
-    arg->PollTouchpad();
 }
 
 void Ft6336::Start() {
     // 创建定时器，20ms 间隔
-    touchpad_ticker_->attach_ms(20, TickerCallback, this);
-    Log::Info(TAG, "Timer started");
+    touchpad_timer_->Start(20, [this](){PollTouchpad();} );
 }
 
 void Ft6336::UpdateTouchPoint() {
