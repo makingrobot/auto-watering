@@ -7,18 +7,25 @@
 #ifndef _WIFI_CONFIGURATION_EX_H
 #define _WIFI_CONFIGURATION_EX_H
 
-#include "../wifi_configuration_impl.h"
+#include <Arduino.h>
+#include <WebServer.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 
-class WifiConfigurationEx : public WifiConfigurationImpl {
+#include "src/wifi/wifi_configuration.h"
+
+class WifiConfigurationEx : public WifiConfiguration {
 public:
     WifiConfigurationEx() { }
 
 protected:
-    void BindSsidRoute() override;
-    void BindAdvancedRoute() override;
+    void StartWebServer() override;
 
 private:
     bool ReadProductConfig(const std::string& serialno, int workmode);
+
+    WebServer *web_server_;
+    TaskHandle_t web_task_handler_;
 
 };
 

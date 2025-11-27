@@ -15,7 +15,7 @@
 #include "src/wifi/wifi_station.h"
 #include "src/peripheral/analog_sensor.h"
 #include "src/peripheral/switch_actuator.h"
-#include "src/boards/xpstem-watering-suit/l9110_driver.h"
+#include "l9110_driver.h"
 #include "watering_config.h"
 
 #define TAG "WateringApplication"
@@ -56,8 +56,7 @@ void WateringApplication::Init() {
 void WateringApplication::Start() {
 
     Board& board = Board::GetInstance();
-    board.GetLed()->Blink(5, 1000);
-
+    
     // 启动传感器
     Sensor* sensor = board.GetSensor(kSoilMositureName);
     if (sensor != nullptr) {
@@ -106,89 +105,98 @@ bool WateringApplication::OnPhysicalButtonEvent(const std::string& button_name, 
  */
 bool WateringApplication::OnSensorDataEvent(const std::string& sensor_name, const SensorValue& value) {
 
-    Log::Info(TAG, "接收到传感器: %s 的数据: %d", sensor_name.c_str(), value.intValue());
+    if (sensor_name == kSoilMositureName) {
+        Log::Info(TAG, "接收到传感器: %s 的数据: %d", sensor_name.c_str(), value.intValue());
 
-    WifiBoard* wifi_board = static_cast<WifiBoard*>(&Board::GetInstance());
-    U8g2Display* display = static_cast<U8g2Display*>(wifi_board->GetDisplay());
+        WifiBoard* wifi_board = static_cast<WifiBoard*>(&Board::GetInstance());
+        U8g2Display* display = static_cast<U8g2Display*>(wifi_board->GetDisplay());
 
-    if (value.intValue() == 0) {
-        display->GetWindow()->SetText(started_ ? 1 : 3, "湿度: nodata");
-        return false;
-    }
+        if (value.intValue() == 0) {
+            display->GetWindow()->SetText(started_ ? 1 : 3, "湿度: nodata");
+            return false;
+        }
 
-    // 4095-1 映射到 1-100
-    soil_moilture_value_ = map(value.intValue(), 1, 4095, 100, 1);
+        // 4095-1 映射到 1-100
+        soil_moilture_value_ = map(value.intValue(), 1, 4095, 100, 1);
 
-    if (!started_) {
-        display->GetWindow()->SetText(3, "湿度: " + std::to_string(soil_moilture_value_) );
-        return false;
-    }
+        if (!started_) {
+            display->GetWindow()->SetText(3, "湿度: " + std::to_string(soil_moilture_value_) );
+            return false;
+        }
 
-    display->GetWindow()->SetText(1, "湿度: " + std::to_string(soil_moilture_value_) );
+        display->GetWindow()->SetText(1, "湿度: " + std::to_string(soil_moilture_value_) );
 
-    SetDeviceState(kDeviceStateConnecting);
+        SetDeviceState(kDeviceStateConnecting);
 
-    WiFi.mode(WIFI_STA);
+        // 连接WiFi
+        WiFi.mode(WIFI_STA);
 #if CONFIG_WIFI_CONFIGURE_ENABLE==1
-    wifi_board->StartNetwork(30000);
+        if (!wifi_board->StartNetwork(30000)) {
 #else
-    // 连接WiFi
-    if (!wifi_board->StartNetwork(kSsid, kPassword, 30000)) {
-        Log::Info(TAG, "WiFi连接失败。");
-        SetDeviceState(kDeviceStateWarning);
-        ShowMessage("WiFi连接失败。");
-        return false;
-    }
+        if (!wifi_board->StartNetwork(kSsid, kPassword, 30000)) {
 #endif
+            Log::Info(TAG, "WiFi连接失败。");
+            SetDeviceState(kDeviceStateWarning);
+            ShowMessage("WiFi连接失败。");
+            return false;
+        }
 
-    Log::Info(TAG, "LocalIP: %s", wifi_board->GetIpAddress().c_str());
+        Log::Info(TAG, "LocalIP: %s", wifi_board->GetIpAddress().c_str());
 
-    WateringConfig& config = WateringConfig::GetInstance();
+        WateringConfig& config = WateringConfig::GetInstance();
+        if (config.mqtt_username()=="") {
+            Log::Info(TAG, "mqtt username is blank。");
+            ShowMessage("配置有误，请重新配置");
+            return false;
+        }
 
-    int state = mqtt_service_->Connect(config.mqtt_server(), config.mqtt_username(), config.mqtt_password(), 5);
-    // 连接MQTT
-    if (state!=0) {
-        // 连接失败
-        Log::Info(TAG, "未连接到IoT平台。");
-        SetDeviceState(kDeviceStateWarning);
-        ShowMessage("IoT连接失败。");
-        return false;
+        int state = mqtt_service_->Connect(config.mqtt_server(), config.mqtt_username(), config.mqtt_password(), 5);
+        // 连接MQTT
+        if (state!=0) {
+            // 连接失败
+            Log::Info(TAG, "未连接到IoT平台。");
+            SetDeviceState(kDeviceStateWarning);
+            ShowMessage("IoT连接失败。");
+            return false;
+        }
+
+        // 主题订阅
+        mqtt_service_->SubscribeTopic(config.pump_control_topic(), [this, config](const std::string& payload) {
+            OnIotMessageEvent(config.pump_control_topic(), payload);
+        });
+
+        SetDeviceState(kDeviceStateWorking);
+
+        // 数据包处理
+        char buffer[128] = { 0 };
+        snprintf(buffer, 127, "{\"data\":{\"%s\":%d}}", config.soil_moisture_dataname(), soil_moilture_value_);
+
+        // 发布数据到IoT
+        Log::Info(TAG, "发布数据到IoT，主题: %s", config.soil_moisture_topic().c_str());
+        mqtt_service_->PublishData(config.soil_moisture_topic(), std::string(buffer));
+
+        // 等待30秒
+        vTaskDelay(pdMS_TO_TICKS(kWaitSecondsAfterPublished * 1000));
+
+        // 关闭IoT连接（省电）
+        mqtt_service_->Disconnect();
+        // 关闭WiFi连接（省电）
+        wifi_board->Disconnect();
+        WiFi.mode(WIFI_OFF);
+
+        collect_count_++;
+        // 已经采集了10次，进入深度睡眠23h
+        if (collect_count_ > kTotalCountPerPeriod) {
+            //    sleepSeconds<3600 ? sleepSeconds/60 : sleepSeconds/3600,
+            //    sleepSeconds<3600 ? "分钟" : "小时");
+            wifi_board->GetDisplay()->Sleep();
+            wifi_board->Sleep(kDeepSleepSeconds * 1000);
+        }
+
+        return true;
     }
 
-    // 主题订阅
-    mqtt_service_->SubscribeTopic(config.pump_control_topic(), [this, config](const std::string& payload) {
-        OnIotMessageEvent(config.pump_control_topic(), payload);
-    });
-
-    SetDeviceState(kDeviceStateWorking);
-
-    // 数据包处理
-    char buffer[128] = { 0 };
-    snprintf(buffer, 127, "{\"data\":{\"%s\":%d}}", config.soil_moisture_dataname(), soil_moilture_value_);
-
-    // 发布数据到IoT
-    Log::Info(TAG, "发布数据到IoT，主题: %s", config.soil_moisture_topic().c_str());
-    mqtt_service_->PublishData(config.soil_moisture_topic(), std::string(buffer));
-
-    // 等待30秒
-    vTaskDelay(pdMS_TO_TICKS(kWaitSecondsAfterPublished * 1000));
-
-    // 关闭IoT连接（省电）
-    mqtt_service_->Disconnect();
-    // 关闭WiFi连接（省电）
-    wifi_board->Disconnect();
-    WiFi.mode(WIFI_OFF);
-
-    collect_count_++;
-    // 已经采集了10次，进入深度睡眠23h
-    if (collect_count_ > kTotalCountPerPeriod) {
-        //    sleepSeconds<3600 ? sleepSeconds/60 : sleepSeconds/3600,
-        //    sleepSeconds<3600 ? "分钟" : "小时");
-        wifi_board->GetDisplay()->Sleep();
-        wifi_board->Sleep(kDeepSleepSeconds * 1000);
-    }
-
-    return true;
+    return false;
 }
 
 /**

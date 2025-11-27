@@ -1,7 +1,9 @@
 
 #include "mqtt_service.h"
 #include <esp_system.h>
+
 #include "src/sys/log.h"
+#include "src/sys/system_info.h"
 #include "src/boards/board.h"
 #include "watering_application.h"
 
@@ -40,8 +42,8 @@ int MqttService::Connect(const std::string& broker_server, const std::string& us
     
     mqtt_client_->setServer(broker_server.c_str(), 1883);
 
-    std::string client_id = "esp32-client-test";
-    Log::Info(TAG, "正在连接IoT平台: %s .....", broker_server.c_str());
+    std::string client_id = "esp32-" + SystemInfo::GetMacAddress2();
+    Log::Info(TAG, "连接IoT平台: %s, username: %s", broker_server.c_str(), username.c_str());
     while (!mqtt_client_->connected() && retry_count > 0) {
         if (mqtt_client_->connect(client_id.c_str(), username.c_str(), password.c_str())) {
             Log::Info(TAG, "连接到IoT平台.");
