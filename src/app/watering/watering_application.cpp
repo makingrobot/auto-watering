@@ -5,17 +5,18 @@
  */
 #include "watering_application.h"
 #include <cJSON.h>
+#include <WiFi.h>
 #include "src/sys/log.h"
 #include "src/boards/board.h"
 #include "src/boards/wifi_board.h"
 #include "src/lang/lang_zh_cn.h"
 #include "src/display/u8g2_display.h"
-#include "src/wifi/wifi_station.h"
 #include "src/sys/settings.h"
 #include "src/wifi/wifi_station.h"
 #include "src/peripheral/analog_sensor.h"
 #include "src/peripheral/switch_actuator.h"
 #include "src/boards/xpstem-watering-suit/l9110_driver.h"
+#include "watering_config.h"
 
 #define TAG "WateringApplication"
 
@@ -31,8 +32,8 @@ static const int kTotalCountPerPeriod = 20;
 // 深度睡眠时长（23小时）
 static const long kDeepSleepSeconds = 23 * 3600;  //second
 
-static const std::string kSsid = "qwer_1234";
-static const std::string kPassword = "abc123";
+static const char *kSsid = "ssid";
+static const char *kPassword = "password";
 
 void* create_application() {
     return new WateringApplication();
@@ -48,14 +49,6 @@ WateringApplication::~WateringApplication() {
 
 void WateringApplication::Init() {
     Application::Init();
-
-    // do your init.
-    Settings settings("watering", true);
-    iot_broker_ = settings.GetString("iot_broker", "");
-    iot_username_ = settings.GetString("iot_username", "");
-    iot_password_ = settings.GetString("iot_password", "");
-    pump_control_topic_ = settings.GetString("pump_control_topic", "");
-    soil_moilture_topic_ = settings.GetString("soil_moilture_topic", "");
 
     mqtt_service_ = new MqttService();
 }
@@ -73,11 +66,6 @@ void WateringApplication::Start() {
     }
 
     Application::Start();
-
-    // 主题订阅
-    mqtt_service_->SubscribeTopic(pump_control_topic_, [this](const std::string& payload) {
-        OnIotMessageEvent(pump_control_topic_, payload);
-    });
 
     started_ = true;
 }
@@ -117,15 +105,18 @@ bool WateringApplication::OnPhysicalButtonEvent(const std::string& button_name, 
  */
 bool WateringApplication::OnSensorDataEvent(const std::string& sensor_name, int value) {
 
-    Log::Info(TAG, "接收到传感器:%s 的数据:%d", sensor_name.c_str(), value);
-
-    if (value>0) {
-        // 映射到 0-100
-        soil_moilture_value_ = map(value, 1, 4095, 100, 1);
-    }
+    Log::Info(TAG, "接收到传感器: %s 的数据: %d", sensor_name.c_str(), value);
 
     WifiBoard* wifi_board = static_cast<WifiBoard*>(&Board::GetInstance());
     U8g2Display* display = static_cast<U8g2Display*>(wifi_board->GetDisplay());
+
+    if (value == 0) {
+        display->GetWindow()->SetText(started_ ? 1 : 3, "湿度: nodata");
+        return false;
+    }
+
+    // 4095-1 映射到 1-100
+    soil_moilture_value_ = map(value, 1, 4095, 100, 1);
 
     if (!started_) {
         display->GetWindow()->SetText(3, "湿度: " + std::to_string(soil_moilture_value_) );
@@ -136,58 +127,63 @@ bool WateringApplication::OnSensorDataEvent(const std::string& sensor_name, int 
 
     SetDeviceState(kDeviceStateConnecting);
 
+    WiFi.mode(WIFI_STA);
 #if CONFIG_WIFI_CONFIGURE_ENABLE==1
-    wifi_board->StartNetwork();
+    wifi_board->StartNetwork(30000);
 #else
     // 连接WiFi
-    if (!wifi_board->StartNetwork(kSsid, kPassword)) {
-        Log::Info(TAG, "Wifi connect failure.");
-        ShowMessage("WiFi连接失败。");
+    if (!wifi_board->StartNetwork(kSsid, kPassword, 30000)) {
+        Log::Info(TAG, "WiFi连接失败。");
         SetDeviceState(kDeviceStateWarning);
+        ShowMessage("WiFi连接失败。");
         return false;
     }
 #endif
 
-    int retry_count = 5;
+    Log::Info(TAG, "LocalIP: %s", wifi_board->GetIpAddress().c_str());
+
+    WateringConfig& config = WateringConfig::GetInstance();
+
+    int state = mqtt_service_->Connect(config.mqtt_server(), config.mqtt_username(), config.mqtt_password(), 5);
     // 连接MQTT
-    while (!mqtt_service_->Connect(iot_broker_, iot_username_, iot_password_)) {
+    if (state!=0) {
         // 连接失败
+        Log::Info(TAG, "未连接到IoT平台。");
         SetDeviceState(kDeviceStateWarning);
-        ShowMessage("MQTT连接失败。");
-
-        Log::Info(TAG, "5秒后重试。");
-        vTaskDelay(pdMS_TO_TICKS(5000));
-
-        retry_count--;
-        if (retry_count == 0) {
-            Log::Info(TAG, "未连接到小鹏AIoT平台，进入睡眠状态。");
-            wifi_board->GetDisplay()->Sleep();
-            wifi_board->Sleep(300 * 1000); //300s
-            return false;
-        }
+        ShowMessage("IoT连接失败。");
+        return false;
     }
+
+    // 主题订阅
+    mqtt_service_->SubscribeTopic(config.pump_control_topic(), [this, config](const std::string& payload) {
+        OnIotMessageEvent(config.pump_control_topic(), payload);
+    });
 
     SetDeviceState(kDeviceStateWorking);
 
-    // 上传IOT
+    // 数据包处理
     char buffer[128] = { 0 };
-    snprintf(buffer, 127, "{\"data\":{\"temp\":%d}}", value);
-    // 上传数据
-    mqtt_service_->PublishData(soil_moilture_topic_, std::string(buffer));
+    snprintf(buffer, 127, "{\"data\":{\"%s\":%d}}", config.soil_moisture_dataname(), soil_moilture_value_);
+
+    // 发布数据到IoT
+    Log::Info(TAG, "发布数据到IoT，主题: %s", config.soil_moisture_topic().c_str());
+    mqtt_service_->PublishData(config.soil_moisture_topic(), std::string(buffer));
 
     // 等待30秒
     vTaskDelay(pdMS_TO_TICKS(kWaitSecondsAfterPublished * 1000));
 
-    // 关闭连接（省电）
+    // 关闭IoT连接（省电）
     mqtt_service_->Disconnect();
-    WifiStation::GetInstance().Stop();
+    // 关闭WiFi连接（省电）
+    wifi_board->Disconnect();
+    WiFi.mode(WIFI_OFF);
 
     collect_count_++;
     // 已经采集了10次，进入深度睡眠23h
     if (collect_count_ > kTotalCountPerPeriod) {
-        //Serial.printf("进入深度休眠状态(%d%s)。\n", 
         //    sleepSeconds<3600 ? sleepSeconds/60 : sleepSeconds/3600,
         //    sleepSeconds<3600 ? "分钟" : "小时");
+        wifi_board->GetDisplay()->Sleep();
         wifi_board->Sleep(kDeepSleepSeconds * 1000);
     }
 
@@ -201,7 +197,9 @@ void WateringApplication::OnIotMessageEvent(const std::string& topic, const std:
 
     Log::Info(TAG, "处理IoT消息，主题：%s", topic.c_str());
 
-    if (strcmp("pump_control_topic_ctrl", topic.c_str()) == 0) {
+    WateringConfig& config = WateringConfig::GetInstance();
+
+    if (config.pump_control_topic() == topic) {
         // 浇水动作。
         cJSON *json = cJSON_Parse(payload.c_str());
         cJSON *data = cJSON_GetObjectItem(json, "data");

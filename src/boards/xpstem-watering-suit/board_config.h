@@ -27,7 +27,7 @@ static const char* kSoilMositureName  = "soil_mositure";
 #define DISPLAY_MIRROR_Y                    false
 #define DISPLAY_SWAP_XY                     false
 
-#define SOIL_MOISTURE_PIN                   GPIO_NUM_19
+#define SOIL_MOISTURE_PIN                   GPIO_NUM_14
 #define MANUAL_BUTTON_PIN                   GPIO_NUM_34
 #define L9110_PIN_B                         GPIO_NUM_12
 #define L9110_PIN_A                         GPIO_NUM_13

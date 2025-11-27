@@ -1,5 +1,6 @@
 
 #include "mqtt_service.h"
+#include <esp_system.h>
 #include "src/sys/log.h"
 #include "src/boards/board.h"
 #include "watering_application.h"
@@ -7,20 +8,22 @@
 #define TAG "MqttService"
 
 void mqttLoopTask(void *pvParam) {
+    Log::Info(TAG, "MqttLoopTask running on core %d", xPortGetCoreID());
     PubSubClient *client = static_cast<PubSubClient*>(pvParam);
     while(1) {
         client->loop();
-        vTaskDelay(pdMS_TO_TICKS(10));
+        delay(10);
     }
 }
 
 MqttService::MqttService() {
     mqtt_client_ = new PubSubClient(wifi_client_);
+    mqtt_client_->setKeepAlive(60);
     mqtt_client_->setCallback([this](char *mqtt_topic, byte *payload, unsigned int length) {
         OnMessage(mqtt_topic, payload, length);
     });
 
-    xTaskCreate(mqttLoopTask, "Mqtt_LoopTask", 2048, mqtt_client_, 1, &mqtt_loop_handle_);
+    xTaskCreate(mqttLoopTask, "Mqtt_LoopTask", 4096, mqtt_client_, 1, &mqtt_loop_handle_);
 }
 
 MqttService::~MqttService() {
@@ -33,26 +36,25 @@ MqttService::~MqttService() {
     }
 }
 
-bool MqttService::Connect(const std::string& broker_server, const std::string& username, const std::string& password) {
+int MqttService::Connect(const std::string& broker_server, const std::string& username, const std::string& password, uint8_t retry_count) {
     
-    if (mqtt_client_->connected()) {
-        return true;
-    }
+    mqtt_client_->setServer(broker_server.c_str(), 1883);
 
-    mqtt_client_->setServer(broker_server.c_str(), 1833);
-    mqtt_client_->setKeepAlive(60);
+    std::string client_id = "esp32-client-test";
+    Log::Info(TAG, "正在连接IoT平台: %s .....", broker_server.c_str());
+    while (!mqtt_client_->connected() && retry_count > 0) {
+        if (mqtt_client_->connect(client_id.c_str(), username.c_str(), password.c_str())) {
+            Log::Info(TAG, "连接到IoT平台.");
+            return 0;
+        }
+        Log::Info(TAG, "连接失败, rc=%d", mqtt_client_->state());
 
-    //stateInfo = "";
-    String client_id = "esp32-client-test";
-    Log::Info(TAG, "正在连接小鹏AIoT平台: %s .....", broker_server.c_str());
-    if (mqtt_client_->connect(client_id.c_str(), username.c_str(), password.c_str())) {
-        Log::Info(TAG, "连接到小鹏AIoT平台.");
-        return true;
+        retry_count --;
+        Log::Info(TAG, "3秒后重试。");
+        delay(3000);
     } 
 
-    Log::Info(TAG, "连接失败, rc=%d", mqtt_client_->state());
-
-    return false;
+    return mqtt_client_->state();
 }
 
 void MqttService::Disconnect() {

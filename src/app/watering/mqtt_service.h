@@ -14,7 +14,7 @@ class MqttService {
 public:
     MqttService();
     ~MqttService();
-    bool Connect(const std::string& broker_server, const std::string& username, const std::string& password);
+    int Connect(const std::string& broker_server, const std::string& username, const std::string& password, uint8_t retry_count);
     void PublishData(const std::string& topic, const std::string& payload);
     void SubscribeTopic(const std::string& topic, std::function<void(const std::string&)> callback);
     void Disconnect();

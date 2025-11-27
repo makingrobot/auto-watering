@@ -37,11 +37,6 @@ private:
     int soil_moilture_value_ = 0;
     std::string last_message_;
 
-    std::string iot_broker_;
-    std::string iot_username_;
-    std::string iot_password_;
-    std::string pump_control_topic_;
-    std::string soil_moilture_topic_;
 };
 
 #endif //_WATERING_APPLICATION_H

@@ -8,6 +8,7 @@
 #include <Arduino.h>
 #include <U8g2lib.h>
 #include <Wire.h>
+#include <esp_system.h>
 
 #include "src/display/u8g2_display.h"
 #include "src/sys/system_reset.h"
@@ -15,6 +16,7 @@
 #include "src/led/gpio_led.h"
 #include "src/peripheral/analog_sensor.h"
 #include "l9110_driver.h"
+#include "wifi_configuration_ex.h"
 
 #define TAG "XPSTEM_WATERING_SUIT"
 
@@ -34,6 +36,8 @@ XPSTEM_WATERING_SUIT::XPSTEM_WATERING_SUIT() : WifiBoard() {
 
     InitializePeripherals();
 
+    wifi_conf_ = new WifiConfigurationEx();
+    
     Log::Info( TAG, "===== Board config completed. =====");
 }
 
@@ -53,10 +57,11 @@ void XPSTEM_WATERING_SUIT::InitializeDisplay() {
 }
 
 void buttonTickTask(void *pvParam) {
+    Log::Info(TAG, "ButtonTickTask running on core %d", xPortGetCoreID());
     OneButton* button = static_cast<OneButton *>(pvParam);
     while (1) {
         button->tick();
-        vTaskDelay(pdMS_TO_TICKS(2)); //2ms
+        delay(5); //2ms
     }
 }
 

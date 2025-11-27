@@ -16,6 +16,7 @@
 #include "src/boards/wifi_board.h"
 #include "src/display/display.h"
 #include "src/led/led.h"
+#include "src/wifi/wifi_configuration.h"
 
 #include "board_config.h"
 
@@ -25,7 +26,8 @@ private:
     Display* display_ = nullptr;
     Led* led_ = nullptr;
     TaskHandle_t button_taskhandle_;
-    
+    WifiConfiguration *wifi_conf_;
+
     void InitializeDisplay();
     void InitializeButtons();
     void InitializePeripherals();
@@ -34,9 +36,9 @@ public:
     XPSTEM_WATERING_SUIT();
 
     Display* GetDisplay() override { return display_; }
-
     Led* GetLed() override { return led_; }
 
+    WifiConfiguration* GetWifiConfiguration() override {return wifi_conf_; }
 };
 
 #endif //_XPSTEM_WATERING_SUIT_H
