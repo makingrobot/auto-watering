@@ -14,13 +14,11 @@
 class WateringApplication : public Application {
 public:
     WateringApplication();
-    ~WateringApplication();
     
-    void Init() override;
-    void Start() override;
-
+    void OnInit() override;
     bool OnPhysicalButtonEvent(const std::string& button_name, const ButtonAction action) override;
     bool OnSensorDataEvent(const std::string& sensor_name, const SensorValue& value) override;
+    
     void ShowWifiConfigHit(const std::string& ssid, const std::string& config_url, const std::string& mac_address) override;
 
     const std::string& GetAppName() const override { return "AutoWatering"; }

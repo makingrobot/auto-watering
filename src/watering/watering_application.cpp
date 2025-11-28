@@ -43,17 +43,9 @@ WateringApplication::WateringApplication() : Application() {
 
 }
 
-WateringApplication::~WateringApplication() {
-   
-}
-
-void WateringApplication::Init() {
-    Application::Init();
+void WateringApplication::OnInit() {
 
     mqtt_service_ = new MqttService();
-}
-
-void WateringApplication::Start() {
 
     Board& board = Board::GetInstance();
     
@@ -63,8 +55,6 @@ void WateringApplication::Start() {
         AnalogSensor* soil_mositure = static_cast<AnalogSensor*>(sensor);
         soil_mositure->Start(kCollectInterval);  //120s 
     }
-
-    Application::Start();
 
     started_ = true;
 }
