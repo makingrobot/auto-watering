@@ -20,10 +20,6 @@ U8g2Display::U8g2Display(U8G2* driver, int width, int height, const uint8_t* fon
     height_ = height;
 }
 
-U8g2Display::~U8g2Display() {
-
-}
-
 bool U8g2Display::Lock(int timeout_ms) {
     return true;
 }

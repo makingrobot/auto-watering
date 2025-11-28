@@ -62,30 +62,10 @@ Mp3Application::~Mp3Application() {
 
 }
 
-void Mp3Application::Init() {
-    Application::Init();
+void Mp3Application::OnInit() {
     
     Audio::audio_info_callback = [this](Audio::msg_t m){ this->AudioInfo(m); };
-}
-
-
-void AudioTask(void *param) {
-
-    Audio* audio = static_cast<Audio*>(param);
-    while(1) {
-        audio->loop();
-        vTaskDelay(pdMS_TO_TICKS(1));
-    }
-}
-
-
-void Mp3Application::Start() {
-    Application::Start();
-
-    // 启动Wifi
-    WifiBoard* board = static_cast<WifiBoard*>(&Board::GetInstance());
-    board->StartNetwork(30000);
-
+    
     // 设置音频编解码
     AudioCodec* codec = board->GetAudioCodec();
     codec->Start();
@@ -113,6 +93,16 @@ void Mp3Application::Start() {
     window_->SetContent(str.c_str());
 
     SetDeviceState(kDeviceStatePlaying);
+}
+
+
+void AudioTask(void *param) {
+
+    Audio* audio = static_cast<Audio*>(param);
+    while(1) {
+        audio->loop();
+        vTaskDelay(pdMS_TO_TICKS(1));
+    }
 }
 
 void Mp3Application::AudioInfo(Audio::msg_t m) {

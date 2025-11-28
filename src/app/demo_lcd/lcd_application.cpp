@@ -32,17 +32,7 @@ LcdApplication::~LcdApplication() {
    
 }
 
-void LcdApplication::Init() {
-    Application::Init();
-
-}
-
-void LcdApplication::Start() {
-    Application::Start();
-
-    // 启动Wifi
-    WifiBoard* board = static_cast<WifiBoard*>(&Board::GetInstance());
-    board->StartNetwork(30000);
+void LcdApplication::OnInit() {
 
     window_->SetText("Hello world!");
 }

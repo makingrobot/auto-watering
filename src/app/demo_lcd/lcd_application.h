@@ -18,8 +18,7 @@ public:
     LcdApplication();
     ~LcdApplication();
     
-    void Init() override;
-    void Start() override;
+    void OnInit() override;
 
     const std::string& GetAppName() const override { return "DEMO_LCD"; }
     const std::string& GetAppVersion() const override { return "1.0.0"; }

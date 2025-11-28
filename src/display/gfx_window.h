@@ -5,25 +5,26 @@
  * Author: Billy Zhang（billy_zh@126.com）
  */
 #include "config.h"
-#if CONFIG_USE_TFT_ESPI == 1
+#if CONFIG_USE_GFX_LIBRARY == 1
 
 #ifndef TFT_WINDOW_H
 #define TFT_WINDOW_H
 
-#include <TFT_eSPI.h>
+#include <Arduino_GFX_Library.h>
 #include <string>
 
-class TftWindow {
+class GfxWindow {
 public:
-    TftWindow() { }
+    GfxWindow() { }
 
-    virtual void Setup(TFT_eSPI* driver);
+    virtual void Setup(Arduino_GFX* driver);
     virtual void SetStatus(const std::string& status);
     virtual void SetText(const std::string& text);
    
 private:
-
-    TFT_eSPI* driver_ = nullptr;
+    void Update();
+    
+    Arduino_GFX* driver_ = nullptr;
     std::string status_ = "";
     std::string text_ = "";
 };

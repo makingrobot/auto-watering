@@ -23,8 +23,7 @@ public:
     Mp3Application();
     ~Mp3Application();
     
-    void Init() override;
-    void Start() override;
+    void OnInit() override;
 
     void SetDeviceState(const DeviceState* state) override;
 

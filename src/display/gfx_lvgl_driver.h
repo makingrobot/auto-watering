@@ -5,22 +5,22 @@
  * Author: Billy Zhang（billy_zh@126.com）
  */
 #include "config.h"
-#if CONFIG_USE_GFX_LIBRARY == 1
+#if CONFIG_USE_GFX_LIBRARY == 1 && CONFIG_USE_LVEL ==1
 
-#ifndef _GFX_DRIVER_H
-#define _GFX_DRIVER_H
+#ifndef _GFX_LVGL_DRIVER_H
+#define _GFX_LVGL_DRIVER_H
 
 #include "disp_driver.h"
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
 #include <lvgl.h>
 
-class GfxDriver : public DispDriver {
+class GfxLvglDriver : public DispDriver {
 public:
-    GfxDriver(Arduino_GFX* gfx, int width, int height)
+    GfxLvglDriver(Arduino_GFX* gfx, int width, int height)
         : DispDriver(width, height), gfx_(gfx) { }
 
-    virtual ~GfxDriver() { 
+    virtual ~GfxLvglDriver() { 
         if (display_ != nullptr) {
             lv_display_delete(display_);
         }
@@ -38,6 +38,6 @@ private:
 
 };
 
-#endif //_GFX_DRIVER_H
+#endif //_GFX_LVGL_DRIVER_H
 
 #endif //CONFIG_USE_GFX_LIBRARY

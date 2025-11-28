@@ -5,34 +5,34 @@
  * Author: Billy Zhang（billy_zh@126.com）
  */
 #include "config.h"
-#if CONFIG_USE_TFT_ESPI == 1
+#if CONFIG_USE_GFX_LIBRARY == 1
 
-#ifndef _TFT_DISPLAY_H
-#define _TFT_DISPLAY_H
+#ifndef _GFX_DISPLAY_H
+#define _GFX_DISPLAY_H
 
 #include "display.h"
-#include <TFT_eSPI.h>
-#include "tft_window.h"
+#include <Arduino_GFX_Library.h>
+#include "gfx_window.h"
 
-class TftDisplay : public Display {
+class GfxDisplay : public Display {
 public:
-    TftDisplay(TFT_eSPI *driver_, int width, int height);
+    GfxDisplay(Arduino_GFX *driver_, int width, int height);
 
-    void SetWindow(TftWindow* window);
+    void SetWindow(GfxWindow* window);
     void Init() override;
     
     void SetStatus(const std::string& status) override;
     void SetText(const std::string& text) override;
    
-    const TFT_eSPI* tft() const { return driver_; }
+    const Arduino_GFX* gfx() const { return driver_; }
 
 protected:
     bool Lock(int timeout_ms = 0) override;
     void Unlock() override;
 
 private:
-    TFT_eSPI *driver_ = nullptr;
-    TftWindow* window_ = nullptr;
+    Arduino_GFX *driver_ = nullptr;
+    GfxWindow* window_ = nullptr;
 
 };
 

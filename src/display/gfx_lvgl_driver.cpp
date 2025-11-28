@@ -5,15 +5,15 @@
  * Author: Billy Zhang（billy_zh@126.com）
  */
 #include "config.h"
-#if CONFIG_USE_GFX_LIBRARY == 1
+#if CONFIG_USE_GFX_LIBRARY == 1 && CONFIG_USE_LVGL == 1
 
-#include "gfx_driver.h"
+#include "gfx_lvgl_driver.h"
 #include "src/sys/log.h"
 
-#define TAG "GfxDriver"
+#define TAG "GfxLvglDriver"
 
 /* LVGL calls it when a rendered image needs to copied to the display*/
-void GfxDriver::FlushCallback(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map)
+void GfxLvglDriver::FlushCallback(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map)
 {
 #ifndef DIRECT_RENDER_MODE
     uint32_t w = lv_area_get_width(area);
@@ -26,7 +26,7 @@ void GfxDriver::FlushCallback(lv_display_t *disp, const lv_area_t *area, uint8_t
     lv_disp_flush_ready(disp);
 }
 
-void GfxDriver::Init() {
+void GfxLvglDriver::Init() {
     // Init Display
     if (!gfx_->begin()) {
         Log::Error(TAG, "gfx->begin() failed!");

@@ -58,52 +58,46 @@ Application::~Application() {
     
 }
 
+/**
+ * 应用初始化
+ * 
+ * 包括：显示模块初始化、时钟定时器、WiFi配置和连网
+ */
 void Application::Init() {
-    Log::Info(TAG, "Initialize ......");
+    Log::Info(TAG, "Initialize...");
         
-    auto& board = Board::GetInstance();
-    board.GetDisplay()->Init();
-
-#if CONFIG_CLOCK_ENABLE==1
-    clock_timer_ = new SwTimer("Clock");
-#endif
-}
-
-void Application::Start() {
-    Log::Info(TAG, "Starting ......");
-
+    // 显示模块初始化
     auto& board = Board::GetInstance();
     Display* display = board.GetDisplay();
+    display->Init();
 
 #if CONFIG_CLOCK_ENABLE==1
+    // 时钟定时器，可重载OnClockTimer插入自定义功能
+    clock_timer_ = new SwTimer("Clock");
     clock_timer_->Start(1000, [this](){ OnClockTimer(); });
     Log::Info(TAG, "clock timer started.");
 #endif
 
     SetDeviceState(kDeviceStateStarting);
-    
+
     display->UpdateStatusBar(true);
 
 #if CONFIG_WIFI_CONFIGURE_ENABLE==1    
-    /* Wait for the network to be ready */
+    // WiFi配置
     WifiBoard* wifi_board = static_cast<WifiBoard *>(&board);
-    wifi_board->Configure();
-#endif
-
-#if CONFIG_OTA_ENABLE==1
-    CheckNewVersion();
+    wifi_board->Configure();  //阻塞
+    
+    // 连接热点
+    wifi_board->StartNetwork(30000);
 #endif
 
     SetDeviceState(kDeviceStateIdle);
 
+    OnInit();
+    
     // Print heap stats
     SystemInfo::PrintHeapStats();
-    
     Log::Info(TAG, "Started.");
-
-    // Raise the priority of the main event loop to avoid being interrupted by background tasks (which has priority 2)
-    //vTaskPrioritySet(NULL, 3);
-
 }
 
 void Application::Alert(const char* status, const char* message, const char* emotion) {

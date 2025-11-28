@@ -17,8 +17,7 @@ public:
     U8g2Application();
     ~U8g2Application();
     
-    void Init() override;
-    void Start() override;
+    void OnInit() override;
 
     const std::string& GetAppName() const override { return "DEMO_U8G2"; }
     const std::string& GetAppVersion() const override { return "1.0.0"; }

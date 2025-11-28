@@ -15,7 +15,7 @@
 #if CONFIG_USE_GFX_LIBRARY==1
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
-#include "src/display/gfx_driver.h"
+#include "src/display/gfx_lvgl_driver.h"
 #endif
 
 #include "src/audio/codecs/no_audio_codec.h"
@@ -88,7 +88,7 @@ void XPSTEM_S3_ELECTRONIC_SUIT::InitializeDisplay() {
 
     Arduino_GFX *gfx = new Arduino_ST7796(bus, DISPLAY_RST_PIN, 0 /* rotation */, false /* IPS */);
 
-    GfxDriver *driver = new GfxDriver(gfx, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    GfxLvglDriver *driver = new GfxLvglDriver(gfx, DISPLAY_WIDTH, DISPLAY_HEIGHT);
     disp_driver_ = driver;
 #endif
 

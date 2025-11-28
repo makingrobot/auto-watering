@@ -27,15 +27,9 @@ TftApplication::~TftApplication() {
    
 }
 
-void TftApplication::Init() {
-    Application::Init();
+void TftApplication::OnInit() {
     
     // do your init.
-}
-
-void TftApplication::Start() {
-    Application::Start();
-
     Board& board = Board::GetInstance();
     board.GetLed()->Blink(-1, 1000);
     board.GetDisplay()->SetStatus("Work");

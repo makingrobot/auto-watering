@@ -16,7 +16,6 @@
 class U8g2Window {
 public:
     U8g2Window() { }
-    virtual ~U8g2Window() = default;
 
     virtual void Setup(U8G2* driver, const uint8_t* fonts);
     virtual void SetStatus(const std::string& status);

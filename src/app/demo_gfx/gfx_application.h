@@ -5,27 +5,29 @@
  * Author: Billy Zhang（billy_zh@126.com）
  */
 #include "config.h"
-#if APP_DEMO_TFT==1
+#if APP_DEMO_GFX==1
 
-#ifndef _TFT_APPLICATION_H
-#define _TFT_APPLICATION_H
+#ifndef _GFX_APPLICATION_H
+#define _GFX_APPLICATION_H
 
 #include "../application.h"
+#include "benchmark_window.h"
 
-class TftApplication : public Application {
+class GfxApplication : public Application {
 public:
-    TftApplication();
-    ~TftApplication();
+    GfxApplication();
+    ~GfxApplication();
     
     void OnInit() override;
 
-    const std::string& GetAppName() const override { return "DEMO_TFT"; }
+    const std::string& GetAppName() const override { return "DEMO_GFX"; }
     const std::string& GetAppVersion() const override { return "1.0.0"; }
 
 private:
-
+    BenchmarkWindow* window_;
+    
 };
 
-#endif //_TFT_APPLICATION_H
+#endif //_GFX_APPLICATION_H
 
-#endif //APP_DEMO_TFT
+#endif //APP_DEMO_GFX

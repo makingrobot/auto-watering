@@ -25,7 +25,6 @@ void setup() {
     app = &Application::GetInstance();
 
     app->Init();
-    app->Start();
 }
 
 void loop() {

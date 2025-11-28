@@ -22,10 +22,6 @@ TftDisplay::TftDisplay(TFT_eSPI* driver, int width, int height) {
 
 }
 
-TftDisplay::~TftDisplay() {
-
-}
-
 void TftDisplay::SetWindow(TftWindow* window) {
     window_ = window;
 }

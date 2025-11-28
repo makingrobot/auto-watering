@@ -37,19 +37,40 @@ public:
     DeviceState* GetDeviceState() { return device_state_; }
     void Alert(const char* status, const char* message, const char* emotion);
     void Reboot();
+
+    // 初始化，在setup()中调用。
+    void Init();
+
+    // 事件循环，在loop()中调用。
     void EventLoop();
 
-    virtual void Init();
-    virtual void Start();
     virtual void SetDeviceState(const DeviceState* state);
     virtual void DismissAlert();
     virtual void ToggleWorkState();
     virtual void ShowWifiConfigHit(const std::string& ssid, const std::string& config_url, const std::string& mac_address);
     virtual bool CanEnterSleepMode();
 
-    // event.
+    // 初始化事件.
+    virtual void OnInit() { };
+
+    /**
+     * 物理按键事件响应
+     * button_name: 按键名称
+     * action: 事件，单击/双击/长按...  
+     */ 
     virtual bool OnPhysicalButtonEvent(const std::string& button_name, const ButtonAction action);
+
+    /**
+     * 显示屏触摸事件响应 
+     * point: 触摸点坐标
+     */ 
     virtual bool OnDisplayTouchEvent(const TouchPoint_t& point);
+
+    /** 
+     * 传感器数据事件响应
+     * sensor_name: 传感器名称
+     * value: 采集的数据，支持int/float/string/list
+     */
     virtual bool OnSensorDataEvent(const std::string& sensor_name, const SensorValue& value) { }
 
     const std::string& GetLastErrorMessage() const { return last_error_message_; }

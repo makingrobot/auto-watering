@@ -27,15 +27,9 @@ U8g2Application::~U8g2Application() {
    
 }
 
-void U8g2Application::Init() {
-    Application::Init();
+void U8g2Application::OnInit() {
     
     // do your init.
-}
-
-void U8g2Application::Start() {
-    Application::Start();
-
     Board& board = Board::GetInstance();
     board.GetLed()->Blink(-1, 1000);
     board.GetDisplay()->SetStatus("工作中");
