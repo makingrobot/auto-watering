@@ -17,19 +17,11 @@
 #include "ssid_manager.h"
 #include "src/sys/log.h"
 
-const IPAddress ap_ip(192,168,5,1);
-const IPAddress ap_gateway(192,168,5,0);
-const IPAddress ap_subnet(255,255,255,0);
+static const IPAddress ap_ip(192,168,5,1);
+static const IPAddress ap_gateway(192,168,5,1);
+static const IPAddress ap_subnet(255,255,255,0);
 
 #define TAG "WifiConfiguration"
-
-IPAddress WifiConfiguration::GetApIp() {
-    return ap_ip;
-}
-
-IPAddress WifiConfiguration::GetApGateway() {
-    return ap_gateway;
-}
 
 void WifiConfiguration::SetLanguage(const char* lang_code) {
     lang_code_ = lang_code;
@@ -42,13 +34,13 @@ void WifiConfiguration::SetSsidPrefix(const char* ssid_prefix) {
 void WifiConfiguration::Start() {
 
     std::string ap_ssid = GetSsid();
-
-    WiFi.softAPConfig(GetApIp(), GetApGateway(), ap_subnet);
+    WiFi.mode(WIFI_AP_STA);
+    WiFi.softAPConfig(ap_ip, ap_gateway, ap_subnet);
     if (!WiFi.softAP(ap_ssid.c_str())) {
         Log::Info(TAG, "Soft AP creation failed.");
         while(1);
     }
-    Log::Info(TAG, "Wifi AP %s on %s", ap_ssid.c_str(), GetApIp().toString());
+    Log::Info(TAG, "Wifi AP %s on %s", ap_ssid.c_str(), ap_ip.toString());
 
     StartWebServer();
 }
@@ -94,12 +86,12 @@ std::string WifiConfiguration::GetSsid() {
     uint8_t mac[6];
     ESP_ERROR_CHECK(esp_read_mac(mac, ESP_MAC_WIFI_SOFTAP));
     char ssid[32];
-    snprintf(ssid, sizeof(ssid), "%s-%02X%02X", ssid_prefix_, mac[4], mac[5]);
+    snprintf(ssid, sizeof(ssid)-1, "%s-%02x%02x", ssid_prefix_, mac[4], mac[5]);
     return std::string(ssid);
 }
 
 std::string WifiConfiguration::GetWebServerUrl() {
-    return std::string(GetApIp().toString().c_str());
+    return std::string(ap_ip.toString().c_str());
 }
 
 bool WifiConfiguration::ConnectToWifi(const std::string &ssid, const std::string &password)
@@ -114,12 +106,17 @@ bool WifiConfiguration::ConnectToWifi(const std::string &ssid, const std::string
         return false;
     }
     
+    if (WiFi.isConnected()) {
+        WiFi.disconnect();
+        vTaskDelay(pdMS_TO_TICKS(200));
+    }
+
     WiFi.begin(ssid.c_str(), password.c_str());
     Log::Info(TAG, "connect to WiFi %s", ssid.c_str());
     int n = 0;
     // 最多等待10s
-    while (++n < 1000) {
-        vTaskDelay(pdMS_TO_TICKS(10));
+    while (++n < 100) {
+        vTaskDelay(pdMS_TO_TICKS(100));
         if (WiFi.status() == WL_CONNECTED) {
             break; //已连接，中止等待
         }

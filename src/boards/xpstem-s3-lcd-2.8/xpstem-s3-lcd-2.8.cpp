@@ -161,7 +161,7 @@ XPSTEM_S3_LCD_2_80::XPSTEM_S3_LCD_2_80() : WifiBoard() {
     Log::Info(TAG, "===== Create Board ...... =====");
 
     Log::Info( TAG, "Init led ......" );
-    led_ = new Ws2812Led(BUILTIN_LED_PIN);
+    led_ = new Ws2812Led(BUILTIN_LED_PIN, 1);
 
     InitializeI2c();
     //I2cDetect();

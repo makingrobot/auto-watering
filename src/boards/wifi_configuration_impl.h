@@ -5,15 +5,15 @@
  * Author: Billy Zhang（billy_zh@126.com）
  */
 #include "config.h"
-#if CONFIG_WIFI_CONFIGURE_ENABLE==1
+#if CONFIG_WIFI_CONFIGURE_ASYNCWEBSERVER==1
 
 #ifndef _WIFI_CONFIGURATION_IMPL_H
 #define _WIFI_CONFIGURATION_IMPL_H
 
 #include <string>
+#include <Arduino.h>
+#include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
 #include "src/wifi/wifi_configuration.h"
 
 class WifiConfigurationImpl : public WifiConfiguration {
@@ -41,4 +41,4 @@ private:
 
 #endif //_WIFI_CONFIGURATION_IMPL_H
 
-#endif //CONFIG_WIFI_CONFIGURE_ENABLE
+#endif //CONFIG_WIFI_CONFIGURE_ASYNCWEBSERVER

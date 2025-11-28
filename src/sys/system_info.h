@@ -18,6 +18,7 @@ public:
     static size_t GetMinimumFreeHeapSize();
     static size_t GetFreeHeapSize();
     static std::string GetMacAddress();
+    static std::string GetMacAddress2();
     static std::string GetChipModelName();
     static esp_err_t PrintTaskCpuUsage(TickType_t xTicksToWait);
     static void PrintTaskList();

@@ -29,7 +29,7 @@ public:
     virtual void SetPowerSaveMode(bool enabled) override;
     virtual const char* GetNetworkStateIconName() override;
 
-    virtual void StartNetwork(uint32_t timeout_ms);
+    virtual bool StartNetwork(uint32_t timeout_ms);
     virtual bool StartNetwork(const std::string& ssid, const std::string& password, uint32_t timeout_ms);
     virtual void Disconnect();
     virtual std::string GetIpAddress();

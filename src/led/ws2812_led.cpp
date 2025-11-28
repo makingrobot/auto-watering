@@ -14,7 +14,7 @@
 #define TAG "Ws2812Led"
 
 Ws2812Led::Ws2812Led(gpio_num_t pin, uint8_t num_pixels) : pin_(pin), num_pixels_(num_pixels) {
-    pixels_ = new Adafruit_NeoPixel(1, num_pixels, pin, NEO_GRB + NEO_KHZ800);
+    pixels_ = new Adafruit_NeoPixel(num_pixels, pin, NEO_GRB + NEO_KHZ800);
     pixels_->begin();
 
     timer_ = new SwTimer("Ws2812_Led");

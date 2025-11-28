@@ -275,7 +275,7 @@ void Application::CheckNewVersion() {
     
     auto& board = Board::GetInstance();
     WifiBoard* wifi_board = static_cast<WifiBoard *>(&board);
-    wifi_board->StartNetwork();
+    wifi_board->StartNetwork(30000);
     
     // Check for new firmware version or get the MQTT broker address
     Ota ota;

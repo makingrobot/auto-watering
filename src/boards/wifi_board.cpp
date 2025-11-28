@@ -28,8 +28,11 @@
 
 #if CONFIG_WIFI_CONFIGURE_ENABLE==1
 #include "src/wifi/wifi_configuration.h"
-#include "wifi_configuration_impl.h"
 #endif //CONFIG_WIFI_CONFIGURE_ENABLE
+
+#if CONFIG_WIFI_CONFIGURE_ASYNCWEBSERVER==1
+#include "wifi_configuration_impl.h"
+#endif
 
 #define TAG "WifiBoard"
 
@@ -53,7 +56,7 @@ void WifiBoard::EnterWifiConfigMode() {
 
     WifiConfiguration *conf = GetWifiConfiguration();
     conf->SetLanguage(Lang::CODE);
-    conf->SetSsidPrefix("XPSTEM");
+    conf->SetSsidPrefix("xpstem");
     conf->Start();
 
     Log::Info( TAG, "进入 WiFi AP 配置模式。" );
@@ -101,17 +104,24 @@ void WifiBoard::ResetWifiConfiguration() {
     esp_restart();
 }
 
-WifiConfiguration* WifiBoard::GetWifiConfiguration() {
-    return new WifiConfigurationImpl();
-}
-
 #endif //CONFIG_WIFI_CONFIGURE_ENABLE
 
-void WifiBoard::StartNetwork(uint32_t timeout_ms) {
+#if CONFIG_WIFI_CONFIGURE_ENABLE==1
+WifiConfiguration* WifiBoard::GetWifiConfiguration() {
+#if CONFIG_WIFI_CONFIGURE_ASYNCWEBSERVER==1
+    static WifiConfiguration *conf = new WifiConfigurationImpl();
+    return conf;
+#else
+    return nullptr;
+#endif
+}
+#endif
+
+bool WifiBoard::StartNetwork(uint32_t timeout_ms) {
     
     auto& wifi_station = WifiStation::GetInstance();
     if (wifi_station.IsConnected()) {
-        return;
+        return true;
     }
     
     wifi_station.OnScanBegin([this]() {
@@ -139,8 +149,10 @@ void WifiBoard::StartNetwork(uint32_t timeout_ms) {
         wifi_station.Stop();
         wifi_config_mode_ = true;
         // EnterWifiConfigMode();
-        return;
+        return true;
     }
+
+    return false;
 }
 
 bool WifiBoard::StartNetwork(const std::string& ssid, const std::string& password, uint32_t timeout_ms) {

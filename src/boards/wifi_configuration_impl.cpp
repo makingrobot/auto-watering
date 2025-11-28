@@ -5,7 +5,7 @@
  * Author: Billy Zhang（billy_zh@126.com）
  */
 #include "config.h"
-#if CONFIG_WIFI_CONFIGURE_ENABLE==1
+#if CONFIG_WIFI_CONFIGURE_ASYNCWEBSERVER==1
 
 #include "wifi_configuration_impl.h"
 #include <WiFi.h>
@@ -261,4 +261,4 @@ void WifiConfigurationImpl::BindAdvancedRoute() {
     LoadAdvancedConfig();
 }
 
-#endif //CONFIG_WIFI_CONFIGURE_ENABLE
+#endif //CONFIG_WIFI_CONFIGURE_ASYNCWEBSERVER

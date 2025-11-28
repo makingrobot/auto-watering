@@ -5,12 +5,13 @@
  * Author: Billy Zhang（billy_zh@126.com）
  */
 #include "config.h"
-#if CONFIG_WIFI_CONFIGURE_ENABLE==1
+#if CONFIG_WIFI_CONFIGURE_ASYNCWEBSERVER==1
 
 #ifndef _WIFI_CONFIGURATION_HTML_H
 #define _WIFI_CONFIGURATION_HTML_H
 
-const char index_html[] = R"(<!DOCTYPE html>
+static const char *index_html PROGMEM = R"(
+<!DOCTYPE html>
 <html>
 <head>
     <title>Network Configuration</title>
@@ -590,9 +591,11 @@ const char index_html[] = R"(<!DOCTYPE html>
         }
     </script>
 </body>
-</html>)";
+</html>
+)";
 
-const char done_html[] = R"(<!DOCTYPE html>
+static const char *done_html PROGMEM = R"(
+<!DOCTYPE html>
 <html>
 <head>
     <title>WiFi Configuration</title>
@@ -676,8 +679,9 @@ const char done_html[] = R"(<!DOCTYPE html>
         });
     </script>
 </body>
-</html>)";
+</html>
+)";
 
 #endif //_WIFI_CONFIGURATION_HTML_H
 
-#endif //CONFIG_WIFI_CONFIGURE_ENABLE
+#endif //CONFIG_WIFI_CONFIGURE_ASYNCWEBSERVER

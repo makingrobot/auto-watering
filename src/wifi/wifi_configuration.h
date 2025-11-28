@@ -22,11 +22,10 @@ public:
 
     std::string GetSsid();
     std::string GetWebServerUrl();
-    void Start();
+    
+    virtual void Start();
 
 protected:
-    virtual IPAddress GetApIp();
-    virtual IPAddress GetApGateway();
     virtual void StartWebServer() = 0;
 
     std::string GetAvailableAPList();

@@ -48,6 +48,18 @@ std::string SystemInfo::GetMacAddress() {
     return std::string(mac_str);
 }
 
+std::string SystemInfo::GetMacAddress2() {
+    uint8_t mac[6];
+#if CONFIG_IDF_TARGET_ESP32P4
+    esp_wifi_get_mac(WIFI_IF_STA, mac);
+#else
+    esp_read_mac(mac, ESP_MAC_WIFI_STA);
+#endif
+    char mac_str[13];
+    snprintf(mac_str, sizeof(mac_str), "%02x%02x%02x%02x%02x%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    return std::string(mac_str);
+}
+
 std::string SystemInfo::GetChipModelName() {
     return std::string(CONFIG_IDF_TARGET);
 }

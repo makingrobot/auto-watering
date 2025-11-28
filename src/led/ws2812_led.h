@@ -26,7 +26,7 @@
  */
 class Ws2812Led : public Led {
 public:
-    Ws2812Led(gpio_num_t gpio);
+    Ws2812Led(gpio_num_t gpio, uint8_t num_pixels);
     virtual ~Ws2812Led();
 
     void TurnOn() override;
@@ -41,12 +41,13 @@ public:
 private:
     std::mutex mutex_;
     gpio_num_t pin_;
+    uint8_t num_pixels_;
     TaskHandle_t blink_task_ = nullptr;
     uint8_t r_ = 0, g_ = 0, b_ = 0;
     int blink_counter_ = 0;
     int blink_interval_ms_ = 0;
     Timer* timer_ = nullptr;
-    Adafruit_NeoPixel *pixels = nullptr;
+    Adafruit_NeoPixel *pixels_ = nullptr;
 
     void StartContinuousBlink(int interval_ms);
     void StartBlinkTask(int times, int interval_ms);
