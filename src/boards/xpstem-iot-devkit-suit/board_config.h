@@ -41,6 +41,7 @@
 #define DISPLAY_BACKLIGHT_OUTPUT_INVERT     false
 #define DISPLAY_SPI_MODE                    0
 
+#define DISPLAY_ROTATION                    3
 
 //**********************************************************************
 // 配置定义

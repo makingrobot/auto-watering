@@ -6,11 +6,11 @@
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
 
-#include "src/sys/system_reset.h"
-#include "src/boards/board.h"
-#include "src/boards/i2c_device.h"
-#include "src/display/lvgl_display.h"
-#include "src/display/gfx_display.h"
+#include "src/framework/sys/system_reset.h"
+#include "src/framework/board/board.h"
+#include "src/framework/board/i2c_device.h"
+#include "src/framework/display/lvgl_display.h"
+#include "src/framework/display/gfx_display.h"
 #include <SD_MMC.h>
 
 #define TAG "XPSTEM_JC4827W543"

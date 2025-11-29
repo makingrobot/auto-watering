@@ -10,18 +10,18 @@
 #include <driver/gpio.h>
 #include <OneButton.h>
 
-#include "src/sys/log.h"
-#include "src/boards/wifi_board.h"
-#include "src/display/display.h"
-#include "src/display/disp_driver.h"
-#include "src/display/backlight.h"
-#include "src/display/drivers/ft6336/ft6336.h"
-#include "src/led/ws2812_led.h"
-#include "src/power/adc_battery_monitor.h"
-#include "src/power/power_save_timer.h"
-#include "src/audio/audio_codec.h"
-#include "src/file/file_system.h"
-#include "src/sys/time.h"
+#include "src/framework/sys/log.h"
+#include "src/framework/board/wifi_board.h"
+#include "src/framework/display/display.h"
+#include "src/framework/display/disp_driver.h"
+#include "src/framework/display/backlight.h"
+#include "src/framework/display/drivers/ft6336/ft6336.h"
+#include "src/framework/led/ws2812_led.h"
+#include "src/framework/power/adc_battery_monitor.h"
+#include "src/framework/power/power_save_timer.h"
+#include "src/framework/audio/audio_codec.h"
+#include "src/framework/file/file_system.h"
+#include "src/framework/sys/time.h"
 
 #include "board_config.h"
 

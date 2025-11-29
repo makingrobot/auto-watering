@@ -10,18 +10,18 @@
 #include <driver/gpio.h>
 #include <OneButton.h>
 
-#include "src/app/application.h"
-#include "src/boards/wifi_board.h"
-#include "src/display/display.h"
-#include "src/led/led.h"
-#include "src/power/power_save_timer.h"
-#include "src/sys/time.h"
+#include "src/framework/app/application.h"
+#include "src/framework/board/wifi_board.h"
+#include "src/framework/display/display.h"
+#include "src/framework/led/led.h"
+#include "src/framework/power/power_save_timer.h"
+#include "src/framework/sys/time.h"
 
 #if CONFIG_USE_LCD_PANEL==1
-#include "src/display/backlight.h"
-#include "src/display/disp_driver.h"
-#include "src/display/lvgl_display.h"
-#include "src/audio/audio_codec.h"
+#include "src/framework/display/backlight.h"
+#include "src/framework/display/disp_driver.h"
+#include "src/framework/display/lvgl_display.h"
+#include "src/framework/audio/audio_codec.h"
 #endif
 
 #include "board_config.h"

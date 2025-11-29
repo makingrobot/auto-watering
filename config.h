@@ -32,19 +32,19 @@
 
 // 应用配置
 #if APP_DEMO_LCD == 1
-#include "src/app/demo_lcd/app_config.h"
+#include "src/demos/demo_lcd/app_config.h"
 
 #elif APP_DEMO_TFT == 1
-#include "src/app/demo_tft/app_config.h"
+#include "src/demos/demo_tft/app_config.h"
 
 #elif APP_DEMO_GFX == 1
-#include "src/app/demo_gfx/app_config.h"
+#include "src/demos/demo_gfx/app_config.h"
 
 #elif APP_DEMO_U8G2 == 1
-#include "src/app/demo_u8g2/app_config.h"
+#include "src/demos/demo_u8g2/app_config.h"
 
 #elif APP_DEMO_MP3 == 1
-#include "src/app/demo_mp3/app_config.h"
+#include "src/demos/demo_mp3/app_config.h"
 
 #endif
 

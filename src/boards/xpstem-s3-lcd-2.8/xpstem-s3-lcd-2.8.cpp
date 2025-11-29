@@ -4,13 +4,13 @@
 #include "xpstem-s3-lcd-2.8.h"
 
 #include "src/sys/system_reset.h"
-#include "src/boards/board.h"
-#include "src/boards/i2c_device.h"
-#include "src/led/ws2812_led.h"
-#include "src/display/lvgl_display.h"
-#include "src/display/drivers/ili9341/ili9341_driver.h"
-#include "src/audio/codecs/es8311/es8311_audio_codec.h"
-#include "src/sys/time/ntp_time.h"
+#include "src/framework/board/board.h"
+#include "src/framework/board/i2c_device.h"
+#include "src/framework/led/ws2812_led.h"
+#include "src/framework/display/lvgl_display.h"
+#include "src/framework/display/drivers/ili9341/ili9341_driver.h"
+#include "src/framework/audio/codecs/es8311/es8311_audio_codec.h"
+#include "src/framework/sys/time/ntp_time.h"
 #include <SD_MMC.h>
 
 #define TAG "XPSTEM_S3_LCD_2_80"

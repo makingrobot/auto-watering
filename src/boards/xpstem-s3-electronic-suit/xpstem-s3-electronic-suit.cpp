@@ -3,24 +3,24 @@
 
 #include "xpstem-s3-electronic-suit.h"
 
-#include "src/sys/system_reset.h"
-#include "src/boards/board.h"
-#include "src/boards/i2c_device.h"
-#include "src/display/lvgl_display.h"
+#include "src/framework/sys/system_reset.h"
+#include "src/framework/board/board.h"
+#include "src/framework/board/i2c_device.h"
+#include "src/framework/display/lvgl_display.h"
 
 #if CONFIG_USE_LCD_PANEL==1
-#include "src/display/drivers/st7796/st7796_driver.h"
-#include "src/display/lcd_driver.h"
+#include "src/framework/display/drivers/st7796/st7796_driver.h"
+#include "src/framework/display/lcd_driver.h"
 #endif
 #if CONFIG_USE_GFX_LIBRARY==1
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
-#include "src/display/gfx_lvgl_driver.h"
+#include "src/framework/display/gfx_lvgl_driver.h"
 #endif
 
-#include "src/audio/codecs/no_audio_codec.h"
+#include "src/framework/audio/codecs/no_audio_codec.h"
 
-#include "src/sys/time/ntp_time.h"
+#include "src/framework/sys/time/ntp_time.h"
 #include "SD.h"
 #include "SPI.h"
 

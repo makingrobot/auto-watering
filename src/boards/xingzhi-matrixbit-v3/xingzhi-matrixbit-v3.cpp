@@ -8,17 +8,17 @@
 #include <TFT_eSPI.h>
 #endif
 
-#include "src/sys/system_reset.h"
-#include "src/boards/board.h"
-#include "src/boards/i2c_device.h"
-#include "src/audio/audio_codec.h"
-#include "src/audio/codecs/es8311/es8311_audio_codec.h"
+#include "src/framework/sys/system_reset.h"
+#include "src/framework/board/board.h"
+#include "src/framework/board/i2c_device.h"
+#include "src/framework/audio/audio_codec.h"
+#include "src/framework/audio/codecs/es8311/es8311_audio_codec.h"
 #if CONFIG_USE_TFT_ESPI==1
-#include "src/display/tft_display.h"
+#include "src/framework/display/tft_display.h"
 #endif
 #if CONFIG_USE_LVGL==1
-#include "src/display/lcd_driver.h"
-#include "src/display/drivers/st7789/st7789_driver.h"
+#include "src/framework/display/lcd_driver.h"
+#include "src/framework/display/drivers/st7789/st7789_driver.h"
 #endif
 #define TAG "XINGZHI_MATRIXBIT_V3"
 
