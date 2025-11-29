@@ -7,7 +7,7 @@
 #ifndef _WATERING_APPLICATION_H
 #define _WATERING_APPLICATION_H
 
-#include "src/app/application.h"
+#include "src/framework/app/application.h"
 #include "mqtt_service.h"
 #include <string>
 

@@ -12,7 +12,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-#include "src/wifi/wifi_configuration.h"
+#include "src/framework/wifi/wifi_configuration.h"
 
 class WifiConfigurationEx : public WifiConfiguration {
 public:

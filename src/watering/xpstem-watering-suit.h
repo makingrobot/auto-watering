@@ -11,12 +11,12 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-#include "src/sys/log.h"
-#include "src/app/application.h"
-#include "src/boards/wifi_board.h"
-#include "src/display/display.h"
-#include "src/led/led.h"
-#include "src/wifi/wifi_configuration.h"
+#include "src/framework/sys/log.h"
+#include "src/framework/app/application.h"
+#include "src/framework/board/wifi_board.h"
+#include "src/framework/display/display.h"
+#include "src/framework/led/led.h"
+#include "src/framework/wifi/wifi_configuration.h"
 
 #include "board_config.h"
 

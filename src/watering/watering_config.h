@@ -3,7 +3,7 @@
 
 #include <string>
 #include <cJSON.h>
-#include "src/sys/settings.h"
+#include "src/framework/sys/settings.h"
 
 class WateringConfig {
 public:

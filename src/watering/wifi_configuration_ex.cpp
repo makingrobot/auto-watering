@@ -7,9 +7,9 @@
 #include <HTTPClient.h>
 #include <WiFi.h>
 
-#include "src/sys/log.h"
-#include "src/sys/settings.h"
-#include "src/wifi/ssid_manager.h"
+#include "src/framework/sys/log.h"
+#include "src/framework/sys/settings.h"
+#include "src/framework/wifi/ssid_manager.h"
 #include "wifi_configuration_res.h"
 
 #define TAG "WifiConfigurationEx"

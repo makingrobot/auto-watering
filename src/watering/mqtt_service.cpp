@@ -2,9 +2,9 @@
 #include "mqtt_service.h"
 #include <esp_system.h>
 
-#include "src/sys/log.h"
-#include "src/sys/system_info.h"
-#include "src/boards/board.h"
+#include "src/framework/sys/log.h"
+#include "src/framework/sys/system_info.h"
+#include "src/framework/board/board.h"
 #include "watering_application.h"
 
 #define TAG "MqttService"
