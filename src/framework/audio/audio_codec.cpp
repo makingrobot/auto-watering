@@ -11,7 +11,7 @@
 #include <driver/i2s_common.h>
 
 #include "../sys/log.h"
-#include "../boards/board.h"
+#include "../board/board.h"
 #include "../sys/settings.h"
 
 #define TAG "AudioCodec"

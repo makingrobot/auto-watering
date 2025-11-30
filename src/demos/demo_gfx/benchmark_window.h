@@ -29,140 +29,142 @@ public:
     void SetStatus(const std::string& status) override { }
     void SetText(const std::string& text) override { }
    
-    void Benchmark() {
+    void Start() {
+        xTaskCreate([this]() {
+            w = gfx->width();
+            h = gfx->height();
+            n = min(w, h);
+            n1 = n - 1;
+            cx = w / 2;
+            cy = h / 2;
+            cx1 = cx - 1;
+            cy1 = cy - 1;
+            cn = min(cx1, cy1);
+            cn1 = cn - 1;
+            tsa = ((w <= 176) || (h <= 160)) ? 1 : (((w <= 240) || (h <= 240)) ? 2 : 3); // text size A
+            tsb = ((w <= 272) || (h <= 220)) ? 1 : 2;                                    // text size B
+            tsc = ((w <= 220) || (h <= 220)) ? 1 : 2;                                    // text size C
+            ds = (w <= 160) ? 9 : 12;                                                    // digit size
 
-        w = gfx->width();
-        h = gfx->height();
-        n = min(w, h);
-        n1 = n - 1;
-        cx = w / 2;
-        cy = h / 2;
-        cx1 = cx - 1;
-        cy1 = cy - 1;
-        cn = min(cx1, cy1);
-        cn1 = cn - 1;
-        tsa = ((w <= 176) || (h <= 160)) ? 1 : (((w <= 240) || (h <= 240)) ? 2 : 3); // text size A
-        tsb = ((w <= 272) || (h <= 220)) ? 1 : 2;                                    // text size B
-        tsc = ((w <= 220) || (h <= 220)) ? 1 : 2;                                    // text size C
-        ds = (w <= 160) ? 9 : 12;                                                    // digit size
+            while (1) {
+                Serial.println("Benchmark\tmicro-secs");
 
-        while (1) {
-            Serial.println("Benchmark\tmicro-secs");
+                int32_t usecFillScreen = testFillScreen();
+                serialOut("Screen fill\t", usecFillScreen, 100, true);
 
-            int32_t usecFillScreen = testFillScreen();
-            serialOut("Screen fill\t", usecFillScreen, 100, true);
+                int32_t usecText = testText();
+                serialOut("Text\t", usecText, 3000, true);
 
-            int32_t usecText = testText();
-            serialOut("Text\t", usecText, 3000, true);
+                int32_t usecPixels = testPixels();
+                serialOut("Pixels\t", usecPixels, 100, true);
 
-            int32_t usecPixels = testPixels();
-            serialOut("Pixels\t", usecPixels, 100, true);
+                int32_t usecLines = testLines();
+                serialOut("Lines\t", usecLines, 100, true);
 
-            int32_t usecLines = testLines();
-            serialOut("Lines\t", usecLines, 100, true);
+                int32_t usecFastLines = testFastLines();
+                serialOut("Horiz/Vert Lines\t", usecFastLines, 100, true);
 
-            int32_t usecFastLines = testFastLines();
-            serialOut("Horiz/Vert Lines\t", usecFastLines, 100, true);
+                int32_t usecFilledRects = testFilledRects();
+                serialOut("Rectangles (filled)\t", usecFilledRects, 100, false);
 
-            int32_t usecFilledRects = testFilledRects();
-            serialOut("Rectangles (filled)\t", usecFilledRects, 100, false);
+                int32_t usecRects = testRects();
+                serialOut("Rectangles (outline)\t", usecRects, 100, true);
 
-            int32_t usecRects = testRects();
-            serialOut("Rectangles (outline)\t", usecRects, 100, true);
+                int32_t usecFilledTrangles = testFilledTriangles();
+                serialOut("Triangles (filled)\t", usecFilledTrangles, 100, false);
 
-            int32_t usecFilledTrangles = testFilledTriangles();
-            serialOut("Triangles (filled)\t", usecFilledTrangles, 100, false);
+                int32_t usecTriangles = testTriangles();
+                serialOut("Triangles (outline)\t", usecTriangles, 100, true);
 
-            int32_t usecTriangles = testTriangles();
-            serialOut("Triangles (outline)\t", usecTriangles, 100, true);
+                int32_t usecFilledCircles = testFilledCircles(10);
+                serialOut("Circles (filled)\t", usecFilledCircles, 100, false);
 
-            int32_t usecFilledCircles = testFilledCircles(10);
-            serialOut("Circles (filled)\t", usecFilledCircles, 100, false);
+                int32_t usecCircles = testCircles(10);
+                serialOut("Circles (outline)\t", usecCircles, 100, true);
 
-            int32_t usecCircles = testCircles(10);
-            serialOut("Circles (outline)\t", usecCircles, 100, true);
+                int32_t usecFilledArcs = testFillArcs();
+                serialOut("Arcs (filled)\t", usecFilledArcs, 100, false);
 
-            int32_t usecFilledArcs = testFillArcs();
-            serialOut("Arcs (filled)\t", usecFilledArcs, 100, false);
+                int32_t usecArcs = testArcs();
+                serialOut("Arcs (outline)\t", usecArcs, 100, true);
 
-            int32_t usecArcs = testArcs();
-            serialOut("Arcs (outline)\t", usecArcs, 100, true);
+                int32_t usecFilledRoundRects = testFilledRoundRects();
+                serialOut("Rounded rects (filled)\t", usecFilledRoundRects, 100, false);
 
-            int32_t usecFilledRoundRects = testFilledRoundRects();
-            serialOut("Rounded rects (filled)\t", usecFilledRoundRects, 100, false);
+                int32_t usecRoundRects = testRoundRects();
+                serialOut("Rounded rects (outline)\t", usecRoundRects, 100, true);
 
-            int32_t usecRoundRects = testRoundRects();
-            serialOut("Rounded rects (outline)\t", usecRoundRects, 100, true);
+        #ifdef CANVAS
+                uint32_t start = micros_start();
+                gfx->flush();
+                int32_t usecFlush = micros() - start;
+                serialOut("flush (Canvas only)\t", usecFlush, 0, false);
+        #endif
 
-    #ifdef CANVAS
-            uint32_t start = micros_start();
-            gfx->flush();
-            int32_t usecFlush = micros() - start;
-            serialOut("flush (Canvas only)\t", usecFlush, 0, false);
-    #endif
+                Serial.println("Done!");
+                //gfx->fillScreen(BLACK);
 
-            Serial.println("Done!");
-            //gfx->fillScreen(BLACK);
-
-            uint16_t c = 4;
-            int8_t d = 1;
-            for (int32_t i = 0; i < h; i++)
-            {
-                gfx->drawFastHLine(0, i, w, c);
-                c += d;
-                if (c <= 4 || c >= 11)
+                uint16_t c = 4;
+                int8_t d = 1;
+                for (int32_t i = 0; i < h; i++)
                 {
-                    d = -d;
+                    gfx->drawFastHLine(0, i, w, c);
+                    c += d;
+                    if (c <= 4 || c >= 11)
+                    {
+                        d = -d;
+                    }
                 }
-            }
 
-            gfx->setCursor(0, 0);
+                gfx->setCursor(0, 0);
 
-            gfx->setTextSize(tsa);
-            gfx->setTextColor(MAGENTA);
-            gfx->println("Arduino GFX PDQ");
+                gfx->setTextSize(tsa);
+                gfx->setTextColor(MAGENTA);
+                gfx->println("Arduino GFX PDQ");
 
-            if (h > w)
-            {
-                gfx->setTextSize(tsb);
-                gfx->setTextColor(GREEN);
-                gfx->print("\nBenchmark ");
-                gfx->setTextSize(tsc);
-                if (ds == 12)
+                if (h > w)
                 {
-                    gfx->print("   ");
+                    gfx->setTextSize(tsb);
+                    gfx->setTextColor(GREEN);
+                    gfx->print("\nBenchmark ");
+                    gfx->setTextSize(tsc);
+                    if (ds == 12)
+                    {
+                        gfx->print("   ");
+                    }
+                    gfx->println("micro-secs");
                 }
-                gfx->println("micro-secs");
+
+                printnice("Screen fill ", usecFillScreen);
+                printnice("Text        ", usecText);
+                printnice("Pixels      ", usecPixels);
+                printnice("Lines       ", usecLines);
+                printnice("H/V Lines   ", usecFastLines);
+                printnice("Rectangles F", usecFilledRects);
+                printnice("Rectangles  ", usecRects);
+                printnice("Triangles F ", usecFilledTrangles);
+                printnice("Triangles   ", usecTriangles);
+                printnice("Circles F   ", usecFilledCircles);
+                printnice("Circles     ", usecCircles);
+                printnice("Arcs F      ", usecFilledArcs);
+                printnice("Arcs        ", usecArcs);
+                printnice("RoundRects F", usecFilledRoundRects);
+                printnice("RoundRects  ", usecRoundRects);
+
+                if ((h > w) || (h > 240))
+                {
+                    gfx->setTextSize(tsc);
+                    gfx->setTextColor(GREEN);
+                    gfx->print("\nBenchmark Complete!");
+                }
+
+        #ifdef CANVAS
+                gfx->flush();
+        #endif
+        
+                delay(60 * 1000L);
             }
-
-            printnice("Screen fill ", usecFillScreen);
-            printnice("Text        ", usecText);
-            printnice("Pixels      ", usecPixels);
-            printnice("Lines       ", usecLines);
-            printnice("H/V Lines   ", usecFastLines);
-            printnice("Rectangles F", usecFilledRects);
-            printnice("Rectangles  ", usecRects);
-            printnice("Triangles F ", usecFilledTrangles);
-            printnice("Triangles   ", usecTriangles);
-            printnice("Circles F   ", usecFilledCircles);
-            printnice("Circles     ", usecCircles);
-            printnice("Arcs F      ", usecFilledArcs);
-            printnice("Arcs        ", usecArcs);
-            printnice("RoundRects F", usecFilledRoundRects);
-            printnice("RoundRects  ", usecRoundRects);
-
-            if ((h > w) || (h > 240))
-            {
-                gfx->setTextSize(tsc);
-                gfx->setTextColor(GREEN);
-                gfx->print("\nBenchmark Complete!");
-            }
-
-    #ifdef CANVAS
-            gfx->flush();
-    #endif
-            delay(60 * 1000L);
-        }
+        }, "Benchmark_Task", 4096, NULL, 1, NULL);
     }
 
 private:

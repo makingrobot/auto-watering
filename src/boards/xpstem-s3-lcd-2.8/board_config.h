@@ -1,4 +1,3 @@
-#include "config.h"
 #if BOARD_XPSTEM_S3_LCD_2_80 == 1
 
 #ifndef _BOARD_CONFIG_H

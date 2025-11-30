@@ -12,6 +12,7 @@
 #include "src/framework/board/board.h"
 #include "src/framework/lang/lang_zh_cn.h"
 #include "src/framework/display/u8g2_display.h"
+#include "graphics_test_window.h"
 
 #define TAG "U8g2Application"
 
@@ -21,6 +22,10 @@ void* create_application() {
 
 U8g2Application::U8g2Application() : Application() { 
 
+    GraphicsTestWindow* window = new GraphicsTestWindow();
+    U8g2Display* disp = (U8g2Display*)Board::GetInstance().GetDisplay();
+    disp->SetWindow(window);
+
 }
 
 U8g2Application::~U8g2Application() {
@@ -28,12 +33,17 @@ U8g2Application::~U8g2Application() {
 }
 
 void U8g2Application::OnInit() {
-    
     // do your init.
+    
     Board& board = Board::GetInstance();
-    board.GetLed()->Blink(-1, 1000);
-    board.GetDisplay()->SetStatus("工作中");
-    board.GetDisplay()->SetText("你好,世界!");
+    // board.GetLed()->Blink(-1, 1000);
+    // board.GetDisplay()->SetStatus("工作中");
+    // board.GetDisplay()->SetText("你好,世界!");
+
+    U8g2Display* disp = (U8g2Display*)board.GetDisplay();
+    GraphicsTestWindow* window = (GraphicsTestWindow*)disp->GetWindow();
+    window->Start();
+
 }
 
 #endif //APP_DEMO_U8G2

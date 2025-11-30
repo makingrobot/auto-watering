@@ -34,7 +34,7 @@ GfxApplication::~GfxApplication() {
 void GfxApplication::OnInit() {
     Log::Info(TAG, "Initial.");
 
-    // window_->Benchmark();
+    // window_->Start();
     
     Board& board = Board::GetInstance();
     board.GetDisplay()->SetStatus("Work");

@@ -78,7 +78,7 @@ void Backlight::OnTransitionTimer() {
     }
 }
 
-PwmBacklight::PwmBacklight(gpio_num_t pin, bool output_invert) : Backlight() {
+PwmBacklight::PwmBacklight(gpio_num_t pin, bool output_invert) : Backlight(), pin_(pin) {
     const ledc_timer_config_t backlight_timer = {
         .speed_mode = LEDC_LOW_SPEED_MODE,
         .duty_resolution = LEDC_TIMER_10_BIT,
@@ -88,7 +88,11 @@ PwmBacklight::PwmBacklight(gpio_num_t pin, bool output_invert) : Backlight() {
         .deconfigure = false
     };
     ESP_ERROR_CHECK(ledc_timer_config(&backlight_timer));
-
+    
+    // ledcSetup(LEDC_CHANNEL_0, /* channel */ 
+    //         25000, /* freq */
+    //         10 /* resolution */);
+    
     // Setup LEDC peripheral for PWM backlight control
     const ledc_channel_config_t backlight_channel = {
         .gpio_num = pin,
@@ -103,10 +107,16 @@ PwmBacklight::PwmBacklight(gpio_num_t pin, bool output_invert) : Backlight() {
         }
     };
     ESP_ERROR_CHECK(ledc_channel_config(&backlight_channel));
+
+    // ledcAttachPin(pin_, LEDC_CHANNEL_0);
+    // if (output_invert) {
+    //     ledcOutputInvert(pin_, output_invert);
+    // }
 }
 
 PwmBacklight::~PwmBacklight() {
     ledc_stop(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
+    //ledcDetach(pin_);
 }
 
 void PwmBacklight::SetBrightnessImpl(uint8_t brightness) {
@@ -114,5 +124,6 @@ void PwmBacklight::SetBrightnessImpl(uint8_t brightness) {
     uint32_t duty_cycle = (1023 * brightness) / 100;
     ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty_cycle);
     ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+    //ledcWrite(LEDC_CHANNEL_0, duty_cycle);
 }
 

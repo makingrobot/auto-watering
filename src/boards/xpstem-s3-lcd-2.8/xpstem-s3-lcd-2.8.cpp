@@ -3,7 +3,7 @@
 
 #include "xpstem-s3-lcd-2.8.h"
 
-#include "src/sys/system_reset.h"
+#include "src/framework/sys/system_reset.h"
 #include "src/framework/board/board.h"
 #include "src/framework/board/i2c_device.h"
 #include "src/framework/led/ws2812_led.h"

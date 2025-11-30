@@ -1,4 +1,3 @@
-#include "config.h"
 #if BOARD_XPSTEM_JC4827W543 == 1
 
 #ifndef _BOARD_CONFIG_H
@@ -92,7 +91,6 @@
 #define CONFIG_USE_LED_GPIO                 0
 #define CONFIG_USE_LED_RGB                  0
 #define CONFIG_USE_LED_WS2812               0
-
 
 #endif //_BOARD_CONFIG_H
 

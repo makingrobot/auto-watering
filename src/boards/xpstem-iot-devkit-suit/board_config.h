@@ -1,4 +1,3 @@
-#include "config.h"
 #if BOARD_XPSTEM_IOT_DEVKIT_SUIT == 1
 
 #ifndef _BOARD_CONFIG_H

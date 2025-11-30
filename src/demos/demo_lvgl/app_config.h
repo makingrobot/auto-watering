@@ -1,4 +1,4 @@
-#if APP_DEMO_LCD==1
+#if APP_DEMO_LVGL==1
 
 #ifndef _APP_CONFIG_H
 #define _APP_CONFIG_H
@@ -21,6 +21,9 @@
 #define CONFIG_OTA_ENABLE                   0  
 #define CONFIG_OTA_URL                      ""
 
+#if CONFIG_USE_LVGL==0
+#error "本DEMO需要使用LVGL图形库，请在开发板的board_config.h内设置。"
+#endif
 
 #endif //_APP_CONFIG_H
 

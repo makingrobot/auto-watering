@@ -108,9 +108,17 @@ void AudioTask(void *param) {
 void Mp3Application::AudioInfo(Audio::msg_t m) {
 
     Log::Debug(TAG, "%s: %s", m.s, m.msg);
-    if (strcmp(m.s, "eof")==0) {
-        AudioPlayEnd();
-    }
+    switch (m.e) {
+        case evt_eof:
+            AudioPlayEnd();
+            break;
+        case evt_id3data:
+            break;
+        case evt_image:
+            break;
+        case evt_lyrics:
+            break;
+    } 
 
 }
 

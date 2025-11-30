@@ -12,6 +12,7 @@
 #include "src/framework/board/board.h"
 #include "src/framework/lang/lang_zh_cn.h"
 #include "src/framework/display/tft_display.h"
+#include "print_test_window.h"
 
 #define TAG "TftApplication"
 
@@ -21,6 +22,9 @@ void* create_application() {
 
 TftApplication::TftApplication() : Application() { 
 
+    PrintTestWindow window = new PrintTestWindow();
+    TftDisplay* disp = static_cast<TftDisplay*>(Board::GetInstance().GetDisplay());
+    disp->SetWindow(window);
 }
 
 TftApplication::~TftApplication() {
@@ -31,9 +35,12 @@ void TftApplication::OnInit() {
     
     // do your init.
     Board& board = Board::GetInstance();
-    board.GetLed()->Blink(-1, 1000);
-    board.GetDisplay()->SetStatus("Work");
-    board.GetDisplay()->SetText("Hello world!");
+    // board.GetLed()->Blink(-1, 1000);
+    // board.GetDisplay()->SetStatus("Work");
+    // board.GetDisplay()->SetText("Hello world!");
+    
+    TftDisplay* disp = static_cast<TftDisplay*>(Board::GetInstance().GetDisplay());
+    disp->GetWindow()->Start();
 }
 
 #endif //APP_DEMO_TFT

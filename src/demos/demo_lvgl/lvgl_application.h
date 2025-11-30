@@ -5,18 +5,18 @@
  * Author: Billy Zhang（billy_zh@126.com）
  */
 #include "config.h"
-#if APP_DEMO_LCD==1
+#if APP_DEMO_LVGL==1
 
-#ifndef _LCD_APPLICATION_H
-#define _LCD_APPLICATION_H
+#ifndef _LVGL_APPLICATION_H
+#define _LVGL_APPLICATION_H
 
 #include "src/framework/app/application.h"
 #include "src/framework/display/lvgl_text_window.h";
 
-class LcdApplication : public Application {
+class LvglApplication : public Application {
 public:
-    LcdApplication();
-    ~LcdApplication();
+    LvglApplication();
+    ~LvglApplication();
     
     void OnInit() override;
 
@@ -28,6 +28,6 @@ private:
 
 };
 
-#endif //_LCD_APPLICATION_H
+#endif //_LVGL_APPLICATION_H
 
-#endif //APP_DEMO_LCD
+#endif //APP_DEMO_LVGL

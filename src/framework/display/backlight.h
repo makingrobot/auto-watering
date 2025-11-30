@@ -4,7 +4,8 @@
  * 
  * Author: Billy Zhang（billy_zh@126.com）
  */
-#pragma once
+#ifndef _BACKLIGHT_H
+#define _BACKLIGHT_H
 
 #include <cstdint>
 #include <functional>
@@ -37,4 +38,9 @@ public:
     ~PwmBacklight();
 
     void SetBrightnessImpl(uint8_t brightness) override;
+private:
+    gpio_num_t pin_;
+
 };
+
+#endif //_BACKLIGHT_H

@@ -5,9 +5,9 @@
  * Author: Billy Zhang（billy_zh@126.com）
  */
 #include "config.h"
-#if APP_DEMO_LCD==1
+#if APP_DEMO_LVGL==1
 
-#include "lcd_application.h"
+#include "lvgl_application.h"
 #include "src/framework/sys/log.h"
 #include "src/framework/board/board.h"
 #include "src/framework/board/wifi_board.h"
@@ -15,26 +15,26 @@
 #include "src/framework/display/lvgl_display.h"
 #include "src/framework/display/lvgl_text_window.h"
 
-#define TAG "LcdApplication"
+#define TAG "LvglApplication"
 
 void* create_application() {
-    return new LcdApplication();
+    return new LvglApplication();
 }
 
-LcdApplication::LcdApplication() : Application() { 
+LvglApplication::LvglApplication() : Application() { 
 
     window_ = new LvglTextWindow();
     LvglDisplay* disp = static_cast<LvglDisplay*>(Board::GetInstance().GetDisplay());
     disp->SetWindow(window_);
 }
 
-LcdApplication::~LcdApplication() {
+LvglApplication::~LvglApplication() {
    
 }
 
-void LcdApplication::OnInit() {
+void LvglApplication::OnInit() {
 
     window_->SetText("Hello world!");
 }
 
-#endif //APP_DEMO_LCD
+#endif //APP_DEMO_LVGL

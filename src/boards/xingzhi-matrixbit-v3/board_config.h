@@ -1,4 +1,3 @@
-#include "config.h"
 #if BOARD_XINGZHI_MATRIXBIT_V3 == 1
 
 #ifndef _BOARD_CONFIG_H

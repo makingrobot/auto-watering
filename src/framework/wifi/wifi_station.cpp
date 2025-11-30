@@ -99,6 +99,9 @@ bool WifiStation::WaitForConnected(uint32_t timeout_ms) {
             break; //已连接，中止等待
         }
         n += step;
+        if (n % 5000 == 0) {
+            Log::Info(TAG, "正在尝试连接...");
+        }
     }
 
     if (WiFi.status() == WL_CONNECTED) {
@@ -136,6 +139,9 @@ bool WifiStation::WaitForConnected(const std::string& ssid, const std::string& p
             break; //已连接，中止等待
         }
         n += step;
+        if (n % 5000 == 0) {
+            Log::Info(TAG, "正在尝试连接...");
+        }
     }
 
     if (WiFi.status() == WL_CONNECTED) {
