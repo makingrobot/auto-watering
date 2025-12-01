@@ -78,6 +78,12 @@ void GfxLvglDriver::Init() {
 //    lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER); /*Touchpad should have POINTER type*/
 //    lv_indev_set_read_cb(indev, my_touchpad_read);
 
+    xTaskCreate([](void* pvParam){
+        while(1) {
+            lv_timer_handler();
+            delay(5);
+        }
+    }, "LV_HANDLER_TASK", 8192, NULL, 1, NULL);
 }
 
 #endif //CONFIG_USE_GFX_LIBRARY

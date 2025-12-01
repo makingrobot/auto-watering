@@ -21,10 +21,10 @@ void* create_application() {
 
 GfxApplication::GfxApplication() : Application() { 
 
-    // window_ = new BenchmarkWindow();
+    window_ = new BenchmarkWindow();
 
-    // GfxDisplay* display = (GfxDisplay*)Board::GetInstance().GetDisplay();
-    // display->SetWindow(window_);
+    GfxDisplay* display = (GfxDisplay*)Board::GetInstance().GetDisplay();
+    display->SetWindow(window_);
 }
 
 GfxApplication::~GfxApplication() {
@@ -34,11 +34,11 @@ GfxApplication::~GfxApplication() {
 void GfxApplication::OnInit() {
     Log::Info(TAG, "Initial.");
 
-    // window_->Start();
+    window_->Start();
     
-    Board& board = Board::GetInstance();
-    board.GetDisplay()->SetStatus("Work");
-    board.GetDisplay()->SetText("Hello world!");
+    // Board& board = Board::GetInstance();
+    // board.GetDisplay()->SetStatus("Work");
+    // board.GetDisplay()->SetText("Hello world!");
     
 }
 

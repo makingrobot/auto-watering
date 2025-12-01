@@ -12,6 +12,7 @@
 #include "src/framework/display/drivers/st7796/st7796_driver.h"
 #include "src/framework/display/lcd_driver.h"
 #endif
+
 #if CONFIG_USE_GFX_LIBRARY==1
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
@@ -99,35 +100,6 @@ void XPSTEM_S3_ELECTRONIC_SUIT::InitializeDisplay() {
                                 });
 }
 
-void XPSTEM_S3_ELECTRONIC_SUIT::I2cDetect() {
-    uint8_t address;
-    printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\r\n");
-    for (int i = 0; i < 128; i += 16) {
-        printf("%02x: ", i);
-        for (int j = 0; j < 16; j++) {
-            fflush(stdout);
-            address = i + j;
-            esp_err_t ret = i2c_master_probe(i2c_bus_, address, pdMS_TO_TICKS(200));
-            if (ret == ESP_OK) {
-                printf("%02x ", address);
-            } else if (ret == ESP_ERR_TIMEOUT) {
-                printf("UU ");
-            } else {
-                printf("-- ");
-            }
-        }
-        printf("\r\n");
-    }
-}
-
-void buttonTickTask(void *pvParam) {
-    OneButton* button = static_cast<OneButton *>(pvParam);
-    while (1) {
-        button->tick();
-        vTaskDelay(pdMS_TO_TICKS(2)); //2ms
-    }
-}
-
 void XPSTEM_S3_ELECTRONIC_SUIT::InitializeButtons() {
     Log::Info( TAG, "Init button ......" );
 
@@ -142,7 +114,13 @@ void XPSTEM_S3_ELECTRONIC_SUIT::InitializeButtons() {
         board.OnPhysicalButtonEvent(kBootButton, ButtonAction::DoubleClick);
     });
 
-    xTaskCreate(buttonTickTask, "ButtonTick_Task", 2048, boot_button_, 1, NULL);
+    xTaskCreate([](void *pvParam) {
+        OneButton* button = static_cast<OneButton *>(pvParam);
+        while (1) {
+            button->tick();
+            vTaskDelay(pdMS_TO_TICKS(2)); //2ms
+        }
+    }, "ButtonTick_Task", 2048, boot_button_, 1, NULL);
 }
 
 void XPSTEM_S3_ELECTRONIC_SUIT::InitializeFt6336TouchPad() {
@@ -230,4 +208,4 @@ void XPSTEM_S3_ELECTRONIC_SUIT::SetPowerSaveMode(bool enabled) {
     }
 }
 
-#endif //BOARD_XPSTEM_S3_ELECTRONIC_SUIT
+#endif

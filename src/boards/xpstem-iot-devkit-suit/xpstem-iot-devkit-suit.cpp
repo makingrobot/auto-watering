@@ -5,13 +5,11 @@
 
 #if CONFIG_USE_U8G2==1
 #include <Arduino.h>
-#include <U8g2lib.h>
 #include <Wire.h>
 #include "src/framework/display/u8g2_display.h"
 #endif
 #if CONFIG_USE_TFT_ESPI==1
 #include <Arduino.h>
-#include <TFT_eSPI.h>
 #include <SPI.h>
 #include "src/framework/display/tft_display.h"
 #endif
@@ -52,15 +50,15 @@ void XPSTEM_IOT_DEVKIT_SUIT::InitializeDisplay() {
 
 #if CONFIG_USE_U8G2==1
     Log::Info( TAG, "Init ssd1306 display ......" );
-    U8G2 *u8g2 = new U8G2_SSD1306_128X64_NONAME_F_SW_I2C(U8G2_R0, 
+    u8g2_ = new U8G2_SSD1306_128X64_NONAME_F_SW_I2C(U8G2_R0, 
         /* i2c clk */ I2C_SCL_PIN,
         /* i2c data */ I2C_SDA_PIN,
         /* reset=*/ U8X8_PIN_NONE
     );
-    u8g2->setI2CAddress(SSD1306_I2C_ADDR << 1);
+    u8g2_->setI2CAddress(SSD1306_I2C_ADDR << 1);
 
     //u8g2_font_unifont_t_chinese2
-    display_ = new U8g2Display(u8g2, 128, 64, u8g2_font_wqy14_t_gb2312);
+    display_ = new U8g2Display(u8g2_, 128, 64, u8g2_font_wqy14_t_gb2312);
 #endif
 
 #if CONFIG_USE_TFT_ESPI==1
@@ -69,12 +67,12 @@ void XPSTEM_IOT_DEVKIT_SUIT::InitializeDisplay() {
      * 注意！！！
      * 请在TFT_eSPI库包内的User_Setup.h中配置引脚
      */
-    TFT_eSPI *tft = new TFT_eSPI(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    tft->setRotation(DISPLAY_ROTATION);
+    tft_espi_ = new TFT_eSPI(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    tft_espi_->setRotation(DISPLAY_ROTATION);
     //tft->invertDisplay(DISPLAY_INVERT_COLOR);
     
     //u8g2_font_unifont_t_chinese2
-    display_ = new TftDisplay(tft, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    display_ = new TftDisplay(tft_espi_, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 #endif
 
 #if CONFIG_USE_LVGL==1

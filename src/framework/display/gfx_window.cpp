@@ -37,9 +37,6 @@ void GfxWindow::Update() {
     driver_->println(status_.c_str());
     driver_->println(text_.c_str());
 
-#ifdef CANVAS
-    driver_->flush();
-#endif
 }
 
 #endif //CONFIG_USE_GFX_LIBRARY

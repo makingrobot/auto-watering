@@ -5,11 +5,17 @@
 
 #include <driver/gpio.h>
 
+//*******************************************************************
+// 型号： JC4827W543N/R/C (ESP32_4827A043_QSPI)
 // 芯片： ESP32-S3 N4R8  
 // LCD： 4.3寸 480x272 NV3041A QSPI
 // Touch： GT911
 // 音频放大： NS4168
 // 电池管理： IP5306
+
+#ifndef ARDUINO_ESP32S3_DEV
+#error "开发板设置错误，请指定为ESP32S3-DEV。"
+#endif
 
 //*******************************************************************
 // 引脚定义
@@ -29,7 +35,7 @@
 
 #define DISPLAY_WIDTH                       480
 #define DISPLAY_HEIGHT                      272
-#define DISPLAY_ROTATION                    2
+#define DISPLAY_ROTATION                    0
 
 // Touch
 #define TOUCH_INT_PIN                       GPIO_NUM_3
@@ -37,16 +43,20 @@
 #define TOUCH_SDA_PIN                       GPIO_NUM_8
 #define TOUCH_GT911_ADD R                   0x5D
 
-// Audio
-#define RTP_CS_PIN                          GPIO_NUM_38
-#define RTP_DIN_PIN                         GPIO_NUM_11
-#define RTP_CLK_PIN                         GPIO_NUM_12
-#define RTP_DOUT_PIN                        GPIO_NUM_13
-#define RTP_IRQ_PIN                         GPIO_NUM_3  //复用
+// Audio codec
+// #define RTP_CS_PIN                          GPIO_NUM_38
+// #define RTP_DIN_PIN                         GPIO_NUM_11
+// #define RTP_CLK_PIN                         GPIO_NUM_12
+// #define RTP_DOUT_PIN                        GPIO_NUM_13
+// #define RTP_IRQ_PIN                         GPIO_NUM_3  //复用
 
+// I2s power
 #define SPECK_LRCLK_PIN                     GPIO_NUM_2
 #define SPECK_DIN_PIN                       GPIO_NUM_41
 #define SPECK_BCLK_PIN                      GPIO_NUM_42
+
+#define AUDIO_INPUT_SAMPLE_RATE             16000
+#define AUDIO_OUTPUT_SAMPLE_RATE            16000
 
 // SD TF
 #define SD_TF_CS                            GPIO_NUM_10
@@ -55,14 +65,14 @@
 #define SD_TF_MOSI                          GPIO_NUM_13  //复用
 
 // for GFX_LIBRARY
-#define CANVAS
+#define GFX_USE_CANVAS
 
 //**********************************************************************
 // 配置定义
 
 // 外设
 #define CONFIG_USE_DISPLAY                  1   // 显示
-#define CONFIG_USE_AUDIO                    0   // 音频
+#define CONFIG_USE_AUDIO                    1   // 音频
 #define CONFIG_USE_FS                       0   // 文件系统
 #define CONFIG_USE_CAMERA                   0   // 摄像头
 

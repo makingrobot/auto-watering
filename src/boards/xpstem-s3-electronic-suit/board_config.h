@@ -8,6 +8,10 @@
 //*******************************************************************
 // 引脚定义
 
+#ifndef ARDUINO_ESP32S3_DEV
+#error "开发板设置错误，请指定为ESP32S3-DEV。"
+#endif
+
 #define I2C_SCL_PIN                         GPIO_NUM_21  //40
 #define I2C_SDA_PIN                         GPIO_NUM_7   //41
 

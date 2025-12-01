@@ -5,15 +5,15 @@
  * Author: Billy Zhang（billy_zh@126.com）
  */
 #include "config.h"
-#if CONFIG_WIFI_CONFIGURE_ASYNCWEBSERVER==1
+#if CONFIG_WIFI_CONFIGURE_WEBSERVER==1
 
 #ifndef _WIFI_CONFIGURATION_IMPL_H
 #define _WIFI_CONFIGURATION_IMPL_H
 
 #include <string>
 #include <Arduino.h>
-#include <AsyncTCP.h>
-#include <ESPAsyncWebServer.h>
+#include <WebServer.h>
+#include <freertos/FreeRTOS.h>
 #include "../wifi/wifi_configuration.h"
 
 class WifiConfigurationImpl : public WifiConfiguration {
@@ -26,8 +26,9 @@ protected:
     virtual void BindSsidRoute();
     virtual void BindAdvancedRoute();
 
-    AsyncWebServer* web_server_ = nullptr;
-    char* request_data_ = nullptr;
+    WebServer* webserver_ = nullptr;
+    TaskHandle_t webserver_handle_;
+    std::string payload_;
 
     // 高级配置项
     std::string ota_url_;
@@ -39,6 +40,11 @@ private:
 
 };
 
+class LogMiddleware : public Middleware {
+public:
+    bool run(WebServer& server, Callback next) override;
+};
+
 #endif //_WIFI_CONFIGURATION_IMPL_H
 
-#endif //CONFIG_WIFI_CONFIGURE_ASYNCWEBSERVER
+#endif

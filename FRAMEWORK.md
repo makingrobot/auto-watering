@@ -13,17 +13,6 @@ Arduino开发环境下适用于ESP32芯片系列开发板的应用开发框架�
 * 提供OTA在线升级
 * 内置支持LVGL、TFT_eSPI、U8G2、GFX_Library图形化开发库
 
-## Demo
-
-|                           | DEMO_LCD | DEMO_TFT | DEMO_U8G2 | DEMO_MP3 | DEMO_IOT |
-|:--------------------------|:-------:|:--------:|:--------:|:---------:|:----------:
-| 小鹏ESP32-S3 2.8寸开发板 [链接](https://www.xpstem.com/product/board-esp32s3-tft280)  | OK &#x2705;  |       |   n/a   | OK &#x2705;  |      |
-| 小鹏ESP32-S3 创意电子套件 [链接](https://www.xpstem.com/product/xp-esp32s3-electronic-suit)  | OK  &#x2705;  |     |   n/a  | OK  &#x2705;  |        |
-| 小鹏ESP32 物联网开发套件 [链接](https://www.xpstem.com/product/iot-devkit-suit)  | OK  &#x2705;  | OK  &#x2705;  | OK  &#x2705;   |   n/a    |       |
-| MatrixBit3 [链接](https://www.xpstem.com/product/matrixbit-v3)  |       | OK  &#x2705;   |   n/a   |      |      |
-| AI-VOX3                   |      |         |     n/a    |      |          |
-
-
 ## 硬件支持
 ### 显示屏芯片
 #### ESP-LCD库驱动的芯片
@@ -31,9 +20,6 @@ Arduino开发环境下适用于ESP32芯片系列开发板的应用开发框架�
 #### U8G2库支持的芯片
 #### TFT_eSPI库支持的芯片
 #### GFX_Library库支持的芯片
-
-### 触摸芯片
-* FT6336
 
 ### 音频编解码芯片
 * ES8311
@@ -99,11 +85,3 @@ Arduino开发环境下适用于ESP32芯片系列开发板的应用开发框架�
 ### 3.实现业务类
 继承Application类
 
-## 基于本框架的应用
-### 小鹏AI语音机器人 
-[产品链接](https://www.xpstem.com/product/xp-aichat-bot-2.8/) 
-[源码链接](https://gitee.com/billyzh/XiaoZhi-Arduino)
-
-### 小鹏IoT自动浇花套件 
-[产品链接](https://www.xpstem.com/product/auto-watering/)
-[源码链接](https://gitee.com/billyzh/auto-watering)

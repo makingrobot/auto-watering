@@ -8,10 +8,16 @@
 #include "src/framework/board/i2c_device.h"
 #include "src/framework/led/ws2812_led.h"
 #include "src/framework/display/lvgl_display.h"
-#include "src/framework/display/drivers/ili9341/ili9341_driver.h"
 #include "src/framework/audio/codecs/es8311/es8311_audio_codec.h"
 #include "src/framework/sys/time/ntp_time.h"
 #include <SD_MMC.h>
+
+#if CONFIG_USE_LCD_PANEL==1
+#include "src/framework/display/drivers/ili9341/ili9341_driver.h"
+#elif CONFIG_USE_GFX_LIBRARY==1
+#include <Arduino.h>
+#include <Arduino_GFX_Library.h>
+#endif
 
 #define TAG "XPSTEM_S3_LCD_2_80"
 
@@ -54,9 +60,9 @@ void XPSTEM_S3_LCD_2_80::InitializePowerSaveTimer() {
 }
 
 void XPSTEM_S3_LCD_2_80::InitializeDisplay() {
-    Log::Info( TAG, "Init lcd display ......" );
 
 #if CONFIG_USE_LCD_PANEL==1
+    Log::Info( TAG, "Init lcd display ......" );
     Log::Info( TAG, "Create ili9341 driver." );
     LcdDriver* driver = new ILI9341Driver(DISPLAY_WIDTH, DISPLAY_HEIGHT,
                                     DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY, 
@@ -68,42 +74,18 @@ void XPSTEM_S3_LCD_2_80::InitializeDisplay() {
         DISPLAY_MOSI_PIN, GPIO_NUM_NC, DISPLAY_CLK_PIN, DISPLAY_RGB_ORDER, DISPLAY_INVERT_COLOR);
 
     disp_driver_ = driver;
-#endif
-
+    
     display_ = new LvglDisplay(disp_driver_,  {
                                     .text_font = &font_puhui_20_4,
                                     .icon_font = &font_awesome_16_4,
                                     .emoji_font = font_emoji_32_init(),
                                 });
-}
 
-void XPSTEM_S3_LCD_2_80::I2cDetect() {
-    uint8_t address;
-    printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\r\n");
-    for (int i = 0; i < 128; i += 16) {
-        printf("%02x: ", i);
-        for (int j = 0; j < 16; j++) {
-            fflush(stdout);
-            address = i + j;
-            esp_err_t ret = i2c_master_probe(i2c_bus_, address, pdMS_TO_TICKS(200));
-            if (ret == ESP_OK) {
-                printf("%02x ", address);
-            } else if (ret == ESP_ERR_TIMEOUT) {
-                printf("UU ");
-            } else {
-                printf("-- ");
-            }
-        }
-        printf("\r\n");
-    }
-}
+#elif CONFIG_USE_GFX_LIBRARY==1
 
-void buttonTickTask(void *pvParam) {
-    OneButton* button = static_cast<OneButton *>(pvParam);
-    while (1) {
-        button->tick();
-        vTaskDelay(pdMS_TO_TICKS(2)); //2ms
-    }
+
+#endif
+
 }
 
 void XPSTEM_S3_LCD_2_80::InitializeButtons() {
@@ -120,7 +102,13 @@ void XPSTEM_S3_LCD_2_80::InitializeButtons() {
         board.OnPhysicalButtonEvent(kBootButton, ButtonAction::DoubleClick);
     });
 
-    xTaskCreate(buttonTickTask, "ButtonTick_Task", 2048, boot_button_, 1, NULL);
+    xTaskCreate([](void *pvParam) {
+        OneButton* button = static_cast<OneButton *>(pvParam);
+        while (1) {
+            button->tick();
+            vTaskDelay(pdMS_TO_TICKS(2)); //2ms
+        }
+    }, "ButtonTick_Task", 2048, boot_button_, 1, NULL);
 }
 
 void XPSTEM_S3_LCD_2_80::InitializeFt6336TouchPad() {

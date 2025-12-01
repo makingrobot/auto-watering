@@ -5,7 +5,7 @@
  * Author: Billy Zhang（billy_zh@126.com）
  */
 #include "config.h"
-#if APP_DEMO_MP3==1
+#if APP_DEMO_AUDIO==1
 
 #ifndef _MP_STATE_H
 #define _MP_STATE_H
@@ -16,4 +16,4 @@ static const DeviceState* kDeviceStatePlaying            = DeviceState::Create(1
 
 #endif //_MY_STATE_H
 
-#endif //APP_DEMO_MP3
+#endif 

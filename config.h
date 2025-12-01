@@ -23,7 +23,7 @@
 #define APP_DEMO_TFT                        0   // TFT_eSPI显示DEMO
 #define APP_DEMO_GFX                        0   // TFT_eSPI显示DEMO
 #define APP_DEMO_U8G2                       0   // SSD1306 + U8G2 显示DEMO
-#define APP_DEMO_MP3                        0   // MP3播放，需要音频外设
+#define APP_DEMO_AUDIO                      0   // 音频播放，需要音频外设
 
 // 扩展
 #if __has_include("config_ext.h")
@@ -64,8 +64,8 @@
 #elif APP_DEMO_U8G2 == 1
 #include "src/demos/demo_u8g2/app_config.h"
 
-#elif APP_DEMO_MP3 == 1
-#include "src/demos/demo_mp3/app_config.h"
+#elif APP_DEMO_AUDIO == 1
+#include "src/demos/demo_audio/app_config.h"
 
 #endif
 

@@ -10,6 +10,7 @@
 #include <string>
 #include <map>
 #include <cstdint>
+#include <driver/i2c_master.h>
 
 #include "config.h"
 #include "../led/led.h"
@@ -119,5 +120,27 @@ public:
     virtual Camera* GetCamera() { return nullptr; }
 #endif
 };
+
+
+static void I2cDetect(i2c_master_bus_handle_t bus) {
+    uint8_t address;
+    printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\r\n");
+    for (int i = 0; i < 128; i += 16) {
+        printf("%02x: ", i);
+        for (int j = 0; j < 16; j++) {
+            fflush(stdout);
+            address = i + j;
+            esp_err_t ret = i2c_master_probe(bus, address, pdMS_TO_TICKS(200));
+            if (ret == ESP_OK) {
+                printf("%02x ", address);
+            } else if (ret == ESP_ERR_TIMEOUT) {
+                printf("UU ");
+            } else {
+                printf("-- ");
+            }
+        }
+        printf("\r\n");
+    }
+}
 
 #endif  //_BOARD_H

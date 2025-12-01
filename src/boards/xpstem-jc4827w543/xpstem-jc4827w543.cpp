@@ -3,15 +3,25 @@
 
 #include "xpstem-jc4827w543.h"
 
-#include <Arduino.h>
-#include <Arduino_GFX_Library.h>
+#include <SD_MMC.h>
 
 #include "src/framework/sys/system_reset.h"
 #include "src/framework/board/board.h"
 #include "src/framework/board/i2c_device.h"
+#include "src/framework/audio/codecs/no_audio_codec.h"
+
+#if CONFIG_USE_GFX_LIBRARY==1
+#include <Arduino.h>
+#include <Arduino_GFX_Library.h>
+
+#if CONFIG_USE_LVGL==1
 #include "src/framework/display/lvgl_display.h"
+#include "src/framework/display/gfx_lvgl_driver.h"
+#else
 #include "src/framework/display/gfx_display.h"
-#include <SD_MMC.h>
+#endif  //CONFIG_USE_LVGL
+
+#endif //CONFIG_USE_GFX_LIBRARY
 
 #define TAG "XPSTEM_JC4827W543"
 
@@ -54,10 +64,10 @@ void XPSTEM_JC4827W543::InitializePowerSaveTimer() {
 }
 
 void XPSTEM_JC4827W543::InitializeDisplay() {
-    Log::Info( TAG, "Init lcd display ......" );
 
-    // Log::Info( TAG, "Create GFX driver." );
-    Arduino_DataBus *bus = new Arduino_ESP32QSPI(
+#if CONFIG_USE_GFX_LIBRARY==1
+    Log::Info( TAG, "Create GFX driver." );
+    gfx_bus_ = new Arduino_ESP32QSPI(
         DISPLAY_CS_PIN /* cs */, 
         DISPLAY_CLK_PIN /* sck */, 
         DISPLAY_D0_PIN /* d0 */, 
@@ -65,46 +75,30 @@ void XPSTEM_JC4827W543::InitializeDisplay() {
         DISPLAY_D2_PIN /* d2 */, 
         DISPLAY_D3_PIN /* d3 */);
 
-    Arduino_GFX *g = new Arduino_NV3041A(bus, 
+    gfx_graphics_ = new Arduino_NV3041A(
+        gfx_bus_, 
         GFX_NOT_DEFINED /* RST */, 
         DISPLAY_ROTATION /* rotation */, 
-        true /* IPS */);
+        true /* IPS */,
+        DISPLAY_WIDTH /* width */,
+        DISPLAY_HEIGHT /* height */
+    );
 
-    Arduino_GFX *gfx = new Arduino_Canvas(
-        DISPLAY_WIDTH /* width */, 
-        DISPLAY_HEIGHT /* height */, 
-        g);
+#if CONFIG_USE_LVGL==1
+    Log::Info( TAG, "Create Lvgl display." );
+    GfxLvglDriver* driver = new GfxLvglDriver(gfx_canvas_, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    display_ = new LvglDisplay(driver, {
+                                    .text_font = &font_puhui_20_4,
+                                    .icon_font = &font_awesome_16_4,
+                                    .emoji_font = font_emoji_32_init(),
+                                });
+#else
+    Log::Info( TAG, "Create GFX display." );
+    display_ = new GfxDisplay(gfx_graphics_, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+#endif // CONFIG_USE_LVGL
 
-    display_ = new GfxDisplay(gfx, DISPLAY_WIDTH, DISPLAY_HEIGHT);
-}
+#endif // CONFIG_USE_GFX_LIBRARY
 
-void XPSTEM_JC4827W543::I2cDetect() {
-    uint8_t address;
-    printf("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f\r\n");
-    for (int i = 0; i < 128; i += 16) {
-        printf("%02x: ", i);
-        for (int j = 0; j < 16; j++) {
-            fflush(stdout);
-            address = i + j;
-            esp_err_t ret = i2c_master_probe(i2c_bus_, address, pdMS_TO_TICKS(200));
-            if (ret == ESP_OK) {
-                printf("%02x ", address);
-            } else if (ret == ESP_ERR_TIMEOUT) {
-                printf("UU ");
-            } else {
-                printf("-- ");
-            }
-        }
-        printf("\r\n");
-    }
-}
-
-void buttonTickTask(void *pvParam) {
-    OneButton* button = static_cast<OneButton *>(pvParam);
-    while (1) {
-        button->tick();
-        vTaskDelay(pdMS_TO_TICKS(2)); //2ms
-    }
 }
 
 void XPSTEM_JC4827W543::InitializeButtons() {
@@ -121,7 +115,13 @@ void XPSTEM_JC4827W543::InitializeButtons() {
         board.OnPhysicalButtonEvent(kBootButton, ButtonAction::DoubleClick);
     });
 
-    xTaskCreate(buttonTickTask, "ButtonTick_Task", 2048, boot_button_, 1, NULL);
+    xTaskCreate([](void *pvParam) {
+        OneButton* button = static_cast<OneButton *>(pvParam);
+        while (1) {
+            button->tick();
+            vTaskDelay(pdMS_TO_TICKS(2)); //2ms
+        }
+    }, "ButtonTick_Task", 2048, boot_button_, 1, NULL);
 }
 
 void XPSTEM_JC4827W543::InitializeTouchPad() {
@@ -164,7 +164,7 @@ XPSTEM_JC4827W543::XPSTEM_JC4827W543() : WifiBoard() {
     //Log::Info( TAG, "Init led ......" );
     //led_ = new Ws2812Led(BUILTIN_LED_PIN);
 
-    InitializeI2c();
+    //InitializeI2c();
     //I2cDetect();
 
     InitializeButtons();
@@ -180,6 +180,15 @@ XPSTEM_JC4827W543::XPSTEM_JC4827W543() : WifiBoard() {
     //InitializeFileSystem();
 
     InitializePowerSaveTimer();
+
+      Log::Info( TAG, "Init audio codec ......" );
+    /* 使用ES8311 驱动 */
+    audio_codec_ = new NoAudioCodecSimplex(
+        AUDIO_INPUT_SAMPLE_RATE, 
+        AUDIO_OUTPUT_SAMPLE_RATE,
+        SPECK_BCLK_PIN, 
+        SPECK_LRCLK_PIN, 
+        SPECK_DIN_PIN);
 
     Log::Info( TAG, "===== Board config completed. =====");
 }

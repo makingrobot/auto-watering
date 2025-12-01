@@ -31,9 +31,15 @@ protected:
     uint8_t step_ = 1;
 };
 
-
+/**
+ * PWM背光
+ * 采用渐进方式进行亮度调节
+ */
 class PwmBacklight : public Backlight {
 public:
+    /**
+     * output_invert: 输出反转，默认是高电平点亮；若反转，则低电平为点亮。
+     */
     PwmBacklight(gpio_num_t pin, bool output_invert = false);
     ~PwmBacklight();
 

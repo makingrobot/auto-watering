@@ -41,7 +41,6 @@ private:
     FileSystem* file_system_ = nullptr;
 
     void InitializeI2c();
-    void I2cDetect();
     void InitializePowerSaveTimer();
     void InitializeDisplay();
     void InitializeButtons();

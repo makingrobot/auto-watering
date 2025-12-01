@@ -1,4 +1,4 @@
-#if APP_DEMO_MP3==1
+#if APP_DEMO_AUDIO==1
 
 #ifndef _APP_CONFIG_H
 #define _APP_CONFIG_H
@@ -12,7 +12,7 @@
 // WIFI配置
 #define CONFIG_USE_WIFI                     1
 #define CONFIG_WIFI_CONFIGURE_ENABLE        1  
-#define CONFIG_WIFI_CONFIGURE_ASYNCWEBSERVER        1  
+#define CONFIG_WIFI_CONFIGURE_WEBSERVER        1  
 
 // 时钟（刷新界面）
 #define CONFIG_CLOCK_ENABLE                 1  

@@ -5,17 +5,17 @@
  * Author: Billy Zhang（billy_zh@126.com）
  */
 #include "config.h"
-#if APP_DEMO_MP3==1
+#if APP_DEMO_AUDIO==1 && CONFIG_USE_LVGL==1
 
 #include <lvgl.h>
 #include <string>
 #include "src/framework/display/lvgl_style.h"
 #include "src/framework/display/lvgl_window.h"
 
-class Mp3Window : public LvglWindow {
+class LvglAudioWindow : public LvglWindow {
 public:
-    Mp3Window();
-    virtual ~Mp3Window();
+    LvglAudioWindow();
+    virtual ~LvglAudioWindow();
 
     void SetupUI(lv_obj_t* container, const ThemeColors& theme, const DisplayFonts& fonts) override;
     void SetTheme(const ThemeColors& theme) override;
@@ -26,7 +26,7 @@ public:
 protected:
 
     // 内容区
-    lv_obj_t* content_ = nullptr;
+    lv_obj_t* lv_content_ = nullptr;
     lv_obj_t* title_label_ = nullptr;
     lv_obj_t* content_label_ = nullptr;
 
@@ -35,4 +35,4 @@ protected:
     
 };
 
-#endif //APP_DEMO_MP3
+#endif 

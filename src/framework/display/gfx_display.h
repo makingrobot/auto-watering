@@ -18,12 +18,14 @@ class GfxDisplay : public Display {
 public:
     GfxDisplay(Arduino_GFX *driver_, int width, int height);
 
-    void SetWindow(GfxWindow* window);
     void Init() override;
     
     void SetStatus(const std::string& status) override;
     void SetText(const std::string& text) override;
    
+    void SetWindow(GfxWindow* window);
+    GfxWindow* GetWindow() { return window_; }
+
     const Arduino_GFX* gfx() const { return driver_; }
 
 protected:

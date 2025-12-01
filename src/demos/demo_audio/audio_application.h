@@ -5,7 +5,7 @@
  * Author: Billy Zhang（billy_zh@126.com）
  */
 #include "config.h"
-#if APP_DEMO_MP3==1
+#if APP_DEMO_AUDIO==1
 
 #ifndef _MY_APPLICATION_H
 #define _MY_APPLICATION_H
@@ -16,18 +16,21 @@
 
 #include "src/framework/app/application.h"
 #include "src/framework/app/device_state.h"
-#include "mp3_window.h"
 
-class Mp3Application : public Application {
+#if CONFIG_USE_LVGL==1
+#include "lvgl_audio_window.h"
+#endif
+
+class AudioApplication : public Application {
 public:
-    Mp3Application();
-    ~Mp3Application();
+    AudioApplication();
+    ~AudioApplication();
     
     void OnInit() override;
 
     void SetDeviceState(const DeviceState* state) override;
 
-    const std::string& GetAppName() const override { return "DEMO_MP3"; }
+    const std::string& GetAppName() const override { return "DEMO_AUDIO"; }
     const std::string& GetAppVersion() const override { return "1.0.0"; }
 
 private:
@@ -39,10 +42,11 @@ private:
     void AudioInfo(Audio::msg_t m);
     void AudioPlayEnd();
 
-    Mp3Window* window_ = nullptr;
-
+#if CONFIG_USE_LVGL==1
+    LvglAudioWindow* window_ = nullptr;
+#endif
 };
 
-#endif //_MY_APPLICATION_H
+#endif //_AUDIO_APPLICATION_H
 
-#endif //APP_DEMO_MP3
+#endif 

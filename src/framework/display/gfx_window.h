@@ -15,8 +15,6 @@
 
 class GfxWindow {
 public:
-    GfxWindow() { }
-
     virtual void Setup(Arduino_GFX* driver);
     virtual void SetStatus(const std::string& status);
     virtual void SetText(const std::string& text);

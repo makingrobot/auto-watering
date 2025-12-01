@@ -24,6 +24,16 @@
 #include "src/framework/display/lvgl_display.h"
 #endif
 
+#if CONFIG_USE_U8G2==1
+#include <Arduino.h>
+#include <U8g2lib.h>
+#endif
+
+#if CONFIG_USE_TFT_ESPI==1
+#include <Arduino.h>
+#include <TFT_eSPI.h>
+#endif
+
 #include "board_config.h"
 
 class XPSTEM_IOT_DEVKIT_SUIT : public WifiBoard {
@@ -33,9 +43,18 @@ private:
     PowerSaveTimer* power_save_timer_ = nullptr;
     Display* display_ = nullptr;
     Led* led_ = nullptr;
+
 #if CONFIG_USE_LCD_PANEL==1
     DispDriver* disp_driver_ = nullptr;
     Backlight* backlight_ = nullptr;
+#endif
+
+#if CONFIG_USE_U8G2==1
+    U8G2 *u8g2_ = nullptr;
+#endif
+
+#if CONFIG_USE_TFT_ESPI==1
+    TFT_eSPI *tft_espi_ = nullptr;
 #endif
 
     void InitializePowerSaveTimer();
@@ -56,11 +75,7 @@ public:
 
     Backlight* GetBacklight() override { return backlight_; }
     
-    void SetDisplay(Display* display) {
-        display_ = display;
-        LvglDisplay *disp = static_cast<LvglDisplay*>(display);
-        disp->SetupUI();
-    }
+    void SetDisplay(Display* display) { display_ = display; }
 #endif
 };
 

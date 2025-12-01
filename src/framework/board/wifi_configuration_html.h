@@ -5,7 +5,7 @@
  * Author: Billy Zhang（billy_zh@126.com）
  */
 #include "config.h"
-#if CONFIG_WIFI_CONFIGURE_ASYNCWEBSERVER==1
+#if CONFIG_WIFI_CONFIGURE_WEBSERVER==1
 
 #ifndef _WIFI_CONFIGURATION_HTML_H
 #define _WIFI_CONFIGURATION_HTML_H
@@ -684,4 +684,4 @@ static const char *done_html PROGMEM = R"(
 
 #endif //_WIFI_CONFIGURATION_HTML_H
 
-#endif //CONFIG_WIFI_CONFIGURE_ASYNCWEBSERVER
+#endif 
