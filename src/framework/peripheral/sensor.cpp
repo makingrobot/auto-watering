@@ -4,19 +4,19 @@
  * 
  * Author: Billy Zhang（billy_zh@126.com）
  */
-#include "analog_sensor.h"
+#include "sensor.h"
 #include <Arduino.h>
 #include "../sys/log.h"
 #include "../sys/sw_timer.h"
 
-#define TAG "AnalogSensor"
+#define TAG "Sensor"
 
-AnalogSensor::AnalogSensor(gpio_num_t sensor_pin) : sensor_pin_(sensor_pin) {
+Sensor::Sensor(gpio_num_t sensor_pin) {
     pinMode(sensor_pin_, INPUT);
-    timer_ = new SwTimer("Analog");
+    timer_ = new SwTimer("Sensor");
 }
 
-AnalogSensor::~AnalogSensor() {
+Sensor::~Sensor() {
     if (timer_ != nullptr) {
         timer_->Stop();
     }
@@ -26,7 +26,7 @@ AnalogSensor::~AnalogSensor() {
  * 启动传感器，
  * interval_ms: 数据采集间隔，单位毫秒
  */
-void AnalogSensor::Start(uint32_t interval_ms) {
+void Sensor::Start(uint32_t interval_ms) {
     if (timer_ != nullptr) {
         timer_->Stop();
     }
@@ -34,7 +34,7 @@ void AnalogSensor::Start(uint32_t interval_ms) {
     timer_->Start(interval_ms, [this](){ReadData();});
 }
 
-void AnalogSensor::Stop() {
+void Sensor::Stop() {
     if (timer_ != nullptr) {
         timer_->Stop();
     }
@@ -43,9 +43,9 @@ void AnalogSensor::Stop() {
 /**
  * 读取传感器数据
  */
-void AnalogSensor::ReadData() {
+void Sensor::ReadData() {
     sensor_val_ = new SensorValue();
-    sensor_val_->setIntValue(analogRead(sensor_pin_));
+    ReadValue(sensor_val_);
 
     if (on_newdata_callback_) {
         on_newdata_callback_(*sensor_val_);
