@@ -8,18 +8,33 @@
 #include <TFT_eSPI.h>
 #endif
 
-#include "src/framework/sys/system_reset.h"
-#include "src/framework/board/board.h"
-#include "src/framework/board/i2c_device.h"
-#include "src/framework/audio/audio_codec.h"
-#include "src/framework/audio/codecs/es8311/es8311_audio_codec.h"
 #if CONFIG_USE_TFT_ESPI==1
+#include <Arduino.h>
+#include <SPI.h>
 #include "src/framework/display/tft_display.h"
 #endif
+
+#if CONFIG_USE_GFX_LIBRARY==1
+#include <Arduino.h>
+#include <Arduino_GFX_Library.h>
+#if CONFIG_USE_LVGL==1
+#include "src/framework/display/lvgl_display.h"
+#include "src/framework/display/gfx_lvgl_driver.h"
+#else
+#include "src/framework/display/gfx_display.h"
+#endif  //CONFIG_USE_LVGL
+#endif //CONFIG_USE_GFX_LIBRARY
+
 #if CONFIG_USE_LVGL==1
 #include "src/framework/display/lcd_driver.h"
 #include "src/framework/display/drivers/st7789/st7789_driver.h"
 #endif
+
+#include "src/framework/sys/system_reset.h"
+#include "src/framework/board/board.h"
+#include "src/framework/board/i2c_device.h"
+#include "src/framework/audio/codecs/es8311/es8311_audio_codec.h"
+
 #define TAG "XINGZHI_MATRIXBIT_V3"
 
 void* create_board() { 
@@ -63,14 +78,44 @@ void XINGZHI_MATRIXBIT_V3::InitializePowerSaveTimer() {
 void XINGZHI_MATRIXBIT_V3::InitializeDisplay() {
 
 #if CONFIG_USE_TFT_ESPI==1
-    Log::Info( TAG, "Init ssd1306 display ......" );
-    TFT_eSPI *tft = new TFT_eSPI();
-    tft->init();
-    tft->setRotation(1);
+    Log::Info( TAG, "Init Tft display ......" );
+    tft_espi_ = new TFT_eSPI();
     //tft->invertDisplay(0);
 
     //u8g2_font_unifont_t_chinese2
-    display_ = new TftDisplay(tft, 240, 240);
+    display_ = new TftDisplay(tft_espi_, 240, 240);
+#endif
+
+#if CONFIG_USE_GFX_LIBRARY==1
+
+    Log::Info( TAG, "Create GFX driver." );
+    gfx_bus_ = new Arduino_ESP32SPI(
+        DISPLAY_DC_PIN /* DC */, 
+        DISPLAY_CS_PIN /* CS*/, 
+        DISPLAY_SCK_PIN /* SCK */, 
+        DISPLAY_MOSI_PIN /* MOSI */, 
+        DISPLAY_MISO_PIN /* MISO */, 
+        3 /* VSPI spi_num */);
+
+    gfx_graphics_ = new Arduino_ST7789(
+        gfx_bus_, 
+        DISPLAY_RST_PIN, 
+        0 /* rotation */, 
+        false /* IPS */);
+
+#if CONFIG_USE_LVGL==1  // 与LVGL整合
+    Log::Info( TAG, "Create Lvgl display." );
+    disp_driver_ = new GfxLvglDriver(gfx_graphics_, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    display_ = new LvglDisplay(disp_driver_, {
+                                    .text_font = &font_puhui_20_4,
+                                    .icon_font = &font_awesome_16_4,
+                                    .emoji_font = font_emoji_32_init(),
+                                });
+#else
+    Log::Info( TAG, "Create GFX display." );
+    display_ = new GfxDisplay(gfx_graphics_, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+#endif // CONFIG_USE_LVGL
+
 #endif
 
 #if CONFIG_USE_LCD_PANEL==1

@@ -5,7 +5,21 @@
 
 #include <driver/gpio.h>
 
+//*******************************************************************
 // 芯片： ESP32-S3 N16R8
+// 显示屏： 1.54 TFT-LCD 240x240 ST7789
+// 音频编解码：ES8311  I2C：0x30
+// 音频功放：NS5150B
+// 麦克风
+// 温湿度计：AHT30
+// 加速度计：SC7A20HTR
+// 光敏电阻
+// RGB: WS2812 x 3
+// I/O控制： RP2040
+// 摄像头
+// 电量检测： U 10K / L 10K
+// USB-Serial: CH334P
+//*******************************************************************
 
 #ifndef ARDUINO_ESP32S3_DEV
 #error "开发板设置错误，请指定为ESP32S3-DEV。"
@@ -33,8 +47,9 @@
 // 按键
 #define BOOT_BUTTON_PIN                     GPIO_NUM_0
 
-// 屏幕
+// 显示屏
 #define DISPLAY_MOSI_PIN                    GPIO_NUM_39
+#define DISPLAY_MISO_PIN                    GPIO_NUM_NC
 #define DISPLAY_SCK_PIN                     GPIO_NUM_40
 #define DISPLAY_DC_PIN                      GPIO_NUM_38
 #define DISPLAY_CS_PIN                      GPIO_NUM_NC
@@ -98,19 +113,15 @@
 
 // LVGL
 #define CONFIG_USE_LVGL                     0  // LVGL
+#define LV_LVGL_H_INCLUDE_SIMPLE            0
 
 // 图形化（最多设置一个为1，其余必须为0）
-#define CONFIG_USE_TFT_ESPI                 1   // TFT_eSPI
-#define CONFIG_USE_GFX_LIBRARY              0   // GFX_LIBRARY, 可与LVGL整合使用
-
-#if CONFIG_USE_LVGL==1
-#define LV_LVGL_H_INCLUDE_SIMPLE            1
-#define CONFIG_USE_LCD_PANEL                1   // 直接驱动
-#define CONFIG_USE_DISPLAY_ST7789           1
-#else
 #define CONFIG_USE_LCD_PANEL                0   // 直接驱动
+#define CONFIG_USE_TFT_ESPI                 0   // TFT_eSPI
+#define CONFIG_USE_GFX_LIBRARY              1   // GFX_LIBRARY, 可与LVGL整合使用
+
+// 直接驱动
 #define CONFIG_USE_DISPLAY_ST7789           0
-#endif
 
 // 音频驱动（最多设置一个为1，其余必须为0）
 #define CONFIG_USE_AUDIO_ES8311             1
@@ -120,6 +131,8 @@
 #define CONFIG_USE_LED_RGB                  0
 #define CONFIG_USE_LED_WS2812               0
 
+// 使用ESP_LOG（无串口转换芯片设置为1）
+#define CONFIG_USE_ESP_LOG                  0
 
 #endif //_BOARD_CONFIG_H
 

@@ -18,20 +18,25 @@
 #include "src/framework/power/power_save_timer.h"
 #include "src/framework/sys/time.h"
 
-#if CONFIG_USE_LCD_PANEL==1
-#include "src/framework/display/backlight.h"
-#include "src/framework/display/disp_driver.h"
-#include "src/framework/display/lvgl_display.h"
-#endif
+#include <Arduino.h>
 
 #if CONFIG_USE_U8G2==1
-#include <Arduino.h>
 #include <U8g2lib.h>
 #endif
 
 #if CONFIG_USE_TFT_ESPI==1
-#include <Arduino.h>
 #include <TFT_eSPI.h>
+#include "src/framework/display/backlight.h"
+#endif
+
+#if CONFIG_USE_GFX_LIBRARY==1
+#include <Arduino_GFX_Library.h>
+#include "src/framework/display/backlight.h"
+#endif
+
+#if CONFIG_USE_LCD_PANEL==1
+#include "src/framework/display/backlight.h"
+#include "src/framework/display/disp_driver.h"
 #endif
 
 #include "board_config.h"
@@ -44,8 +49,7 @@ private:
     Display* display_ = nullptr;
     Led* led_ = nullptr;
 
-#if CONFIG_USE_LCD_PANEL==1
-    DispDriver* disp_driver_ = nullptr;
+#if CONFIG_USE_LCD_PANEL==1 || CONFIG_USE_GFX_LIBRARY==1 || CONFIG_USE_TFT_ESPI==1
     Backlight* backlight_ = nullptr;
 #endif
 
@@ -55,6 +59,15 @@ private:
 
 #if CONFIG_USE_TFT_ESPI==1
     TFT_eSPI *tft_espi_ = nullptr;
+#endif
+
+#if CONFIG_USE_GFX_LIBRARY==1
+    Arduino_DataBus* gfx_bus_ = nullptr;
+    Arduino_GFX* gfx_graphics_ = nullptr;
+#endif
+
+#if CONFIG_USE_LVGL==1
+    DispDriver* disp_driver_ = nullptr;
 #endif
 
     void InitializePowerSaveTimer();
@@ -68,14 +81,15 @@ public:
     void SetPowerSaveMode(bool enabled) override;
 
     Display* GetDisplay() override { return display_; }
-    Led* GetLed() override { return led_; }
-
-#if CONFIG_USE_LCD_PANEL==1
-    DispDriver* GetDispDriver() override { return disp_driver_; }
-
-    Backlight* GetBacklight() override { return backlight_; }
-    
     void SetDisplay(Display* display) { display_ = display; }
+    Led* GetLed() override { return led_; }
+    
+#if CONFIG_USE_LCD_PANEL==1 || CONFIG_USE_GFX_LIBRARY==1 || CONFIG_USE_TFT_ESPI==1
+    Backlight* GetBacklight() override { return backlight_; }
+#endif
+
+#if CONFIG_USE_LVGL==1
+    DispDriver* GetDispDriver() override { return disp_driver_; }
 #endif
 };
 

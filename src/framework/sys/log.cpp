@@ -7,7 +7,7 @@
 #include "log.h"
 
 #include "config.h"
-#include <esp_log.h>
+#include <string>
 #include <Arduino.h>
 
 void Log::Info(const char* tag, const char* format, ...) {
@@ -16,12 +16,11 @@ void Log::Info(const char* tag, const char* format, ...) {
     char buffer[128] = { 0 };
     vsnprintf(buffer, 127, format, args);
     va_end(args);
-    String fmt_str = buffer;
 
 #if CONFIG_USE_ESP_LOG==1
-    ESP_LOGI(tag, fmt_str.c_str());
+    log_i("%s %s", tag, buffer);
 #else
-    Serial.printf("%d [%s] %s\n", millis(), tag, fmt_str.c_str());
+    Serial.printf("%d [%s] %s\n", millis(), tag, buffer);
 #endif
 }
 
@@ -31,12 +30,11 @@ void Log::Warn(const char* tag, const char* format, ...) {
     char buffer[128] = { 0 };
     vsnprintf(buffer, 127, format, args);
     va_end(args);
-    String fmt_str = buffer;
 
 #if CONFIG_USE_ESP_LOG==1
-    ESP_LOGI(tag, fmt_str.c_str());
+    log_w("%s %s", tag, buffer);
 #else
-    Serial.printf("%d [%s] %s\n", millis(), tag, fmt_str.c_str());
+    Serial.printf("%d [%s] %s\n", millis(), tag, buffer);
 #endif
 }
 
@@ -46,12 +44,11 @@ void Log::Debug(const char* tag, const char* format, ...) {
     char buffer[128] = { 0 };
     vsnprintf(buffer, 127, format, args);
     va_end(args);
-    String fmt_str = buffer;
 
 #if CONFIG_USE_ESP_LOG==1
-    ESP_LOGI(tag, fmt_str.c_str());
+    log_d("%s %s", tag, buffer);
 #else
-    Serial.printf("%d [%s] %s\n", millis(), tag, fmt_str.c_str());
+    Serial.printf("%d [%s] %s\n", millis(), tag, buffer);
 #endif
 }
 
@@ -61,11 +58,10 @@ void Log::Error(const char* tag, const char* format, ...) {
     char buffer[128] = { 0 };
     vsnprintf(buffer, 127, format, args);
     va_end(args);
-    String fmt_str = buffer;
 
 #if CONFIG_USE_ESP_LOG==1
-    ESP_LOGI(tag, fmt_str.c_str());
+    log_e("%s %s", tag, buffer);
 #else
-    Serial.printf("%d [%s] %s\n", millis(), tag, fmt_str.c_str());
+    Serial.printf("%d [%s] %s\n", millis(), tag, buffer);
 #endif
 }

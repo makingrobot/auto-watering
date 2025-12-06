@@ -2,32 +2,41 @@
 #if APP_DEMO_TFT==1
 
 #include "test_window.h"
+#include "src/framework/sys/log.h"
+
+#define TAG "TestWindow"
 
 TFT_eSPI* tft = nullptr;
 
-void testTask(void* pvParam ){
+TestWindow::TestWindow() {
+    Log::Info(TAG, "TestWindow constructor.");
+}
+
+void testTask(void* pvParam ) {
     tft = (TFT_eSPI*)pvParam;
 
     while(1) {
+        Log::Info(TAG, "TestTask Schedule");
+
         // Fill screen with grey so we can see the effect of printing with and without 
         // a background colour defined
-        tft->fillScreen(TFT_GREY);
+        tft->fillScreen(TFT_DARKGREY);
         
         // Set "cursor" at top left corner of display (0,0) and select font 2
         // (cursor will move to next line automatically during printing with 'tft.println'
         //  or stay on the line is there is room for the text with tft.print)
         tft->setCursor(0, 0, 2);
         // Set the font colour to be white with a black background, set text size multiplier to 1
-        tft->setTextColor(TFT_WHITE,TFT_BLACK);  tft.setTextSize(1);
+        tft->setTextColor(TFT_WHITE,TFT_BLACK);  tft->setTextSize(1);
         // We can now plot text on screen using the "print" class
         tft->println("Hello World!");
         
         // Set the font colour to be yellow with no background, set to font 7
-        tft->setTextColor(TFT_YELLOW); tft.setTextFont(7);
+        tft->setTextColor(TFT_YELLOW); tft->setTextFont(7);
         tft->println(1234.56);
         
         // Set the font colour to be red with black background, set to font 4
-        tft->setTextColor(TFT_RED,TFT_BLACK);    tft.setTextFont(4);
+        tft->setTextColor(TFT_RED,TFT_BLACK);    tft->setTextFont(4);
         //tft.println(3735928559L, HEX); // Should print DEADBEEF
 
         // Set the font colour to be green with black background, set to font 4
@@ -48,17 +57,18 @@ void testTask(void* pvParam ){
         // Test some print formatting functions
         float fnumber = 123.45;
         // Set the font colour to be blue with no background, set to font 4
-        tft->setTextColor(TFT_BLUE);    tft.setTextFont(4);
-        tft->print("Float = "); tft.println(fnumber);           // Print floating point number
-        tft->print("Binary = "); tft.println((int)fnumber, BIN); // Print as integer value in binary
-        tft->print("Hexadecimal = "); tft.println((int)fnumber, HEX); // Print as integer number in Hexadecimal
-    
+        tft->setTextColor(TFT_BLUE);    tft->setTextFont(4);
+        tft->print("Float = "); tft->println(fnumber);           // Print floating point number
+        tft->print("Binary = "); tft->println((int)fnumber, BIN); // Print as integer value in binary
+        tft->print("Hexadecimal = "); tft->println((int)fnumber, HEX); // Print as integer number in Hexadecimal
+
         delay(10000);
     }
 }
 
 void TestWindow::Start() {
-    xTaskCreate(testTask, "Test_Task", 4096, driver_, tskIDLE_PRIORITY, NULL),
+    xTaskCreate(testTask, "Test_Task", 4096, driver_, 1, &test_handle_);
+    Log::Info(TAG, "Test start ...");
 }
 
 #endif

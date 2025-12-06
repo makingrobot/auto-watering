@@ -44,6 +44,10 @@ void TftDisplay::Init() {
     window_->Setup(driver_);
 }
     
+void TftDisplay::Rotate(uint8_t rotation) {
+    driver_->setRotation(rotation);
+}
+
 void TftDisplay::SetStatus(const std::string& status) {
     if (window_!=nullptr) {
         window_->SetStatus(status);

@@ -26,12 +26,13 @@ public:
     AudioApplication();
     ~AudioApplication();
     
-    void OnInit() override;
-
     void SetDeviceState(const DeviceState* state) override;
 
     const std::string& GetAppName() const override { return "DEMO_AUDIO"; }
     const std::string& GetAppVersion() const override { return "1.0.0"; }
+
+protected:
+    void OnInit() override;
 
 private:
     Audio* audio_ = nullptr;

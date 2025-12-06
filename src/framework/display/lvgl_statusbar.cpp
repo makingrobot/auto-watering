@@ -126,11 +126,11 @@ void LvglStatusBar::SetTheme(const ThemeColors& theme) {
     
 }
 
-void LvglStatusBar::ShowNotification(const char* notification, int duration_ms) {
+void LvglStatusBar::ShowNotification(const std::string& notification, int duration_ms) {
     if (notification_label_ == nullptr) {
         return;
     }
-    lv_label_set_text(notification_label_, notification);
+    lv_label_set_text(notification_label_, notification.c_str());
     lv_obj_clear_flag(notification_label_, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(status_label_, LV_OBJ_FLAG_HIDDEN);
 

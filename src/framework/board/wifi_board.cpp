@@ -30,7 +30,7 @@
 #include "../wifi/wifi_configuration.h"
 #endif //CONFIG_WIFI_CONFIGURE_ENABLE
 
-#if CONFIG_WIFI_CONFIGURE_ASYNCWEBSERVER==1
+#if CONFIG_WIFI_CONFIGURE_WEBSERVER==1
 #include "wifi_configuration_impl.h"
 #endif
 
@@ -108,7 +108,7 @@ void WifiBoard::ResetWifiConfiguration() {
 
 #if CONFIG_WIFI_CONFIGURE_ENABLE==1
 WifiConfiguration* WifiBoard::GetWifiConfiguration() {
-#if CONFIG_WIFI_CONFIGURE_ASYNCWEBSERVER==1
+#if CONFIG_WIFI_CONFIGURE_WEBSERVER==1
     static WifiConfiguration *conf = new WifiConfigurationImpl();
     return conf;
 #else

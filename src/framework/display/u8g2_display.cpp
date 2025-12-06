@@ -46,6 +46,10 @@ void U8g2Display::Init() {
     window_->Setup(driver_, fonts_);
 }
     
+void U8g2Display::Rotate(uint8_t rotation) {
+    //driver_=>set
+}
+
 void U8g2Display::SetStatus(const std::string& status) {
     if (window_!=nullptr) {
         window_->SetStatus(status);

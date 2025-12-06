@@ -11,20 +11,16 @@
 #define _LVGL_APPLICATION_H
 
 #include "src/framework/app/application.h"
-#include "src/framework/display/lvgl_text_window.h";
 
 class LvglApplication : public Application {
 public:
-    LvglApplication();
-    ~LvglApplication();
-    
-    void OnInit() override;
 
     const std::string& GetAppName() const override { return "DEMO_LCD"; }
     const std::string& GetAppVersion() const override { return "1.0.0"; }
 
-private:
-    LvglTextWindow *window_ = nullptr;
+protected:
+    void OnInit() override;
+
 
 };
 

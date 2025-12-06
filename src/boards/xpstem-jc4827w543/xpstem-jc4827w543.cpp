@@ -13,14 +13,12 @@
 #if CONFIG_USE_GFX_LIBRARY==1
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
-
 #if CONFIG_USE_LVGL==1
 #include "src/framework/display/lvgl_display.h"
 #include "src/framework/display/gfx_lvgl_driver.h"
 #else
 #include "src/framework/display/gfx_display.h"
 #endif  //CONFIG_USE_LVGL
-
 #endif //CONFIG_USE_GFX_LIBRARY
 
 #define TAG "XPSTEM_JC4827W543"
@@ -86,7 +84,7 @@ void XPSTEM_JC4827W543::InitializeDisplay() {
 
 #if CONFIG_USE_LVGL==1
     Log::Info( TAG, "Create Lvgl display." );
-    GfxLvglDriver* driver = new GfxLvglDriver(gfx_canvas_, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    GfxLvglDriver* driver = new GfxLvglDriver(gfx_graphics_, DISPLAY_WIDTH, DISPLAY_HEIGHT);
     display_ = new LvglDisplay(driver, {
                                     .text_font = &font_puhui_20_4,
                                     .icon_font = &font_awesome_16_4,
@@ -161,11 +159,7 @@ XPSTEM_JC4827W543::XPSTEM_JC4827W543() : WifiBoard() {
 
     Log::Info(TAG, "===== Create Board ...... =====");
 
-    //Log::Info( TAG, "Init led ......" );
-    //led_ = new Ws2812Led(BUILTIN_LED_PIN);
-
     //InitializeI2c();
-    //I2cDetect();
 
     InitializeButtons();
 
@@ -191,10 +185,6 @@ XPSTEM_JC4827W543::XPSTEM_JC4827W543() : WifiBoard() {
         SPECK_DIN_PIN);
 
     Log::Info( TAG, "===== Board config completed. =====");
-}
-
-XPSTEM_JC4827W543::~XPSTEM_JC4827W543() {
-    
 }
 
 #endif //BOARD_XPSTEM_JC4827W543

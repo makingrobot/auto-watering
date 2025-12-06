@@ -6,9 +6,13 @@
 
 #include <TFT_eSPI.h>
 #include <string>
+#include <freertos/FreeRTOS.h>
+#include "src/framework/display/tft_window.h"
 
 class TestWindow : public TftWindow {
 public:
+    TestWindow();
+
     void Setup(TFT_eSPI* driver) override {
         driver_ = driver;
     }
@@ -20,7 +24,8 @@ public:
 
 private:
 
-    TFT_eSPI* driver = nullptr;
+    TFT_eSPI* driver_ = nullptr;
+    TaskHandle_t test_handle_;
 
 };
 

@@ -12,6 +12,7 @@
 // Touch： GT911
 // 音频放大： NS4168
 // 电池管理： IP5306
+//*******************************************************************
 
 #ifndef ARDUINO_ESP32S3_DEV
 #error "开发板设置错误，请指定为ESP32S3-DEV。"
@@ -77,7 +78,7 @@
 #define CONFIG_USE_CAMERA                   0   // 摄像头
 
 // LVGL
-#define CONFIG_USE_LVGL                     0  // LVGL
+#define CONFIG_USE_LVGL                     1  // LVGL
 #define LV_LVGL_H_INCLUDE_SIMPLE            0
 
 // 图形化（最多设置一个为1，其余必须为0）
@@ -101,6 +102,9 @@
 #define CONFIG_USE_LED_GPIO                 0
 #define CONFIG_USE_LED_RGB                  0
 #define CONFIG_USE_LED_WS2812               0
+
+// 使用ESP_LOG（无串口转换芯片设置为1）
+#define CONFIG_USE_ESP_LOG                  1
 
 #endif //_BOARD_CONFIG_H
 

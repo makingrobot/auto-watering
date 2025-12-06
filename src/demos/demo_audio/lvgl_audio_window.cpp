@@ -7,7 +7,7 @@
 #include "config.h"
 #if APP_DEMO_AUDIO==1 && CONFIG_USE_LVGL==1
 
-#include "audio_window.h"
+#include "lvgl_audio_window.h"
 #include "src/framework/sys/log.h"
 #include "src/framework/fonts/font_awesome_symbols.h"
 #include "src/framework/lang/lang_zh_cn.h"
@@ -16,7 +16,7 @@
 
 LvglAudioWindow::LvglAudioWindow() {
             
-    Log::Debug(TAG, "AudioWindow constructor.");
+    Log::Debug(TAG, "LvglAudioWindow constructor.");
 
 }
 

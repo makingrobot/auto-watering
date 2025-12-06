@@ -47,6 +47,10 @@ void GfxDisplay::Init() {
     window_->Setup(driver_);
 }
     
+void GfxDisplay::Rotate(uint8_t rotation) {
+    driver_->setRotation(rotation);
+}
+
 void GfxDisplay::SetStatus(const std::string& status) {
     if (window_!=nullptr) {
         window_->SetStatus(status);

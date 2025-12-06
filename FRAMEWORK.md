@@ -43,11 +43,11 @@ Arduino开发环境下适用于ESP32芯片系列开发板的应用开发框架�
 * HTTPClient - HTTP客户端库
 
 ### 第三方库引用
-* LVGL - 图形化开发库 [链接](https://lvgl.io)
+* LVGL v9.2.2 - 图形化开发库 [链接](https://lvgl.io)
 * U8g2 - OLED屏显示开发库
 * TFT_eSPI - TFT-LCD屏显示开发库
-* GFX_Library - TFT-LCD屏显示开发库
-* OneButton - 按键库
+* GFX_Library v1.4.9 - TFT-LCD屏显示开发库
+* OneButton v2.6.1 - 按键库
 * Adafruit_NeoPixel - WS2812驱动库
 * ESP32-audioI2S - I2S音频库 （DEMO_MP3使用）
 

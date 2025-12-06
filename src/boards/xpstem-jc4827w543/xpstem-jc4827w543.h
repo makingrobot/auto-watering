@@ -50,7 +50,6 @@ private:
 
 public:
     XPSTEM_JC4827W543();
-    virtual ~XPSTEM_JC4827W543();
 
 #if CONFIG_USE_LVGL==1
     void SetDisplay(Display* display) override { display_ = display; }

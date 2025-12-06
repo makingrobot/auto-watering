@@ -15,17 +15,20 @@
 
 class Display {
 public:
-    Display() { };
-    virtual ~Display() { };
-
+    /**
+     * 初始化处理
+     */
     virtual void Init() = 0;
+    /**
+     * 旋转屏幕
+     */
+    virtual void Rotate(uint8_t rotation) = 0;
 
-    virtual void ShowNotification(const char* notification, int duration_ms = 3000) { };
-    virtual void ShowNotification(const std::string &notification, int duration_ms = 3000) { };
-    virtual void SetStatus(const std::string& status) { };
-    virtual void SetText(const std::string& text) { };
-    virtual void UpdateStatusBar(bool update_all = false) { };
-    virtual void Sleep() { };
+    virtual void SetStatus(const std::string& status) = 0;
+    virtual void SetText(const std::string& text) = 0;
+    virtual void UpdateStatusBar(bool update_all = false) = 0;
+    virtual void ShowNotification(const std::string &notification, int duration_ms = 3000) = 0;
+    virtual void Sleep() = 0;
 
     inline int width() const { return width_; }
     inline int height() const { return height_; }
@@ -59,11 +62,18 @@ private:
 
 class NoDisplay : public Display {
 private:
-    virtual bool Lock(int timeout_ms = 0) override {
+    bool Lock(int timeout_ms = 0) override {
         return true;
     }
-    virtual void Unlock() override {}
-    virtual void Init() override {}
+    void Unlock() override {}
+
+    void Init() override { }
+    void Rotate(uint8_t rotation) override { }
+    void SetStatus(const std::string& status) override { }
+    void SetText(const std::string& text) override { }
+    void UpdateStatusBar(bool update_all = false) override { }
+    void ShowNotification(const std::string &notification, int duration_ms = 3000) override { }
+    void Sleep() override { }
 };
 
 #endif

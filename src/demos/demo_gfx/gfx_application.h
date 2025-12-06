@@ -10,21 +10,23 @@
 #ifndef _GFX_APPLICATION_H
 #define _GFX_APPLICATION_H
 
+#include <freertos/FreeRTOS.h>
 #include "src/framework/app/application.h"
 #include "benchmark_window.h"
 
 class GfxApplication : public Application {
 public:
     GfxApplication();
-    ~GfxApplication();
     
-    void OnInit() override;
-
     const std::string& GetAppName() const override { return "DEMO_GFX"; }
     const std::string& GetAppVersion() const override { return "1.0.0"; }
 
+protected:
+    void OnInit() override;
+
 private:
     BenchmarkWindow* window_;
+    TaskHandle_t lvgl_task_handle_;
     
 };
 

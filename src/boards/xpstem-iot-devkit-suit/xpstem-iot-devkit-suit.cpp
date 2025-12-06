@@ -8,21 +8,33 @@
 #include <Wire.h>
 #include "src/framework/display/u8g2_display.h"
 #endif
+
 #if CONFIG_USE_TFT_ESPI==1
 #include <Arduino.h>
 #include <SPI.h>
 #include "src/framework/display/tft_display.h"
 #endif
 
+#if CONFIG_USE_GFX_LIBRARY==1
+#include <Arduino.h>
+#include <Arduino_GFX_Library.h>
+#if CONFIG_USE_LVGL==1
+#include "src/framework/display/lvgl_display.h"
+#include "src/framework/display/gfx_lvgl_driver.h"
+#else
+#include "src/framework/display/gfx_display.h"
+#endif  //CONFIG_USE_LVGL
+#endif //CONFIG_USE_GFX_LIBRARY
+
+#if CONFIG_USE_LCD_PANEL==1
+#include "src/framework/display/lcd_driver.h"
+#include "src/framework/display/drivers/ili9341/ili9341_driver.h"
+#endif
+
 #include "src/framework/sys/system_reset.h"
 #include "src/framework/board/board.h"
 #include "src/framework/board/i2c_device.h"
 #include "src/framework/led/gpio_led.h"
-
-#if CONFIG_USE_LVGL==1
-#include "src/framework/display/lcd_driver.h"
-#include "src/framework/display/drivers/ili9341/ili9341_driver.h"
-#endif
 
 #define TAG "BOARD_IOT_DEVKIT_SUIT"
 
@@ -68,14 +80,44 @@ void XPSTEM_IOT_DEVKIT_SUIT::InitializeDisplay() {
      * 请在TFT_eSPI库包内的User_Setup.h中配置引脚
      */
     tft_espi_ = new TFT_eSPI(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    tft_espi_->setRotation(DISPLAY_ROTATION);
-    //tft->invertDisplay(DISPLAY_INVERT_COLOR);
+    //tft_espi_->invertDisplay(DISPLAY_INVERT_COLOR);
     
     //u8g2_font_unifont_t_chinese2
     display_ = new TftDisplay(tft_espi_, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 #endif
 
+#if CONFIG_USE_GFX_LIBRARY==1
+    Log::Info( TAG, "Create GFX driver." );
+    gfx_bus_ = new Arduino_ESP32SPI(
+        DISPLAY_DC_PIN /* DC */, 
+        DISPLAY_CS_PIN /* CS*/, 
+        DISPLAY_SCK_PIN /* SCK */, 
+        DISPLAY_MOSI_PIN /* MOSI */, 
+        DISPLAY_MISO_PIN /* MISO */, 
+        VSPI /* spi_num */);
+
+    gfx_graphics_ = new Arduino_ILI9341(
+        gfx_bus_, 
+        DISPLAY_RST_PIN, 
+        0 /* rotation */, 
+        false /* IPS */);
+
 #if CONFIG_USE_LVGL==1
+    Log::Info( TAG, "Create Lvgl display." );
+    disp_driver_ = new GfxLvglDriver(gfx_graphics_, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    display_ = new LvglDisplay(disp_driver_, {
+                                    .text_font = &font_puhui_20_4,
+                                    .icon_font = &font_awesome_16_4,
+                                    .emoji_font = font_emoji_32_init(),
+                                });
+#else
+    Log::Info( TAG, "Create GFX display." );
+    display_ = new GfxDisplay(gfx_graphics_, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+#endif // CONFIG_USE_LVGL
+
+#endif // CONFIG_USE_GFX_LIBRARY
+
+#if CONFIG_USE_LCD_PANEL==1
     Log::Info( TAG, "Create ili9341 driver." );
     driver = new ILI9341Driver(DISPLAY_WIDTH, DISPLAY_HEIGHT,
                                     DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY);
@@ -110,7 +152,7 @@ XPSTEM_IOT_DEVKIT_SUIT::XPSTEM_IOT_DEVKIT_SUIT() : WifiBoard() {
 
     InitializeDisplay();
 
-#if CONFIG_USE_LCD_PANEL==1
+#if CONFIG_USE_LCD_PANEL==1 || CONFIG_USE_GFX_LIBRARY==1 || CONFIG_USE_TFT_ESPI==1
     Log::Info( TAG, "Init backlight ......" );
     backlight_ = new PwmBacklight(DISPLAY_LED_PIN, DISPLAY_BACKLIGHT_OUTPUT_INVERT);
     backlight_->RestoreBrightness();

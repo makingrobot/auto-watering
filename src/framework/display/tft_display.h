@@ -19,12 +19,16 @@ public:
     TftDisplay(TFT_eSPI *driver_, int width, int height);
 
     void Init() override;
+    void Rotate(uint8_t rotation) override;
 
     void SetWindow(TftWindow* window);
     TftWindow* GetWindow() { return window_; }
     
     void SetStatus(const std::string& status) override;
     void SetText(const std::string& text) override;
+    void UpdateStatusBar(bool update_all = false) override { }
+    void ShowNotification(const std::string &notification, int duration_ms = 3000) override { }
+    void Sleep() override { }
    
     const TFT_eSPI* tft() const { return driver_; }
 

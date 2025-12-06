@@ -1,2 +1,2 @@
-## 小鹏STEM ESP32-P4 7.0寸 
+## 星智 MatrixBit V3  
 ![开发板](assets/dev-board.png)

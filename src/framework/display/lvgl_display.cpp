@@ -15,16 +15,21 @@
 #include <esp_heap_caps.h>
 #include <cstring>
 
+#if CONFIG_USE_LCD_PANEL==1
+#include "src/libs/esp_lvgl_port/esp_lvgl_port.h"
+#endif
+
 #include "../sys/log.h"
 #include "../sys/settings.h"
 #include "../board/board.h"
 #include "../app/device_state.h"
 #include "../app/application.h"
 #include "../sys/time.h"
-#include "src/libs/esp_lvgl_port/esp_lvgl_port.h"
 #include "../lang/lang_zh_cn.h"
+
 #include "lvgl_window.h"
 #include "lvgl_statusbar.h"
+#include "lvgl_text_window.h"
 
 #define TAG "LvglDisplay"
 
@@ -47,9 +52,6 @@ LvglDisplay::LvglDisplay(DispDriver* driver, DisplayFonts fonts)
         current_theme_ = LIGHT_THEME;
     }
 
-    driver_->Init();
-
-    statusbar_ = new LvglStatusBar();
 }
 
 LvglDisplay::~LvglDisplay() {
@@ -70,7 +72,22 @@ LvglDisplay::~LvglDisplay() {
 
 void LvglDisplay::Init() {
     Log::Info(TAG, "Init ......");
+
+    driver_->Init();
+    
+    statusbar_ = new LvglStatusBar();
+    
     SetupUI();
+
+    if (window_ == nullptr) {
+        window_ = new LvglTextWindow();
+    }
+
+    window_->SetupUI(container_, current_theme_, fonts_);    
+}
+
+void LvglDisplay::Rotate(uint8_t rotation) {
+
 }
 
 void LvglDisplay::SetWindow(LvglWindow* window) {
@@ -110,23 +127,25 @@ void LvglDisplay::SetupUI() {
     lv_obj_center(low_battery_label_);
     lv_obj_add_flag(low_battery_popup_, LV_OBJ_FLAG_HIDDEN);
 
+    /* 状态栏 */
     if (statusbar_!=nullptr) {
         statusbar_->SetupUI(container_, current_theme_, fonts_);
     }
-
-    if (window_!=nullptr) {
-        window_->SetupUI(container_, current_theme_, fonts_);
-    }
-
-    Log::Info( TAG, "SetupUI completed." );
 }
 
 bool LvglDisplay::Lock(int timeout_ms) {
+#if CONFIG_USE_LCD_PANEL==1
     return lvgl_port_lock(timeout_ms);
+#else
+    return true;
+#endif
 }
 
 void LvglDisplay::Unlock() {
+#if CONFIG_USE_LCD_PANEL==1
     lvgl_port_unlock();
+#else
+#endif
 }
 
 void LvglDisplay::SetTheme(const std::string& theme_name) {
@@ -179,11 +198,17 @@ void LvglDisplay::SetStatus(const std::string& status) {
     }
 }
 
-void LvglDisplay::ShowNotification(const std::string &notification, int duration_ms) {
-    ShowNotification(notification.c_str(), duration_ms);
+void LvglDisplay::SetText(const std::string& text) {
+    if (window_!=nullptr) {
+        DisplayLockGuard lock(this);
+        window_->SetText(text);
+        
+        last_status_update_time_ = std::chrono::system_clock::now();
+    }
 }
 
-void LvglDisplay::ShowNotification(const char* notification, int duration_ms) {
+void LvglDisplay::ShowNotification(const std::string &notification, int duration_ms) { 
+
     if (statusbar_!=nullptr) {
         DisplayLockGuard lock(this);
         statusbar_->ShowNotification(notification, duration_ms);

@@ -16,12 +16,21 @@
 #include "src/framework/led/led.h"
 #include "src/framework/power/power_save_timer.h"
 #include "src/framework/sys/time.h"
+#include "src/framework/audio/audio_codec.h"
+
+#include <Arduino.h>
+
+#if CONFIG_USE_TFT_ESPI==1
+#include <TFT_eSPI.h>
+#endif
+
+#if CONFIG_USE_GFX_LIBRARY==1
+#include <Arduino_GFX_Library.h>
+#endif
 
 #if CONFIG_USE_LCD_PANEL==1
 #include "src/framework/display/backlight.h"
 #include "src/framework/display/disp_driver.h"
-#include "src/framework/display/lvgl_display.h"
-#include "src/framework/audio/audio_codec.h"
 #endif
 
 #include "board_config.h"
@@ -33,9 +42,22 @@ private:
     PowerSaveTimer* power_save_timer_ = nullptr;
     Display* display_ = nullptr;
     AudioCodec* audio_codec_ = nullptr;
-#if CONFIG_USE_LCD_PANEL==1
-    DispDriver* disp_driver_ = nullptr;
+
+#if CONFIG_USE_LCD_PANEL==1 || CONFIG_USE_GFX_LIBRARY==1 || CONFIG_USE_TFT_ESPI==1
     Backlight* backlight_ = nullptr;
+#endif
+
+#if CONFIG_USE_TFT_ESPI==1
+    TFT_eSPI *tft_espi_ = nullptr;
+#endif
+
+#if CONFIG_USE_GFX_LIBRARY==1
+    Arduino_DataBus* gfx_bus_ = nullptr;
+    Arduino_GFX* gfx_graphics_ = nullptr;
+#endif
+
+#if CONFIG_USE_LVGL==1
+    DispDriver* disp_driver_ = nullptr;
 #endif
 
     void InitializeI2c();
@@ -51,15 +73,17 @@ public:
     void SetPowerSaveMode(bool enabled) override;
 
     Display* GetDisplay() override { return display_; }
+    void SetDisplay(Display* display) { display_ = display; }
     AudioCodec* GetAudioCodec() { return audio_codec_; };
 
-#if CONFIG_USE_LCD_PANEL==1
-    DispDriver* GetDispDriver() override { return disp_driver_; }
-
+#if CONFIG_USE_LCD_PANEL==1 || CONFIG_USE_GFX_LIBRARY==1 || CONFIG_USE_TFT_ESPI==1
     Backlight* GetBacklight() override { return backlight_; }
-    
-    void SetDisplay(Display* display) { display_ = display; }
 #endif
+
+#if CONFIG_USE_LVGL==1
+    DispDriver* GetDispDriver() override { return disp_driver_; }
+#endif
+
 };
 
 #endif //_XINGZHI_MATRIXBIT_V3_H

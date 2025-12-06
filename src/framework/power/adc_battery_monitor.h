@@ -10,8 +10,15 @@
 #include <functional>
 #include <vector>
 #include <driver/gpio.h>
+#include "esp_adc/adc_oneshot.h"
+#include "esp_adc/adc_cali.h"
+#include "esp_adc/adc_cali_scheme.h"
 #include "../sys/timer.h"
-#include "src/libs/adc_battery_estimation/adc_battery_estimation.h"
+
+typedef struct {
+    float voltage;                                        /*!< Battery voltage in volts */
+    int capacity;                                         /*!< Battery capacity in percentage (0-100) */
+} battery_point_t;
 
 /**
  * 锂电池电量检测
@@ -33,8 +40,13 @@ public:
 
 private:
     gpio_num_t charging_pin_;
-    adc_battery_estimation_handle_t adc_battery_estimation_handle_ = nullptr;
+    float upper_resistor_, lower_resistor_; // 分压电阻
+    int capacity_ = 1; // 电量百分比
     bool is_charging_ = false;
+    adc_channel_t adc_channel_;
+    adc_oneshot_unit_handle_t adc_handle_;
+    adc_cali_handle_t adc_cali_handle_;
+    const battery_point_t* battery_point_table_;
     std::function<void(bool)> on_charging_status_changed_;
     Timer* timer_ = nullptr;
     

@@ -42,7 +42,7 @@ public:
 
     void SetupUI(lv_obj_t* container, const ThemeColors& theme, const DisplayFonts& fonts);
     
-    void ShowNotification(const char* notification, int duration_ms = 3000);
+    void ShowNotification(const std::string& notification, int duration_ms = 3000);
     void SetStatus(const std::string& status);
     void Update(bool update_all = false);
    

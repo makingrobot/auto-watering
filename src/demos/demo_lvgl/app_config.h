@@ -6,13 +6,10 @@
 //////////////////////////////////////////////////////////////////////////////////
 // 特性
 
-// 使用ESP_LOG
-#define CONFIG_USE_ESP_LOG                  0
-
 // WIFI配置
 #define CONFIG_USE_WIFI                     1
 #define CONFIG_WIFI_CONFIGURE_ENABLE        1  
-#define CONFIG_WIFI_CONFIGURE_ASYNCWEBSERVER        1  
+#define CONFIG_WIFI_CONFIGURE_WEBSERVER        1  
 
 // 时钟（刷新界面）
 #define CONFIG_CLOCK_ENABLE                 1  

@@ -85,6 +85,11 @@ void Application::Init() {
 #if CONFIG_WIFI_CONFIGURE_ENABLE==1    
     // WiFi配置
     WifiBoard* wifi_board = static_cast<WifiBoard *>(&board);
+    if (wifi_board == nullptr) {
+        Log::Error(TAG, "不能转换为WifiBoard");
+        return;
+    }
+
     wifi_board->Configure();  //阻塞
     
     // 连接热点

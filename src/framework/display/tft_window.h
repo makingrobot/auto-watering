@@ -26,7 +26,7 @@ private:
 
     TFT_eSPI* driver_ = nullptr;
     std::string status_ = "";
-    std::vector<std::string> text_line_(5);
+    std::vector<std::string> text_line_ = {"", "", "", "", ""};
 };
 
 #endif //TFT_WINDOW_H

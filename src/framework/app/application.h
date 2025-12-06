@@ -50,9 +50,6 @@ public:
     virtual void ShowWifiConfigHit(const std::string& ssid, const std::string& config_url, const std::string& mac_address);
     virtual bool CanEnterSleepMode();
 
-    // 初始化事件.
-    virtual void OnInit() { };
-
     /**
      * 物理按键事件响应
      * button_name: 按键名称
@@ -83,6 +80,9 @@ public:
 #endif
 
 protected:
+    // 初始化事件.
+    virtual void OnInit() = 0;
+
     virtual void OnStateChanged();
 
 #if CONFIG_OTA_ENABLE==1

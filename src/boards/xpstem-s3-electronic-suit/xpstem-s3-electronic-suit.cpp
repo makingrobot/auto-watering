@@ -158,7 +158,6 @@ XPSTEM_S3_ELECTRONIC_SUIT::XPSTEM_S3_ELECTRONIC_SUIT() : WifiBoard() {
     Log::Info(TAG, "===== Create Board ...... =====");
 
     InitializeI2c();
-    //I2cDetect();
 
     InitializePowerSaveTimer();
 

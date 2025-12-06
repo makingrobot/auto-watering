@@ -5,7 +5,7 @@
  * Author: Billy Zhang（billy_zh@126.com）
  */
 #include "config.h"
-#if CONFIG_USE_GFX_LIBRARY == 1 && CONFIG_USE_LVEL ==1
+#if CONFIG_USE_GFX_LIBRARY == 1 && CONFIG_USE_LVGL == 1
 
 #ifndef _GFX_LVGL_DRIVER_H
 #define _GFX_LVGL_DRIVER_H
@@ -27,10 +27,9 @@ public:
     }
 
     void Init() override;
-    
-private:
-    void FlushCallback(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map);
+    void TaskHandler();
 
+private:
     Arduino_GFX* gfx_;
 
     lv_display_t *display_ = nullptr;

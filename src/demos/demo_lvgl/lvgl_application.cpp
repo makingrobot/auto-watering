@@ -13,7 +13,6 @@
 #include "src/framework/board/wifi_board.h"
 #include "src/framework/lang/lang_zh_cn.h"
 #include "src/framework/display/lvgl_display.h"
-#include "src/framework/display/lvgl_text_window.h"
 
 #define TAG "LvglApplication"
 
@@ -21,20 +20,10 @@ void* create_application() {
     return new LvglApplication();
 }
 
-LvglApplication::LvglApplication() : Application() { 
-
-    window_ = new LvglTextWindow();
-    LvglDisplay* disp = static_cast<LvglDisplay*>(Board::GetInstance().GetDisplay());
-    disp->SetWindow(window_);
-}
-
-LvglApplication::~LvglApplication() {
-   
-}
-
 void LvglApplication::OnInit() {
 
-    window_->SetText("Hello world!");
+    LvglDisplay* disp = static_cast<LvglDisplay*>(Board::GetInstance().GetDisplay());
+    disp->GetWindow()->SetText("Hello world2!");
 }
 
 #endif //APP_DEMO_LVGL

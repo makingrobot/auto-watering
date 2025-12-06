@@ -13,6 +13,7 @@
 // 音频编解码： ES8311
 // 音频放大： SC8002B
 // 电池管理： TP4054
+//*******************************************************************
 
 #ifndef ARDUINO_ESP32S3_DEV
 #error "开发板设置错误，请指定为ESP32S3-DEV。"
@@ -118,6 +119,11 @@
 #define CONFIG_USE_LED_RGB                  0
 #define CONFIG_USE_LED_WS2812               1
 
+// 使用ESP_LOG（无串口转换芯片设置为1）
+#define CONFIG_USE_ESP_LOG                  1
+
+#define ADC_CALI_SCHEME_LINE_FITTING_SUPPORTED  1
+//#define ADC_CALI_SCHEME_CURVE_FITTING_SUPPORTED  1
 
 #endif //_BOARD_CONFIG_H
 

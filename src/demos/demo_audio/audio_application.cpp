@@ -22,27 +22,34 @@
 #include "src/boards/xpstem-s3-lcd-2.8/board_config.h"
 #define I2S_BCLK    AUDIO_I2S_BCLK_PIN
 #define I2S_LRC     AUDIO_I2S_WS_PIN
-#define I2S_DOUT    AUDIO_I2S_DOUT_PIN
+#define I2S_DAT    AUDIO_I2S_DOUT_PIN
 #define I2S_MCLK    AUDIO_I2S_MCLK_PIN
 #elif BOARD_XPSTEM_S3_ELECTRONIC_SUIT == 1
 #include "src/boards/xpstem-s3-electronic-suit/board_config.h"
 #define I2S_BCLK    AUDIO_SPK_BCLK_PIN
 #define I2S_LRC     AUDIO_SPK_LRC_PIN
-#define I2S_DOUT    AUDIO_SPK_DAT_PIN   
+#define I2S_DAT    AUDIO_SPK_DAT_PIN   
 #elif BOARD_XPSTEM_JC4827W543 == 1
 #include "src/boards/xpstem-jc4827w543/board_config.h"
 #define I2S_BCLK    SPECK_BCLK_PIN
 #define I2S_LRC     SPECK_LRCLK_PIN
-#define I2S_DOUT    SPECK_DIN_PIN   
+#define I2S_DAT    SPECK_DIN_PIN   
 #endif
 
 // 图形化库
 #if CONFIG_USE_LVGL==1
 #include "src/framework/display/lvgl_display.h"
-#elif CONFIG_USE_GFX_LIBRARY==1
+#endif
+
+#if CONFIG_USE_GFX_LIBRARY==1
+#if CONFIG_USE_LVGL==1
+
+#else
 #include "src/framework/display/gfx_display.h"
 #include "src/framework/display/gfx_window.h"
-#endif
+#endif //CONFIG_USE_LVGL
+#endif //CONFIG_USE_GFX_LIBRARY
+
 
 typedef struct {
     const char* name;                                      
@@ -75,13 +82,15 @@ AudioApplication::~AudioApplication() {
 
 void AudioApplication::OnInit() {
     
+    Log::Info(TAG, "create audioI2s ...");
     audio_ = new Audio(I2S_NUM_1);
-    audio_->setPinout(I2S_BCLK, I2S_LRC, I2S_DOUT);
+    audio_->setPinout(I2S_BCLK, I2S_LRC, I2S_DAT);
     audio_->setVolume(8);  //0-21
     Audio::audio_info_callback = [this](Audio::msg_t m){ this->AudioInfo(m); };
 
     Board& board = Board::GetInstance();
     // 启动音频编解码
+    Log::Info(TAG, "start audio codec ...");
     AudioCodec* codec = board.GetAudioCodec();
     codec->Start();
     codec->SetOutputVolume(50);
@@ -96,6 +105,13 @@ void AudioApplication::OnInit() {
             vTaskDelay(pdMS_TO_TICKS(1));
         }
     }, "AUDIO_TASK", 8192, audio_, 1, &audio_task_handle_);
+
+#if CONFIG_USE_LVGL==1
+    window_->SetTitle("music player");
+#else CONFIG_USE_GFX_LIBRARY==1
+    GfxWindow* window = ((GfxDisplay*)board.GetDisplay())->GetWindow();
+    window->SetText("music player");
+#endif
 
     mp3_info_t info = mp3_list[mp3_index_];
     Log::Info(TAG, "play %s", info.url);
