@@ -50,10 +50,10 @@ void WateringApplication::OnInit() {
     Board& board = Board::GetInstance();
     
     // 启动传感器
-    Sensor* sensor = board.GetSensor(kSoilMositureName);
-    if (sensor != nullptr) {
-        AnalogSensor* soil_mositure = static_cast<AnalogSensor*>(sensor);
-        soil_mositure->Start(kCollectInterval);  //120s 
+    std::shared_ptr<Sensor> sensor_ptr = board.GetSensor(kSoilMositureName);
+    if (sensor_ptr != nullptr) {
+        std::shared_ptr<AnalogSensor> soil_mositure_ptr = std::static_pointer_cast<AnalogSensor>(sensor_ptr);
+        soil_mositure_ptr->Start(kCollectInterval);  //120s 
     }
 
     started_ = true;
@@ -218,13 +218,13 @@ void WateringApplication::OnIotMessageEvent(const std::string& topic, const std:
 void WateringApplication::DoWatering(uint8_t seconds) {
 
     Board& board = Board::GetInstance();
-    Actuator* actuator = board.GetActuator(kPumpControlName);
-    if (actuator != nullptr) {
+    std::shared_ptr<Actuator> actuator_ptr = board.GetActuator(kPumpControlName);
+    if (actuator_ptr != nullptr) {
         Log::Info(TAG, "浇水 %d 秒", seconds);
-        L9110Driver* pump_control = static_cast<L9110Driver*>(actuator);
-        pump_control->On();
+        std::shared_ptr<L9110Driver> pump_control_ptr = std::static_pointer_cast<L9110Driver>(actuator_ptr);
+        pump_control_ptr->On();
         vTaskDelay(pdMS_TO_TICKS(seconds * 1000));
-        pump_control->Off();
+        pump_control_ptr->Off();
     }
 }
 
