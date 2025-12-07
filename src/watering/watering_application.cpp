@@ -13,7 +13,7 @@
 #include "src/framework/display/u8g2_display.h"
 #include "src/framework/sys/settings.h"
 #include "src/framework/wifi/wifi_station.h"
-#include "src/framework/peripheral/analog_sensor.h"
+#include "src/framework/peripheral/sensor.h"
 #include "src/framework/peripheral/switch_actuator.h"
 #include "l9110_driver.h"
 #include "watering_config.h"
@@ -50,9 +50,8 @@ void WateringApplication::OnInit() {
     Board& board = Board::GetInstance();
     
     // 启动传感器
-    std::shared_ptr<Sensor> sensor_ptr = board.GetSensor(kSoilMositureName);
-    if (sensor_ptr != nullptr) {
-        std::shared_ptr<AnalogSensor> soil_mositure_ptr = std::static_pointer_cast<AnalogSensor>(sensor_ptr);
+    std::shared_ptr<Sensor> soil_mositure_ptr = board.GetSensor(kSoilMositureName);
+    if (soil_mositure_ptr != nullptr) {
         soil_mositure_ptr->Start(kCollectInterval);  //120s 
     }
 

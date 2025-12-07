@@ -14,7 +14,7 @@
 #include "src/framework/sys/system_reset.h"
 #include "src/framework/board/i2c_device.h"
 #include "src/framework/led/gpio_led.h"
-#include "src/framework/peripheral/analog_sensor.h"
+#include "src/framework/peripheral/sensor.h"
 #include "src/framework/peripheral/sensor_value.h"
 #include "l9110_driver.h"
 #include "wifi_configuration_ex.h"
