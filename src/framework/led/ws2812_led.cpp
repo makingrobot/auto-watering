@@ -107,7 +107,7 @@ void Ws2812Led::OnBlinkTimer() {
     }
 }
 
-void Ws2812Led::TurnOn(uint8_t[] nums) {
+void Ws2812Led::TurnOn(const std::vector<uint8_t>& nums) {
     Log::Debug(TAG, "turn on");
     if (pixels_ == nullptr) {
         return;
@@ -116,8 +116,10 @@ void Ws2812Led::TurnOn(uint8_t[] nums) {
     std::lock_guard<std::mutex> lock(mutex_);
     Stop();
 
-    for (int i=0; i<sizeof(nums); i++) {
-        pixels_->setPixelColor(nums[i], pixels_->Color(r_, g_, b_));
+    pixels_->clear();
+    
+    for (uint8_t n : nums) {
+        pixels_->setPixelColor(n, pixels_->Color(r_, g_, b_));
     }
     pixels_->show();
 }

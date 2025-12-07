@@ -13,6 +13,7 @@
 #include <driver/gpio.h>
 #include <atomic>
 #include <mutex>
+#include <vector>
 
 #include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
@@ -41,7 +42,7 @@ public:
     /**
      * 点亮指定位置的灯珠
      */
-    void TurnOn(uint8_t[] nums);
+    void TurnOn(const std::vector<uint8_t>& nums);
     
 private:
     const gpio_num_t pin_;
