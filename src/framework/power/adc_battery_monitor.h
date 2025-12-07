@@ -39,14 +39,15 @@ public:
     void OnChargingStatusChanged(std::function<void(bool)> callback);
 
 private:
-    gpio_num_t charging_pin_;
-    float upper_resistor_, lower_resistor_; // 分压电阻
+    const gpio_num_t charging_pin_;
+    const float upper_resistor_, lower_resistor_; // 分压电阻
+    const adc_channel_t adc_channel_;
+    const battery_point_t* battery_point_table_;
+
     int capacity_ = 1; // 电量百分比
     bool is_charging_ = false;
-    adc_channel_t adc_channel_;
     adc_oneshot_unit_handle_t adc_handle_;
     adc_cali_handle_t adc_cali_handle_;
-    const battery_point_t* battery_point_table_;
     std::function<void(bool)> on_charging_status_changed_;
     Timer* timer_ = nullptr;
     

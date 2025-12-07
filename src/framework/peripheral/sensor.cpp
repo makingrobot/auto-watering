@@ -11,8 +11,7 @@
 
 #define TAG "Sensor"
 
-Sensor::Sensor(gpio_num_t sensor_pin) {
-    pinMode(sensor_pin_, INPUT);
+Sensor::Sensor() {
     timer_ = new SwTimer("Sensor");
 }
 
@@ -50,4 +49,22 @@ void Sensor::ReadData() {
     if (on_newdata_callback_) {
         on_newdata_callback_(*sensor_val_);
     }
+}
+
+/*********** AnalogSensor **************/
+AnalogSensor::AnalogSensor(gpio_num_t pin) : Sensor(),sensor_pin_(pin) {
+    pinMode(sensor_pin_, INPUT);
+}
+
+void AnalogSensor::ReadValue(SensorValue *value) {
+    value->setIntValue(analogRead(sensor_pin_));
+}
+
+/*********** DigitalSensor **************/
+DigitalSensor::DigitalSensor(gpio_num_t pin) : Sensor(),sensor_pin_(pin) {
+    pinMode(sensor_pin_, INPUT);
+}
+
+void DigitalSensor::ReadValue(SensorValue *value) {
+    value->setIntValue(digitalRead(sensor_pin_));
 }

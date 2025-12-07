@@ -40,8 +40,9 @@ public:
     }
 
 private:
-    gpio_num_t sensor_pin_;
-    bool output_invert_ = false;
+    const gpio_num_t sensor_pin_;
+    const bool output_invert_;
+
     uint8_t state_;
 
 };

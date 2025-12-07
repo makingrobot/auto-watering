@@ -41,6 +41,8 @@
 
 #include "board_config.h"
 
+static const std::string kDht11 = "dht11";
+
 class XPSTEM_IOT_DEVKIT_SUIT : public WifiBoard {
 private:
     i2c_master_bus_handle_t i2c_bus_;

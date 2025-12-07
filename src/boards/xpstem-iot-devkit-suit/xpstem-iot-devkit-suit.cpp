@@ -35,6 +35,7 @@
 #include "src/framework/board/board.h"
 #include "src/framework/board/i2c_device.h"
 #include "src/framework/led/gpio_led.h"
+#include "dht11_sensor.h"
 
 #define TAG "BOARD_IOT_DEVKIT_SUIT"
 
@@ -157,6 +158,13 @@ XPSTEM_IOT_DEVKIT_SUIT::XPSTEM_IOT_DEVKIT_SUIT() : WifiBoard() {
     backlight_ = new PwmBacklight(DISPLAY_LED_PIN, DISPLAY_BACKLIGHT_OUTPUT_INVERT);
     backlight_->RestoreBrightness();
 #endif
+
+    std::shared_ptr<Dht11Sensor> dht11_ptr = std::make_shared<Dht11Sensor>(DHT11_PIN);
+    dht11_ptr->OnNewData([](const SensorValue& value){
+        auto& app = Application::GetInstance();
+        app.OnSensorDataEvent(kDht11, value);
+    });
+    AddSensor(kDht11, dht11_ptr);
 
     Log::Info( TAG, "===== Board config completed. =====");
 }

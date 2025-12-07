@@ -38,10 +38,16 @@ public:
     void SetBrightness(uint8_t brightness) override { }
     void OnBlinkTimer();
 
+    /**
+     * 点亮指定位置的灯珠
+     */
+    void TurnOn(uint8_t[] nums);
+    
 private:
+    const gpio_num_t pin_;
+    const uint8_t num_pixels_;
+
     std::mutex mutex_;
-    gpio_num_t pin_;
-    uint8_t num_pixels_;
     TaskHandle_t blink_task_ = nullptr;
     uint8_t r_ = 0, g_ = 0, b_ = 0;
     int blink_counter_ = 0;

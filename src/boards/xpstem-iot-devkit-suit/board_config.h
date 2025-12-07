@@ -35,8 +35,9 @@
 // 引脚定义
 
 #define BOOT_BUTTON_PIN                     GPIO_NUM_0  // Button
-
 #define BUILTIN_LED_PIN                     GPIO_NUM_4
+
+#define DHT11_PIN                           GPIO_NUM_5
 
 #define I2C_SCL_PIN                         GPIO_NUM_22  //  
 #define I2C_SDA_PIN                         GPIO_NUM_21  //  
@@ -74,7 +75,7 @@
 #define CONFIG_USE_CAMERA                   0   // 摄像头
 
 // LVGL
-#define CONFIG_USE_LVGL                     1  // LVGL
+#define CONFIG_USE_LVGL                     0  // LVGL
 #define LV_LVGL_H_INCLUDE_SIMPLE            0
 
 // 图形化（最多设置一个为1，其余必须为0）

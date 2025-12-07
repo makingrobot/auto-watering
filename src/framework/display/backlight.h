@@ -45,7 +45,7 @@ public:
 
     void SetBrightnessImpl(uint8_t brightness) override;
 private:
-    gpio_num_t pin_;
+    const gpio_num_t pin_;
 
 };
 

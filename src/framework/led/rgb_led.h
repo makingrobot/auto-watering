@@ -36,11 +36,12 @@ class RgbLed : public Led {
     void OnBlinkTimer();
 
  private:
+    const gpio_num_t r_pin_;
+    const gpio_num_t g_pin_;
+    const gpio_num_t b_pin_;
+    const bool output_invert_ = false;
+
     std::mutex mutex_;
-    gpio_num_t r_pin_;
-    gpio_num_t g_pin_;
-    gpio_num_t b_pin_;
-    bool output_invert_ = false;
     uint8_t r_val_ = 0;
     uint8_t g_val_ = 0;
     uint8_t b_val_ = 0;

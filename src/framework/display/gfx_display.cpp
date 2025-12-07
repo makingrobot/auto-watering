@@ -12,11 +12,11 @@
 
 #define TAG "GfxDisplay"
 
-GfxDisplay::GfxDisplay(Arduino_GFX* driver, int width, int height) {
+GfxDisplay::GfxDisplay(Arduino_GFX* driver, int width, int height) 
+        : driver_(driver) {
             
     Log::Debug(TAG, "GfxDisplay constructor.");
 
-    driver_ = driver;
     width_ = width;
     height_ = height;
 

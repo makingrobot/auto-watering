@@ -57,11 +57,11 @@ protected:
     esp_lcd_panel_handle_t panel_ = nullptr;
     lv_display_t* display_ = nullptr;
 
-    int offset_x_;
-    int offset_y_;
-    bool mirror_x_;
-    bool mirror_y_;
-    bool swap_xy_;
+    const int offset_x_;
+    const int offset_y_;
+    const bool mirror_x_;
+    const bool mirror_y_;
+    const bool swap_xy_;
 
 private:
 

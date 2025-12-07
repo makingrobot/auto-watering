@@ -107,4 +107,19 @@ void Ws2812Led::OnBlinkTimer() {
     }
 }
 
+void Ws2812Led::TurnOn(uint8_t[] nums) {
+    Log::Debug(TAG, "turn on");
+    if (pixels_ == nullptr) {
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock(mutex_);
+    Stop();
+
+    for (int i=0; i<sizeof(nums); i++) {
+        pixels_->setPixelColor(nums[i], pixels_->Color(r_, g_, b_));
+    }
+    pixels_->show();
+}
+
 #endif //CONFIG_USE_LED_WS2812

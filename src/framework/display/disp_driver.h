@@ -32,8 +32,8 @@ protected:
 
     DriveMode drive_mode_;
 
-    int width_;
-    int height_;
+    const int width_;
+    const int height_;
 
 };
 

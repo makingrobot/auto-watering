@@ -36,10 +36,11 @@ class GpioLed : public Led {
     void OnBlinkTimer();
 
  private:
+    const gpio_num_t led_pin_;
+    const bool pwm_ = false;
+    const bool output_invert_ = false;
+    
     std::mutex mutex_;
-    gpio_num_t led_pin_;
-    bool pwm_ = false;
-    bool output_invert_ = false;
     uint8_t brightness_ = 255;
     int blink_counter_ = 0;
     int blink_interval_ms_ = 0;
