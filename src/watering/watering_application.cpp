@@ -58,6 +58,10 @@ void WateringApplication::OnInit() {
     started_ = true;
 }
 
+void WateringApplication::OnLoop() {
+    delay(1);
+}
+
 void WateringApplication::ShowWifiConfigHit(const std::string& ssid, const std::string& config_url, const std::string& mac_address) {
     // 显示 WiFi 配置 AP 的 SSID 和 Web 服务器 URL
     Board& board = Board::GetInstance();

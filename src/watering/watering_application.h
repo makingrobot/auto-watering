@@ -15,7 +15,6 @@ class WateringApplication : public Application {
 public:
     WateringApplication();
     
-    void OnInit() override;
     bool OnPhysicalButtonEvent(const std::string& button_name, const ButtonAction action) override;
     bool OnSensorDataEvent(const std::string& sensor_name, const SensorValue& value) override;
     
@@ -23,6 +22,10 @@ public:
 
     const std::string& GetAppName() const override { return "AutoWatering"; }
     const std::string& GetAppVersion() const override { return "1.0.0"; }
+
+protected:
+    void OnInit() override;
+    void OnLoop() override;
 
 private:
     void OnIotMessageEvent(const std::string& topic, const std::string& payload);
