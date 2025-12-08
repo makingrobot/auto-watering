@@ -97,15 +97,6 @@ void AudioApplication::OnInit() {
 
     mp3_total_ = sizeof(mp3_list) / sizeof(mp3_info_t);
 
-    // 创建音频后台任务
-    xTaskCreate([](void* pvParam){
-        Audio* _audio = static_cast<Audio*>(pvParam);
-        while(1) {
-            _audio->loop();
-            vTaskDelay(pdMS_TO_TICKS(1));
-        }
-    }, "AUDIO_TASK", 8192, audio_, 1, &audio_task_handle_);
-
 #if CONFIG_USE_LVGL==1
     window_->SetTitle("music player");
 #else CONFIG_USE_GFX_LIBRARY==1
@@ -185,6 +176,11 @@ void AudioApplication::SetDeviceState(const DeviceState* state) {
         display->SetStatus(Lang::Strings::PLAYING);
     }
 
+}
+
+void AudioApplication::OnLoop() {
+    audio_->loop();
+    vTaskDelay(pdMS_TO_TICKS(1));
 }
 
 #endif 

@@ -11,7 +11,7 @@ public:
     /**
      * 启动定时器
      * interval_ms 触发间隔时间（毫秒）
-     * callback_function 解发回调函数
+     * callback_function 触发回调函数
      * once 是否只执行一次，默认为false
      */
     virtual bool Start(uint32_t interval_ms, std::function<void()> callback_function, bool once=false) = 0;

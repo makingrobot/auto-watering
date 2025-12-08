@@ -26,4 +26,8 @@ void LvglApplication::OnInit() {
     disp->GetWindow()->SetText("Hello world2!");
 }
 
+void LvglApplication::OnLoop() {
+
+}
+
 #endif //APP_DEMO_LVGL

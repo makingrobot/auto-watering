@@ -10,6 +10,7 @@
 #include "ws2812_led.h"
 #include "../sys/log.h"
 #include "../sys/sw_timer.h"
+#include "../app/application.h"
 
 #define TAG "Ws2812Led"
 
@@ -22,8 +23,6 @@ Ws2812Led::Ws2812Led(gpio_num_t pin, uint8_t num_pixels) : pin_(pin), num_pixels
 
 Ws2812Led::~Ws2812Led() {
     Stop();
-
-    pixels_->clear();
 }
 
 void Ws2812Led::Stop() {
@@ -42,19 +41,7 @@ void Ws2812Led::SetColor(uint8_t r, uint8_t g, uint8_t b) {
 void Ws2812Led::TurnOn() {
     Log::Debug(TAG, "turn on");
     if (pixels_ == nullptr) {
-        return;
-    }
-
-    std::lock_guard<std::mutex> lock(mutex_);
-    Stop();
-
-    pixels_->setPixelColor(0, pixels_->Color(r_, g_, b_));
-    pixels_->show();
-}
-
-void Ws2812Led::TurnOff() {
-    Log::Debug(TAG, "turn off");
-    if (pixels_ == nullptr) {
+        Log::Warn(TAG, "pixels is null.");
         return;
     }
 
@@ -62,6 +49,22 @@ void Ws2812Led::TurnOff() {
     Stop();
 
     pixels_->clear();
+    pixels_->setPixelColor(0, pixels_->Color(r_, g_, b_));
+    pixels_->show();
+}
+
+void Ws2812Led::TurnOff() {
+    Log::Debug(TAG, "turn off");
+    if (pixels_ == nullptr) {
+        Log::Warn(TAG, "pixels is null.");
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock(mutex_);
+    Stop();
+
+    pixels_->clear();
+    pixels_->show();
 }
 
 void Ws2812Led::BlinkOnce() {
@@ -80,36 +83,42 @@ void Ws2812Led::StartContinuousBlink(int interval_ms) {
 
 void Ws2812Led::StartBlinkTask(int times, int interval_ms) {
     if (pixels_ == nullptr) {
+        Log::Warn(TAG, "pixels is null.");
         return;
     }
 
-    std::lock_guard<std::mutex> lock(mutex_);
     Stop();
     
     blink_counter_ = times * 2;
     blink_interval_ms_ = interval_ms;
     
-    timer_->Start(interval_ms, [this](){ OnBlinkTimer(); });
+    timer_->Start(interval_ms, [this](){ 
+        Application& app = Application::GetInstance();
+        app.Schedule([this]() {
+            OnBlinkTimer(); 
+        });
+    });
 }
 
 void Ws2812Led::OnBlinkTimer() {
     std::lock_guard<std::mutex> lock(mutex_);
     blink_counter_--;
+
+    pixels_->clear();
     if (blink_counter_ & 1) {
         pixels_->setPixelColor(0, pixels_->Color(r_, g_, b_));
-        pixels_->show();
-    } else {
-        pixels_->clear();
+    }
+    pixels_->show();
 
-        if (blink_counter_ == 0) {
-            Stop();
-        }
+    if (blink_counter_ == 0) {
+        Stop();
     }
 }
 
 void Ws2812Led::TurnOn(const std::vector<uint8_t>& nums) {
     Log::Debug(TAG, "turn on");
     if (pixels_ == nullptr) {
+        Log::Warn(TAG, "pixels is null.");
         return;
     }
 
@@ -117,7 +126,6 @@ void Ws2812Led::TurnOn(const std::vector<uint8_t>& nums) {
     Stop();
 
     pixels_->clear();
-    
     for (uint8_t n : nums) {
         pixels_->setPixelColor(n, pixels_->Color(r_, g_, b_));
     }

@@ -46,4 +46,8 @@ void U8g2Application::OnInit() {
 
 }
 
+void U8g2Application::OnLoop() {
+
+}
+
 #endif //APP_DEMO_U8G2

@@ -8,6 +8,7 @@
 #include <Arduino.h>
 #include "../sys/log.h"
 #include "../sys/sw_timer.h"
+#include "../app/application.h"
 
 #define TAG "Sensor"
 
@@ -30,7 +31,12 @@ void Sensor::Start(uint32_t interval_ms) {
         timer_->Stop();
     }
     
-    timer_->Start(interval_ms, [this](){ReadData();});
+    timer_->Start(interval_ms, [this](){
+        auto& app = Application::GetInstance();
+        app.Schedule([this](){
+            ReadData();
+        });
+    });
 }
 
 void Sensor::Stop() {
@@ -57,6 +63,7 @@ AnalogSensor::AnalogSensor(gpio_num_t pin) : Sensor(),sensor_pin_(pin) {
 }
 
 void AnalogSensor::ReadValue(SensorValue *value) {
+    Log::Debug("AnalogSensor", "Read value.");
     value->setIntValue(analogRead(sensor_pin_));
 }
 
@@ -66,5 +73,6 @@ DigitalSensor::DigitalSensor(gpio_num_t pin) : Sensor(),sensor_pin_(pin) {
 }
 
 void DigitalSensor::ReadValue(SensorValue *value) {
+    Log::Debug("DigitalSensor", "Read value.");
     value->setIntValue(digitalRead(sensor_pin_));
 }

@@ -64,4 +64,8 @@ void GfxApplication::OnInit() {
     
 }
 
+void GfxApplication::OnLoop() {
+
+}
+
 #endif //APP_DEMO_TFT

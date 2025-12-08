@@ -7,9 +7,13 @@
 #include "adc_battery_monitor.h"
 #include "../sys/log.h"
 #include "../sys/sw_timer.h"
+#include "../app/application.h"
+
 #include <Arduino.h>
 
 #define TAG "AdcBatteryMonitor"
+
+static const float Vref = 3.3;
 
 static const battery_point_t battery_point_table[]={
     { 4.2 ,  100},
@@ -35,55 +39,23 @@ static const battery_point_t battery_point_table2[] = {
     {2.85, 0},
 };
 
-AdcBatteryMonitor::AdcBatteryMonitor(gpio_num_t charging_pin, adc_unit_t adc_unit, adc_channel_t adc_channel, float upper_resistor, float lower_resistor)
-    : AdcBatteryMonitor(charging_pin, adc_unit, adc_channel, upper_resistor, lower_resistor, battery_point_table) {
+AdcBatteryMonitor::AdcBatteryMonitor(gpio_num_t charging_pin, float upper_resistor, float lower_resistor)
+    : AdcBatteryMonitor(charging_pin, upper_resistor, lower_resistor, battery_point_table) {
 
 }
 
-AdcBatteryMonitor::AdcBatteryMonitor(gpio_num_t charging_pin, adc_unit_t adc_unit, adc_channel_t adc_channel, float upper_resistor, float lower_resistor, const battery_point_t *point_table)
-    : charging_pin_(charging_pin), adc_channel_(adc_channel), upper_resistor_(upper_resistor), lower_resistor_(lower_resistor), battery_point_table_(point_table) {
+AdcBatteryMonitor::AdcBatteryMonitor(gpio_num_t charging_pin, float upper_resistor, float lower_resistor, const battery_point_t *point_table)
+    : charging_pin_(charging_pin), upper_resistor_(upper_resistor), lower_resistor_(lower_resistor), battery_point_table_(point_table) {
     
-    //init adc
-    adc_oneshot_unit_init_cfg_t init_config = {
-        .unit_id = adc_unit,
-    };
-    adc_oneshot_new_unit(&init_config, &adc_handle_);
-    //configure adc channel
-    adc_oneshot_chan_cfg_t channel_config = {
-        .atten = ADC_ATTEN_DB_12,
-        .bitwidth = ADC_BITWIDTH_12,
-    };   
-    adc_oneshot_config_channel(adc_handle_, adc_channel_, &channel_config);
-
-    esp_err_t ret;
-#if ADC_CALI_SCHEME_CURVE_FITTING_SUPPORTED
-    adc_cali_curve_fitting_config_t cali_config = {
-        .unit_id = adc_unit,
-        .chan = adc_channel_,
-        .atten = ADC_ATTEN_DB_12,
-        .bitwidth = ADC_BITWIDTH_12,
-    };
-    ret = adc_cali_create_scheme_curve_fitting(&cali_config, &adc_cali_handle_);
-#elif ADC_CALI_SCHEME_LINE_FITTING_SUPPORTED
-    adc_cali_line_fitting_config_t cali_config = {
-        .unit_id = adc_unit,
-        .atten = ADC_ATTEN_DB_12,
-        .bitwidth = ADC_BITWIDTH_12,
-    };
-    ret = adc_cali_create_scheme_line_fitting(&cali_config, &adc_cali_handle_);
-#endif
-
-    if(ret == ESP_OK)
-    {
-        Log::Info(TAG, "adc calibration scheme create successfully!!");
-    }
-    else
-    {
-        Log::Info(TAG, "adc calibration scheme create failed!!");
-    }
+    analogSetWidth(12);
 
     timer_ = new SwTimer("Battery_Monitor");
-    timer_->Start(60*1000, [this](){CheckBatteryStatus();} );
+    timer_->Start(60*1000, [this](){
+        auto& app = Application::GetInstance();
+        app.Schedule([this]() {
+            CheckBatteryStatus();
+        });
+    });
 }
 
 AdcBatteryMonitor::~AdcBatteryMonitor() {
@@ -135,27 +107,24 @@ static float _calculate_battery_capacity(float voltage, const battery_point_t *p
 }
 
 void AdcBatteryMonitor::CheckBatteryStatus() {
-    int adc_raw_value = 0, vol = 0;
+    Log::Debug(TAG, "Check battery status.");
 
-    // 获取原始值 0-4096
-    adc_oneshot_read(adc_handle_, adc_channel_, &adc_raw_value);
+    int adc_raw_value = analogRead(charging_pin_);
+    float calc_vol = (adc_raw_value / 4095.0) * Vref;
 
-    // 转换为电压
-    if (adc_cali_raw_to_voltage(adc_cali_handle_, adc_raw_value, &vol) == ESP_OK) {
-        // 按分压电阻换算为实际值
-        // vol = Vcc * (upper_resister / (upper_resister+lower_resister))
-        float origin_vol = vol * (upper_resistor_+lower_resistor_) / upper_resistor_;
+    // 按分压电阻换算为实际值
+    // vol = Vcc * (lower_resistor_ / (upper_resistor + lower_resistor))
+    float origin_vol = calc_vol * (upper_resistor_+lower_resistor_) / lower_resistor_;
 
-        capacity_ = _calculate_battery_capacity(origin_vol, battery_point_table_, sizeof(battery_point_table_) / sizeof(battery_point_t));
-        
-        Log::Debug(TAG, "Battery adc value: %.1f, capacity: %.1f%%", vol, capacity_);
+    capacity_ = _calculate_battery_capacity(origin_vol, battery_point_table_, sizeof(battery_point_table_) / sizeof(battery_point_t));
+    
+    Log::Debug(TAG, "Battery adc value: %.1f, capacity: %.1f%%", calc_vol, capacity_);
 
-        bool new_charging_status = IsCharging();
-        if (new_charging_status != is_charging_) {
-            is_charging_ = new_charging_status;
-            if (on_charging_status_changed_) {
-                on_charging_status_changed_(is_charging_);
-            }
+    bool new_charging_status = IsCharging();
+    if (new_charging_status != is_charging_) {
+        is_charging_ = new_charging_status;
+        if (on_charging_status_changed_) {
+            on_charging_status_changed_(is_charging_);
         }
     }
 }

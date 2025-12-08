@@ -39,4 +39,8 @@ void TftApplication::OnInit() {
     window_->Start();
 }
 
+void TftApplication::OnLoop() {
+
+}
+
 #endif //APP_DEMO_TFT

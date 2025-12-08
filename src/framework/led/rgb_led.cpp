@@ -44,6 +44,7 @@ void RgbLed::SetColor(uint8_t r, uint8_t g, uint8_t b) {
 }
 
 void RgbLed::TurnOn() {
+    std::lock_guard<std::mutex> lock(mutex_);
     blink_counter_ = 0;
     timer_->Stop();
 
@@ -53,6 +54,7 @@ void RgbLed::TurnOn() {
 }
 
 void RgbLed::TurnOff() {
+    std::lock_guard<std::mutex> lock(mutex_);
     blink_counter_ = 0;
     timer_->Stop();
 

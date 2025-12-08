@@ -22,6 +22,7 @@ public:
 
 protected:
     void OnInit() override;
+    void OnLoop() override;
 
 private:
     TestWindow* window_ = nullptr;

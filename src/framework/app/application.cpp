@@ -102,7 +102,19 @@ void Application::Init() {
     
     // Print heap stats
     SystemInfo::PrintHeapStats();
+
+    xTaskCreate([](void* pvParam){
+        Application* app = (Application *)pvParam;
+        while (1) {
+            app->EventLoop();
+        }
+    }, "EventLoop_Task", 16384, this, 1, &eventloop_taskhandle_);
+
     Log::Info(TAG, "Started.");
+}
+
+void Application::Loop() {
+    OnLoop();
 }
 
 void Application::Alert(const char* status, const char* message, const char* emotion) {
@@ -242,26 +254,9 @@ void Application::SetDeviceState(const DeviceState* state) {
 
 
 void Application::OnStateChanged() {
-    Led* led = Board::GetInstance().GetLed();
+    // Led* led = Board::GetInstance().GetLed();
 
-    if (device_state_ == kDeviceStateStarting) {
-        led->SetColor(0, 0, DEFAULT_BRIGHTNESS);
-        led->Blink(BLINK_INFINITE, 100);
-    } else if (device_state_ == kDeviceStateWifiConfiguring) {
-        led->SetColor(0, 0, DEFAULT_BRIGHTNESS);
-        led->Blink(BLINK_INFINITE, 500);
-    } else if (device_state_ ==  kDeviceStateIdle) {
-        led->TurnOff();
-    } else if (device_state_ == kDeviceStateConnecting) {
-        led->SetColor(0, 0, DEFAULT_BRIGHTNESS);
-        led->TurnOn();
-    } else if (device_state_ == kDeviceStateUpgrading) {
-        led->SetColor(0, DEFAULT_BRIGHTNESS, 0);
-        led->Blink(BLINK_INFINITE, 100);
-    } else if (device_state_ == kDeviceStateWorking) {
-        led->SetColor(0, DEFAULT_BRIGHTNESS, 0);
-        led->Blink(BLINK_INFINITE, 500);
-    }
+    // 重载此函数 使用LED显示状态
 }
 
 void Application::Reboot() {
@@ -373,7 +368,7 @@ void Application::EventLoop() {
         event_handler_->GetEventBits(),
         pdTRUE, /* 自动清除，避免重复响应 */
         pdFALSE, /* 任一事件位被设置就返回 */
-        pdMS_TO_TICKS(1000) /* 指定时长 */
+        portMAX_DELAY /* 无限期等待，也可使用pdMS_TO_TICKS指定等待时长 */
     );
 
     try {
@@ -382,7 +377,6 @@ void Application::EventLoop() {
             auto tasks = std::move(app_tasks_);
             lock.unlock();
 
-            Log::Info( TAG, "execute tasks.");
             for (auto task : tasks) {
                 task();
             }
@@ -393,6 +387,4 @@ void Application::EventLoop() {
     } catch (const std::exception& e) {
         Log::Error( TAG, "Caught exception: %s", e.what() );
     }
-
-    delay(1); //1ms
 }

@@ -42,6 +42,7 @@ void GpioLed::SetBrightness(uint8_t brightness) {
 }
 
 void GpioLed::TurnOn() {
+    std::lock_guard<std::mutex> lock(mutex_);
     blink_counter_ = 0;
     timer_->Stop();
 
@@ -53,6 +54,7 @@ void GpioLed::TurnOn() {
 }
 
 void GpioLed::TurnOff() {
+    std::lock_guard<std::mutex> lock(mutex_);
     blink_counter_ = 0;
     timer_->Stop();
 

@@ -28,5 +28,5 @@ void setup() {
 }
 
 void loop() {
-    app->EventLoop();
+    app->Loop();
 }

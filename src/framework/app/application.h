@@ -41,8 +41,8 @@ public:
     // 初始化，在setup()中调用。
     void Init();
 
-    // 事件循环，在loop()中调用。
-    void EventLoop();
+    // 循环，在loop()中调用。
+    void Loop();
 
     virtual void SetDeviceState(const DeviceState* state);
     virtual void DismissAlert();
@@ -82,6 +82,11 @@ public:
 protected:
     // 初始化事件.
     virtual void OnInit() = 0;
+    // 循环事件
+    virtual void OnLoop() = 0;
+
+    // 事件循环。
+    void EventLoop();
 
     virtual void OnStateChanged();
 
@@ -102,6 +107,8 @@ private:
 
     std::deque<callback_function_t> app_tasks_;
     bool has_server_time_ = false;
+
+    TaskHandle_t eventloop_taskhandle_;
 
 #if CONFIG_CLOCK_ENABLE==1
     Timer* clock_timer_;
