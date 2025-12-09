@@ -194,7 +194,7 @@ std::string Board::GetJson() {
     return json;
 }
 
-virtual std::shared_ptr<Actuator> Board::GetActuator(const std::string& name) {
+std::shared_ptr<Actuator> Board::GetActuator(const std::string& name) {
     auto it = actuator_map_.find(name);
     if (it != actuator_map_.end()) {
         return it->second;
@@ -203,7 +203,7 @@ virtual std::shared_ptr<Actuator> Board::GetActuator(const std::string& name) {
     return nullptr;
 }
 
-virtual std::shared_ptr<Sensor> Board::GetSensor(const std::string& name) {
+std::shared_ptr<Sensor> Board::GetSensor(const std::string& name) {
     auto it = sensor_map_.find(name);
     if (it != sensor_map_.end()) {
         return it->second;

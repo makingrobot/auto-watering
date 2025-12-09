@@ -56,6 +56,8 @@ void Sensor::ReadData() {
     if (on_newdata_callback_) {
         on_newdata_callback_(*sensor_val_);
     }
+
+    delete sensor_val_;
 }
 
 /*********** AnalogSensor **************/
