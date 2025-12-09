@@ -28,7 +28,7 @@
 
 void* create_board();
 
-static const char* kBootButton = "boot_button";
+static const std::string kBootButton = "boot_button";
 
 class Board {
 private:
@@ -48,10 +48,10 @@ protected:
     virtual void EnterSleepMode();
     virtual void ExitSleepMode();
 
-    virtual void AddActuator(const std::string& name, std::shared_ptr<Actuator> actuator) {
+    void AddActuator(const std::string& name, std::shared_ptr<Actuator> actuator) {
         actuator_map_[name] = actuator;
     }
-    virtual void AddSensor(const std::string& name, std::shared_ptr<Sensor> sensor) {
+    void AddSensor(const std::string& name, std::shared_ptr<Sensor> sensor) {
         sensor_map_[name] = sensor;
     }
    
@@ -86,24 +86,6 @@ public:
     virtual Backlight* GetBacklight() { return nullptr; }
     virtual Time* GetTime() { return nullptr; }
 
-    // 查找执行器外设
-    virtual std::shared_ptr<Actuator> GetActuator(const std::string& name) {
-        auto it = actuator_map_.find(name);
-        if (it != actuator_map_.end()) {
-            return it->second;
-        }
-        return nullptr;
-    }
-
-    // 查找传感器外设
-    virtual std::shared_ptr<Sensor> GetSensor(const std::string& name) {
-        auto it = sensor_map_.find(name);
-        if (it != sensor_map_.end()) {
-            return it->second;
-        }
-        return nullptr;
-    }
-
     virtual Display* GetDisplay();
 #if CONFIG_USE_LVGL==1
     virtual void SetDisplay(Display *display) = 0;
@@ -120,6 +102,13 @@ public:
 #if CONFIG_USE_CAMERA==1
     virtual Camera* GetCamera() { return nullptr; }
 #endif
+
+    // 查找执行器外设
+    std::shared_ptr<Actuator> GetActuator(const std::string& name);
+
+    // 查找传感器外设
+    std::shared_ptr<Sensor> GetSensor(const std::string& name);
+
 };
 
 

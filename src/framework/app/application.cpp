@@ -158,13 +158,9 @@ void Application::Schedule(callback_function_t callback) {
 
 bool Application::OnPhysicalButtonEvent(const std::string& button_name, const ButtonAction action) {
 
-    if (strcmp(button_name.c_str(), kBootButton)==0) {
+    if (button_name == kBootButton) {
 
-        if (action == ButtonAction::Click) {
-            ToggleWorkState();
-            return true;
-
-        } else if (action == ButtonAction::DoubleClick) {
+        if (action == ButtonAction::DoubleClick) {
             Board& board = Board::GetInstance();
             board.Shutdown();
             return true;
@@ -176,9 +172,16 @@ bool Application::OnPhysicalButtonEvent(const std::string& button_name, const Bu
     return false;
 }
 
+bool Application::OnPinTouchEvent(const std::string& touch_name) {
+
+    // 未处理
+    Log::Info(TAG, "%s event unhandle.", touch_name.c_str());
+    return false;
+}
+
 bool Application::OnDisplayTouchEvent(const TouchPoint_t& point) {
-    ToggleWorkState();
-    return true;
+    
+    return false;
 }
 
 #if CONFIG_CLOCK_ENABLE==1

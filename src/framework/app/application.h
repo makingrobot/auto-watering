@@ -58,6 +58,11 @@ public:
     virtual bool OnPhysicalButtonEvent(const std::string& button_name, const ButtonAction action);
 
     /**
+     * ESP32引脚触摸事件
+     */
+    virtual bool OnPinTouchEvent(const std::string& touch_name);
+
+    /**
      * 显示屏触摸事件响应 
      * point: 触摸点坐标
      */ 
