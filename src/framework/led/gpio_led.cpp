@@ -23,7 +23,7 @@ GpioLed::GpioLed(gpio_num_t gpio, bool pwm, bool output_invert)
     assert(gpio != GPIO_NUM_NC);
 
     pinMode(gpio, OUTPUT);
-    timer_ = new SwTimer("Gpio_Led");
+    timer_ = TimerFactory::CreateTimer("Gpio_Led");
 }
 
 GpioLed::~GpioLed() {

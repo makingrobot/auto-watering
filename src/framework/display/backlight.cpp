@@ -10,13 +10,13 @@
 
 #include "../sys/log.h"
 #include "../sys/settings.h"
-#include "../sys/sw_timer.h"
+#include "../sys/timer.h"
 
 #define TAG "Backlight"
 
 Backlight::Backlight() {
     // 创建背光渐变定时器
-    transition_timer_ = new SwTimer("Backlight");
+    transition_timer_ = TimerFactory::CreateTimer("Backlight");
 }
 
 Backlight::~Backlight() {

@@ -6,7 +6,7 @@
  */
 #include "adc_battery_monitor.h"
 #include "../sys/log.h"
-#include "../sys/sw_timer.h"
+#include "../sys/timer.h"
 #include "../app/application.h"
 
 #include <Arduino.h>
@@ -49,7 +49,7 @@ AdcBatteryMonitor::AdcBatteryMonitor(gpio_num_t charging_pin, float upper_resist
     
     analogSetWidth(12);
 
-    timer_ = new SwTimer("Battery_Monitor");
+    timer_ = TimerFactory::CreateTimer("Battery_Monitor");
     timer_->Start(60*1000, [this](){
         auto& app = Application::GetInstance();
         app.Schedule([this]() {

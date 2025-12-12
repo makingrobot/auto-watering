@@ -17,7 +17,7 @@
  */
 class SwitchActuator : public Actuator {
 public:
-    SwitchActuator(gpio_num_t pin, bool output_invert) 
+    SwitchActuator(gpio_num_t pin, bool output_invert=false) 
             : sensor_pin_(pin), output_invert_(output_invert) { 
 
         pinMode(sensor_pin_, OUTPUT);
@@ -39,11 +39,15 @@ public:
         Log::Info(TAG, " Off.");
     }
 
+    void Switch() {
+        state_==0 ? On() : Off();
+    }
+
 private:
     const gpio_num_t sensor_pin_;
     const bool output_invert_;
 
-    uint8_t state_;
+    uint8_t state_ = 0;
 
 };
 

@@ -7,7 +7,7 @@
 #include "power_save_timer.h"
 #include "../app/application.h"
 #include "../sys/log.h"
-#include "../sys/sw_timer.h"
+#include "../sys/timer.h"
 
 #include <esp_pm.h>
 
@@ -15,7 +15,7 @@
 
 PowerSaveTimer::PowerSaveTimer(int cpu_max_freq, int seconds_to_sleep, int seconds_to_shutdown)
     : cpu_max_freq_(cpu_max_freq), seconds_to_sleep_(seconds_to_sleep), seconds_to_shutdown_(seconds_to_shutdown) {
-    timer_ = new SwTimer("Power_Save");
+    timer_ = TimerFactory::CreateTimer("Power_Save");
 }
 
 PowerSaveTimer::~PowerSaveTimer() {

@@ -17,13 +17,13 @@
 #include "../app/device_state.h"
 #include "../fonts/font_awesome_symbols.h"
 #include "../lang/lang_zh_cn.h"
-#include "../sys/sw_timer.h"
+#include "../sys/timer.h"
 
 #define TAG "LvglStatusBar"
 
 LvglStatusBar::LvglStatusBar() {
     
-    notification_timer_ = new SwTimer("StatusBar");
+    notification_timer_ = TimerFactory::CreateTimer("StatusBar");
 
 }
 

@@ -16,7 +16,6 @@
 #include <mutex>
 #include <cstdint>
 #include "../sys/timer.h"
-#include "../sys/sw_timer.h"
 
 /**
  * 三色LED
