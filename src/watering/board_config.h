@@ -68,5 +68,7 @@ static const char* kSoilMositureName  = "soil_mositure";
 #define CONFIG_USE_LED_GPIO                 1
 #define CONFIG_USE_LED_WS2812               0
 
+// 是否使用ESP_LOG，默认使用Serial.print
+#define CONFIG_USE_ESP_LOG                  0
 
 #endif //_BOARD_CONFIG_H

@@ -4,8 +4,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 // 特性
 
-// 是否使用ESP_LOG，默认使用Serial.print
-#define CONFIG_USE_ESP_LOG                  0
+// 定时器
+#define CONFIG_USE_SW_TIMER                 1
 
 // WIFI配置
 #define CONFIG_USE_WIFI                     1
