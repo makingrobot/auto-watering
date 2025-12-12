@@ -20,7 +20,7 @@
 #include "../lang/lang_zh_cn.h"
 #include "../types.h"
 #include "../sys/log.h"
-#include "../sys/sw_timer.h"
+#include "../sys/timer.h"
 
 #if CONFIG_USE_WIFI==1
 #include "../board/wifi_board.h"
@@ -73,7 +73,7 @@ void Application::Init() {
 
 #if CONFIG_CLOCK_ENABLE==1
     // 时钟定时器，可重载OnClockTimer插入自定义功能
-    clock_timer_ = new SwTimer("Clock");
+    clock_timer_ = TimerFactory::CreateTimer("Clock");
     clock_timer_->Start(1000, [this](){ OnClockTimer(); });
     Log::Info(TAG, "clock timer started.");
 #endif

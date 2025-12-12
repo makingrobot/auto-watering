@@ -28,7 +28,7 @@ RgbLed::RgbLed(gpio_num_t r_pin, gpio_num_t g_pin, gpio_num_t b_pin, bool output
     pinMode(g_pin, OUTPUT);
     pinMode(b_pin, OUTPUT);
 
-    timer_ = new SwTimer("Rgb_Led");
+    timer_ = TimerFactory::CreateTimer("Rgb_Led");
 }
 
 RgbLed::~RgbLed() {

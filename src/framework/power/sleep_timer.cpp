@@ -9,7 +9,7 @@
 #include "../board/board.h"
 #include "../display/display.h"
 #include "../sys/log.h"
-#include "../sys/sw_timer.h"
+#include "../sys/timer.h"
 
 #include <esp_sleep.h>
 #include <esp_pm.h>
@@ -22,7 +22,7 @@
 
 SleepTimer::SleepTimer(int seconds_to_light_sleep, int seconds_to_deep_sleep)
     : seconds_to_light_sleep_(seconds_to_light_sleep), seconds_to_deep_sleep_(seconds_to_deep_sleep) {
-    timer_ = new SwTimer("Sleep");
+    timer_ = TimerFactory::CreateTimer("Sleep");
 }
 
 SleepTimer::~SleepTimer() {

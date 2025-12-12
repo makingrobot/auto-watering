@@ -7,7 +7,7 @@
 #include "sensor.h"
 #include <Arduino.h>
 #include "../sys/log.h"
-#include "../sys/sw_timer.h"
+#include "../sys/timer.h"
 #include "../app/application.h"
 
 #define TAG "Sensor"
@@ -23,7 +23,7 @@ Sensor::~Sensor() {
 
 void Sensor::Start(uint32_t interval_ms) {
     if (timer_ == nullptr) {
-        timer_ = new SwTimer("Sensor");
+        timer_ = TimerFactory::CreateTimer("Sensor");
     } else {
         timer_->Stop();
     }

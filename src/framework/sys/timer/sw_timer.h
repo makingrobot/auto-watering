@@ -1,3 +1,6 @@
+#include "config.h"
+#if CONFIG_USE_SW_TIMER==1
+
 #ifndef _SW_TIMER_H
 #define _SW_TIMER_H
 
@@ -5,7 +8,7 @@
 #include <string>
 #include <freertos/FreeRTOS.h>
 #include <freertos/timers.h>
-#include "../sys/timer.h"
+#include "../timer.h"
 
 class SwTimer : public Timer {
 public:
@@ -25,3 +28,5 @@ private:
 };
 
 #endif //_SW_TIMER_H
+
+#endif

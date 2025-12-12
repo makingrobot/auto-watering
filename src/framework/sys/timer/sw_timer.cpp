@@ -1,6 +1,8 @@
-#include "sw_timer.h"
+#include "config.h"
+#if CONFIG_USE_SW_TIMER==1
 
-#include "../sys/log.h"
+#include "sw_timer.h"
+#include "../log.h"
 
 #define TAG "SwTimer"
 
@@ -43,3 +45,5 @@ bool SwTimer::Stop() {
     }
     return false;
 }
+
+#endif
