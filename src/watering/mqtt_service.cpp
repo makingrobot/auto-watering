@@ -1,4 +1,8 @@
-
+/**
+ * 物联网自动浇花应用
+ * 
+ * Author: Billy Zhang（vx: billyzh）
+ */
 #include "mqtt_service.h"
 #include <esp_system.h>
 

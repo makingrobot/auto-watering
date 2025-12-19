@@ -1,5 +1,14 @@
+/**
+ * 物联网自动浇花应用
+ * 
+ * Author: Billy Zhang（vx: billyzh）
+ */
+#ifndef _L9110_DRIVER_H
+#define _L9110_DRIVER_H
 
 #include "src/framework/peripheral/switch_actuator.h"
+
+#define TAG "L9110Driver"
 
 class L9110Driver : public SwitchActuator {
 public:
@@ -16,21 +25,27 @@ public:
 
         pinMode(pin_in_a_, OUTPUT);
         pinMode(pin_in_b_, OUTPUT);
+
+        analogWrite(pin_in_a_, 0);
+        analogWrite(pin_in_b_, 0);
     }
 
     void On(uint8_t power) {
+        Log::Info(TAG, " On.");
+
         analogWrite(pin_in_a_, power);
         analogWrite(pin_in_b_, 0);
     }
 
     void On() override {
-        analogWrite(pin_in_a_, 128);  //128-255 太低会带不动电机。
-        analogWrite(pin_in_b_, 0);
+        On(128);  //128-255 太低会带不动电机。
     }
 
     void Off() override {
         analogWrite(pin_in_a_, 0);
         analogWrite(pin_in_b_, 0);
+
+        Log::Info(TAG, " Off.");
     }
 
 private:
@@ -39,3 +54,5 @@ private:
     bool output_invert_ = false;
 
 };
+
+#endif //_L9110_DRIVER_H

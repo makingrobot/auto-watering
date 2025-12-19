@@ -1,7 +1,7 @@
 /**
  * 物联网自动浇花应用
  * 
- * Author: Billy Zhang（billy_zh@126.com）
+ * Author: Billy Zhang（vx: billyzh）
  */
 #include "xpstem-watering-suit.h"
 
@@ -16,6 +16,7 @@
 #include "src/framework/led/gpio_led.h"
 #include "src/framework/peripheral/sensor.h"
 #include "src/framework/peripheral/sensor_value.h"
+#include "src/framework/wifi/wifi_station.h"
 #include "l9110_driver.h"
 #include "wifi_configuration_ex.h"
 
@@ -28,8 +29,6 @@ void* create_board() {
 XPSTEM_WATERING_SUIT::XPSTEM_WATERING_SUIT() : WifiBoard() {
 
     Log::Info(TAG, "===== Create Board ...... =====");
-
-    led_ = new GpioLed(BUILTIN_LED_PIN);
 
     InitializeDisplay();
 
@@ -45,7 +44,8 @@ XPSTEM_WATERING_SUIT::XPSTEM_WATERING_SUIT() : WifiBoard() {
 void XPSTEM_WATERING_SUIT::InitializeDisplay() {
 
     Log::Info( TAG, "Init ssd1306 display ......" );
-    U8G2 *u8g2 = new U8G2_SSD1306_128X64_NONAME_F_SW_I2C(U8G2_R0, 
+    U8G2 *u8g2 = new U8G2_SSD1306_128X64_NONAME_F_SW_I2C(
+        /* rotation */ U8G2_R2, 
         /* i2c clk */ I2C_SCL_PIN,
         /* i2c data */ I2C_SDA_PIN,
         /* reset=*/ U8X8_PIN_NONE
@@ -57,46 +57,47 @@ void XPSTEM_WATERING_SUIT::InitializeDisplay() {
 
 }
 
-void buttonTickTask(void *pvParam) {
-    Log::Info(TAG, "ButtonTickTask running on core %d", xPortGetCoreID());
-    OneButton* button = static_cast<OneButton *>(pvParam);
-    while (1) {
-        button->tick();
-        delay(5); //2ms
-    }
+void XPSTEM_WATERING_SUIT::ButtonTick() {
+    boot_button_->tick();
+    manual_button_->tick();
 }
 
-uint32_t __press_start_time = 0;
-
-void longPressStart(void* pvParam) {
-    Log::Info(TAG, "Button longpress start.");
-    __press_start_time = ((OneButton*)pvParam)->getPressedMs();
-}
-
-void longPressStop(void* pvParam) {
-    Log::Info(TAG, "Button longpress stop.");
-    uint32_t press_stop_time = ((OneButton*)pvParam)->getPressedMs();
-    uint32_t duration = press_stop_time - __press_start_time;
-    if (duration > 8000) {  // 8s
-        Board& board = Board::GetInstance();
-        board.OnPhysicalButtonEvent(kManualButton, ButtonAction::LongPress);
-    }
-}
+long _long_press_start = 0;
 
 void XPSTEM_WATERING_SUIT::InitializeButtons() {
     Log::Info( TAG, "Init buttons ......");
 
-    //pinMode(MANUAL_BUTTON_PIN, INPUT);
-    manual_button_ = new OneButton(MANUAL_BUTTON_PIN, false);
-    manual_button_->attachDoubleClick([]() {
-        Log::Info(TAG, "Manual button doubleclick.");
-        Board& board = Board::GetInstance();
-        board.OnPhysicalButtonEvent(kManualButton, ButtonAction::DoubleClick);
+    boot_button_ = new OneButton(BOOT_BUTTON_PIN);
+    boot_button_->setLongPressIntervalMs(1000);
+    boot_button_->attachLongPressStart([]() {
+        Log::Info(TAG, "Boot button longpress start.");
+        _long_press_start = millis();
     });
-    manual_button_->attachLongPressStart(longPressStart, manual_button_);
-    manual_button_->attachLongPressStop(longPressStop, manual_button_);
+    boot_button_->attachLongPressStop([](void* parameter) {
+        Log::Info(TAG, "Boot button longpress stop.");
+        long duration = millis() - _long_press_start;
+        if (duration > 5000) {
+            // 长按5秒以上，则重置WiFi配置
+            XPSTEM_WATERING_SUIT *_this = (XPSTEM_WATERING_SUIT*)parameter;
+            _this->ResetWifiConfiguration();
+        }
+    }, this);
 
-    xTaskCreate(buttonTickTask, "ButtonTick_Task", 2048, manual_button_, 1, &button_taskhandle_);
+    manual_button_ = new OneButton(MANUAL_BUTTON_PIN);
+    manual_button_->attachClick([](void* parameter) {
+        Log::Info(TAG, "Manual button doubleclick.");
+        XPSTEM_WATERING_SUIT *_this = (XPSTEM_WATERING_SUIT*)parameter;
+        _this->OnPhysicalButtonEvent(kManualButton, ButtonAction::DoubleClick);
+    }, this);
+
+    xTaskCreate([](void *pvParam) {
+            Log::Info(TAG, "ButtonTickTask running on core %d", xPortGetCoreID());
+            XPSTEM_WATERING_SUIT* _this = (XPSTEM_WATERING_SUIT*)pvParam;
+            while (1) {
+                _this->ButtonTick();
+                delay(2); //2ms
+            }
+        }, "ButtonTick_Task", 8192, this, 1, &button_taskhandle_);
 }
 
 void XPSTEM_WATERING_SUIT::InitializePeripherals() {

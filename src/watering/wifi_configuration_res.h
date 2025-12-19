@@ -1,3 +1,8 @@
+/**
+ * 物联网自动浇花应用
+ * 
+ * Author: Billy Zhang（vx: billyzh）
+ */
 #ifndef _WIFI_CONFIGURSTION_RES_H
 #define _WIFI_CONFIGURSTION_RES_H
 

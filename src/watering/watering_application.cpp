@@ -1,7 +1,7 @@
 /**
  * 物联网自动浇花应用
  * 
- * Author: Billy Zhang（billy_zh@126.com）
+ * Author: Billy Zhang（vx: billyzh）
  */
 #include "watering_application.h"
 #include <cJSON.h>
@@ -17,6 +17,7 @@
 #include "src/framework/peripheral/switch_actuator.h"
 #include "l9110_driver.h"
 #include "watering_config.h"
+#include "xpstem-watering-suit.h"
 
 #define TAG "WateringApplication"
 
@@ -49,9 +50,12 @@ void WateringApplication::OnInit() {
 
     Board& board = Board::GetInstance();
     
+    WateringConfig& config = WateringConfig::GetInstance();
+    
     // 启动传感器
     std::shared_ptr<Sensor> soil_mositure_ptr = board.GetSensor(kSoilMositureName);
     if (soil_mositure_ptr != nullptr) {
+        soil_mositure_ptr->ReadData();
         soil_mositure_ptr->Start(kCollectInterval);  //120s 
     }
 
@@ -59,6 +63,10 @@ void WateringApplication::OnInit() {
 }
 
 void WateringApplication::OnLoop() {
+
+    //XPSTEM_WATERING_SUIT *board = static_cast<XPSTEM_WATERING_SUIT*>(&Board::GetInstance());
+    //board->ButtonTick();
+
     delay(1);
 }
 
@@ -76,15 +84,13 @@ void WateringApplication::ShowWifiConfigHit(const std::string& ssid, const std::
  */
 bool WateringApplication::OnPhysicalButtonEvent(const std::string& button_name, const ButtonAction action) {
 
-    Log::Info(TAG, "响应按钮：%s 的操作：%d", button_name, action);
+    Log::Info(TAG, "响应按钮：%s 的操作：%d", button_name.c_str(), action);
 
-    if (strcmp(button_name.c_str(), kManualButton)==0) {
+    if (button_name == kManualButton) {
 
         if (action == ButtonAction::DoubleClick) {
             DoWatering(5);
             return true;
-        } else if (action == ButtonAction::LongPress) {
-            // todo:
         }
 
     }
@@ -105,7 +111,7 @@ bool WateringApplication::OnSensorDataEvent(const std::string& sensor_name, cons
         U8g2Display* display = static_cast<U8g2Display*>(wifi_board->GetDisplay());
 
         if (value.intValue() == 0) {
-            display->GetWindow()->SetText(started_ ? 1 : 3, "湿度: nodata");
+            display->GetWindow()->SetText(1, "湿度: nodata");
             return false;
         }
 
@@ -113,7 +119,7 @@ bool WateringApplication::OnSensorDataEvent(const std::string& sensor_name, cons
         soil_moilture_value_ = map(value.intValue(), 1, 4095, 100, 1);
 
         if (!started_) {
-            display->GetWindow()->SetText(3, "湿度: " + std::to_string(soil_moilture_value_) );
+            display->GetWindow()->SetText(1, "湿度: " + std::to_string(soil_moilture_value_) );
             return false;
         }
 
@@ -140,6 +146,10 @@ bool WateringApplication::OnSensorDataEvent(const std::string& sensor_name, cons
         if (config.mqtt_username()=="") {
             Log::Info(TAG, "mqtt username is blank。");
             ShowMessage("配置有误，请重新配置");
+            
+            // 关闭WiFi连接（省电）
+            wifi_board->Disconnect();
+            WiFi.mode(WIFI_OFF);
             return false;
         }
 
@@ -150,6 +160,10 @@ bool WateringApplication::OnSensorDataEvent(const std::string& sensor_name, cons
             Log::Info(TAG, "未连接到IoT平台。");
             SetDeviceState(kDeviceStateWarning);
             ShowMessage("IoT连接失败。");
+            
+            // 关闭WiFi连接（省电）
+            wifi_board->Disconnect();
+            WiFi.mode(WIFI_OFF);
             return false;
         }
 
@@ -219,16 +233,21 @@ void WateringApplication::OnIotMessageEvent(const std::string& topic, const std:
 }
 
 void WateringApplication::DoWatering(uint8_t seconds) {
-
-    Board& board = Board::GetInstance();
-    std::shared_ptr<Actuator> actuator_ptr = board.GetActuator(kPumpControlName);
-    if (actuator_ptr != nullptr) {
+    Schedule([seconds]() {
         Log::Info(TAG, "浇水 %d 秒", seconds);
+
+        Board& board = Board::GetInstance();
+        std::shared_ptr<Actuator> actuator_ptr = board.GetActuator(kPumpControlName);
+        if (actuator_ptr == nullptr) {
+            Log::Error(TAG, "未找到电机驱动模块对象。");
+            return;
+        }
+
         std::shared_ptr<L9110Driver> pump_control_ptr = std::static_pointer_cast<L9110Driver>(actuator_ptr);
         pump_control_ptr->On();
         vTaskDelay(pdMS_TO_TICKS(seconds * 1000));
         pump_control_ptr->Off();
-    }
+    });
 }
 
 

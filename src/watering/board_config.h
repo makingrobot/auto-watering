@@ -8,14 +8,10 @@
 
 #include <driver/gpio.h>
 
-static const char* kManualButton      = "manual_button";
-static const char* kPumpControlName   = "pump_control";
-static const char* kSoilMositureName  = "soil_mositure";
-
 //*******************************************************************
 // 引脚定义
 
-#define BUILTIN_LED_PIN                     GPIO_NUM_4
+#define BOOT_BUTTON_PIN                     GPIO_NUM_0
 
 #define I2C_SCL_PIN                         GPIO_NUM_22  //  
 #define I2C_SDA_PIN                         GPIO_NUM_21  //  
@@ -27,11 +23,11 @@ static const char* kSoilMositureName  = "soil_mositure";
 #define DISPLAY_MIRROR_Y                    false
 #define DISPLAY_SWAP_XY                     false
 
-#define SOIL_MOISTURE_PIN                   GPIO_NUM_14
-#define MANUAL_BUTTON_PIN                   GPIO_NUM_34
-#define L9110_PIN_B                         GPIO_NUM_12
-#define L9110_PIN_A                         GPIO_NUM_13
-#define L9110_OUPUT_INVERT                  false
+#define SOIL_MOISTURE_PIN                   GPIO_NUM_17
+#define MANUAL_BUTTON_PIN                   /*GPIO_NUM_39 */ GPIO_NUM_15
+#define L9110_PIN_B                         /*GPIO_NUM_14 */ GPIO_NUM_25
+#define L9110_PIN_A                         /*GPIO_NUM_15 */ GPIO_NUM_26
+#define L9110_OUPUT_INVERT                  true
 
 
 //**********************************************************************

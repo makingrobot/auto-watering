@@ -1,8 +1,7 @@
 /**
- * ESP32-Arduino-Framework
- * Arduino开发环境下适用于ESP32芯片系列开发板的应用开发框架。
+ * 物联网自动浇花应用
  * 
- * Author: Billy Zhang（billy_zh@126.com）
+ * Author: Billy Zhang（vx: billyzh）
  */
 #ifndef _WIFI_CONFIGURATION_EX_H
 #define _WIFI_CONFIGURATION_EX_H

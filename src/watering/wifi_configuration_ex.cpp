@@ -1,3 +1,8 @@
+/**
+ * 物联网自动浇花应用
+ * 
+ * Author: Billy Zhang（vx: billyzh）
+ */
 #include "wifi_configuration_ex.h"
 
 #include <cJSON.h>
@@ -11,6 +16,7 @@
 #include "src/framework/sys/settings.h"
 #include "src/framework/wifi/ssid_manager.h"
 #include "wifi_configuration_res.h"
+#include "watering_config.h"
 
 #define TAG "WifiConfigurationEx"
 
@@ -58,37 +64,37 @@ void WifiConfigurationEx::StartWebServer() {
     // POST /submit --json
     web_server_->on("/submit", [this](){ 
         
-            // post参数，form表单
-            std::string ssid = std::string(web_server_->arg("ssid").c_str());
-            std::string password = std::string(web_server_->arg("password").c_str());
-            std::string serialno = std::string(web_server_->arg("serialno").c_str());  //序列号
-            int workmode = web_server_->arg("workmode").toInt();     //工作模式
+        // post参数，form表单
+        std::string ssid = std::string(web_server_->arg("ssid").c_str());
+        std::string password = std::string(web_server_->arg("password").c_str());
+        std::string serialno = std::string(web_server_->arg("serialno").c_str());  //序列号
+        int workmode = web_server_->arg("workmode").toInt();     //工作模式
 
-            if (ssid=="" || password=="" || serialno=="") {
-                web_server_->send(200, "application/json", "{\"success\":false,\"error\":\"参数不能为空\"}");
-                return;
-            }
+        if (ssid=="" || password=="" || serialno=="") {
+            web_server_->send(200, "application/json", "{\"success\":false,\"error\":\"参数不能为空\"}");
+            return;
+        }
 
-            Log::Info(TAG, "ssid: %s, password: %s", ssid.c_str(), password.c_str());
-            if (!this->ConnectToWifi(ssid, password)) {
-                web_server_->send(200, "application/json", "{\"success\":false,\"error\":\"无法连接到 WiFi\"}");
-                return;
-            }
+        Log::Info(TAG, "ssid: %s, password: %s", ssid.c_str(), password.c_str());
+        if (!this->ConnectToWifi(ssid, password)) {
+            web_server_->send(200, "application/json", "{\"success\":false,\"error\":\"无法连接到 WiFi\"}");
+            return;
+        }
 
-            bool read_config = ReadProductConfig(serialno, workmode);
-            WiFi.disconnect();
+        bool read_config = ReadProductConfig(serialno, workmode);
+        WiFi.disconnect();
 
-            if (!read_config) {
-                web_server_->send(200, "application/json", "{\"success\":false,\"error\":\"获取产品配置失败！\"}");
-                return;
-            }
+        if (!read_config) {
+            web_server_->send(200, "application/json", "{\"success\":false,\"error\":\"获取产品配置失败！\"}");
+            return;
+        }
 
-            Log::Info(TAG, "Save SSID %s %d", ssid.c_str(), ssid.length());
-            SsidManager::GetInstance().AddSsid(ssid, password);
+        Log::Info(TAG, "Save SSID %s %d", ssid.c_str(), ssid.length());
+        SsidManager::GetInstance().AddSsid(ssid, password);
 
-            web_server_->send(200, "application/json", "{\"success\":true}"); 
+        web_server_->send(200, "application/json", "{\"success\":true}"); 
 
-        });
+    });
 
         
     // GET /done.html
@@ -117,7 +123,9 @@ bool WifiConfigurationEx::ReadProductConfig(const std::string& serialno, int wor
     Log::Info(TAG, "read product config, serialno: %s", serialno.c_str());
     
     // 获取项目配置信息
-    String config_url = String("https://www.xpstem.com/app/iot/project/productconfig?serialno=") + String(serialno.c_str());
+    String config_url = String("https://www.xpstem.com/app/iot/project/productconfig?chipid=&serialno=") + String(serialno.c_str());
+    Log::Info(TAG, "access: %s", config_url.c_str());
+
     HTTPClient http;
     http.begin(config_url);
     int status_code = http.GET();
@@ -126,21 +134,29 @@ bool WifiConfigurationEx::ReadProductConfig(const std::string& serialno, int wor
         return false;
     }
 
-    const char *body = http.getString().c_str();
+    String body = http.getString();
     http.end();
 
     // 解析
-    cJSON *root_node = cJSON_Parse(body);
+    cJSON *root_node = cJSON_Parse(body.c_str());
     if (!root_node) {
         const char *error = cJSON_GetErrorPtr();
         Log::Error(TAG, "解析配置错误，%s", error);
         return false;
     }
 
-    Settings settings("config", true);
-    settings.SetInt("workmode", workmode);
-    settings.SetString("serialno", serialno);
-    settings.SetString("configdata", std::string(body));
+    int err_code = cJSON_GetObjectItem(root_node, "errCode")->valueint;
+    if (err_code!=0) {
+        std::string err_msg = cJSON_GetObjectItem(root_node, "errMsg")->valuestring;
+        Log::Error(TAG, "获取配置失败，%s", err_msg.c_str());
+        return false;
+    }
+
+    cJSON *data_node = cJSON_GetObjectItem(root_node, "data");
+
+    WateringConfig& config = WateringConfig::GetInstance();
+    config.Update(serialno, workmode, data_node);
+    
     Log::Info(TAG, "write to ns:config successfully.");
 
     return true;

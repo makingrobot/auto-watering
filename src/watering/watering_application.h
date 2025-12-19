@@ -1,7 +1,7 @@
 /**
  * 物联网自动浇花应用
  * 
- * Author: Billy Zhang（billy_zh@126.com）
+ * Author: Billy Zhang（vx: billyzh）
  */
 
 #ifndef _WATERING_APPLICATION_H

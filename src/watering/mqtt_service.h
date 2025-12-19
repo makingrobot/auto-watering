@@ -1,3 +1,8 @@
+/**
+ * 物联网自动浇花应用
+ * 
+ * Author: Billy Zhang（vx: billyzh）
+ */
 #ifndef _MQTT_SERVICE_H
 #define _MQTT_SERVICE_H
 
