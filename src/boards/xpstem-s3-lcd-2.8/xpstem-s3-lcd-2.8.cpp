@@ -186,7 +186,7 @@ XPSTEM_S3_LCD_2_80::XPSTEM_S3_LCD_2_80() : WifiBoard() {
     //time_ = new NTPTime();
 
     Log::Info( TAG, "Init battery monitor ......" );
-    battery_monitor_ = new AdcBatteryMonitor(BATTERY_ADC_PIN, BATTERY_ADC_UNIT, BATTERY_ADC_CHANNEL, 200000, 200000);
+    battery_monitor_ = new AdcBatteryMonitor(BATTERY_ADC_PIN, 200000, 200000);
 
     InitializePowerSaveTimer();
 

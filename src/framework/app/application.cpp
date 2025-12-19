@@ -92,8 +92,8 @@ void Application::Init() {
 
     wifi_board->Configure();  //阻塞
     
-    // 连接热点
-    wifi_board->StartNetwork(30000);
+    // 连接热点，默认不连接
+    //wifi_board->StartNetwork(30000);
 #endif
 
     SetDeviceState(kDeviceStateIdle);

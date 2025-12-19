@@ -50,6 +50,8 @@
 #endif //CONFIG_USE_LVGL
 #endif //CONFIG_USE_GFX_LIBRARY
 
+static const std::string kSsid = "ssid";
+static const std::string kPassword = "password";
 
 typedef struct {
     const char* name;                                      
@@ -81,7 +83,20 @@ AudioApplication::~AudioApplication() {
 }
 
 void AudioApplication::OnInit() {
-    
+    // 连接WiFi
+    WiFi.mode(WIFI_STA);
+    WifiBoard* wifi_board = static_cast<WifiBoard*>(&Board::GetInstance());    
+#if CONFIG_WIFI_CONFIGURE_ENABLE==1
+    if (!wifi_board->StartNetwork(30000)) {
+#else
+    if (!wifi_board->StartNetwork(kSsid, kPassword, 30000)) {
+#endif
+        Log::Info(TAG, "WiFi连接失败。");
+        SetDeviceState(kDeviceStateWarning);
+        ShowMessage("WiFi连接失败。");
+        return false;
+    }
+
     Log::Info(TAG, "create audioI2s ...");
     audio_ = new Audio(I2S_NUM_1);
     audio_->setPinout(I2S_BCLK, I2S_LRC, I2S_DAT);

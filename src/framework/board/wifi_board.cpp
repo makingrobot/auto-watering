@@ -149,10 +149,10 @@ bool WifiBoard::StartNetwork(uint32_t timeout_ms) {
         wifi_station.Stop();
         wifi_config_mode_ = true;
         // EnterWifiConfigMode();
-        return true;
+        return false;
     }
 
-    return false;
+    return true;
 }
 
 bool WifiBoard::StartNetwork(const std::string& ssid, const std::string& password, uint32_t timeout_ms) {

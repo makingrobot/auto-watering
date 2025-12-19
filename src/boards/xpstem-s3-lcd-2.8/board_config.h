@@ -60,8 +60,6 @@
 
 // Battery ADC
 #define BATTERY_ADC_PIN                     GPIO_NUM_9
-#define BATTERY_ADC_UNIT                    ADC_UNIT_1
-#define BATTERY_ADC_CHANNEL                 ADC_CHANNEL_8
 
 // SD MMC
 #define SD_MMC_CLK                          38
@@ -122,8 +120,6 @@
 // 使用ESP_LOG（无串口转换芯片设置为1）
 #define CONFIG_USE_ESP_LOG                  1
 
-#define ADC_CALI_SCHEME_LINE_FITTING_SUPPORTED  1
-//#define ADC_CALI_SCHEME_CURVE_FITTING_SUPPORTED  1
 
 #endif //_BOARD_CONFIG_H
 

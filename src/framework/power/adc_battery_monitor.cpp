@@ -47,7 +47,7 @@ AdcBatteryMonitor::AdcBatteryMonitor(gpio_num_t charging_pin, float upper_resist
 AdcBatteryMonitor::AdcBatteryMonitor(gpio_num_t charging_pin, float upper_resistor, float lower_resistor, const battery_point_t *point_table)
     : charging_pin_(charging_pin), upper_resistor_(upper_resistor), lower_resistor_(lower_resistor), battery_point_table_(point_table) {
     
-    analogSetWidth(12);
+//    analogSetWidth(12);
 
     timer_ = TimerFactory::CreateTimer("Battery_Monitor");
     timer_->Start(60*1000, [this](){
