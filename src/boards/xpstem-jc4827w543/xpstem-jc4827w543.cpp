@@ -7,6 +7,7 @@
 
 #include "src/framework/sys/system_reset.h"
 #include "src/framework/board/board.h"
+#include "src/framework/board/onebutton_impl.h"
 #include "src/framework/board/i2c_device.h"
 #include "src/framework/audio/codecs/no_audio_codec.h"
 
@@ -99,27 +100,24 @@ void XPSTEM_JC4827W543::InitializeDisplay() {
 
 }
 
+void XPSTEM_JC4827W543::ButtonTick() {
+    boot_button_->Tick();
+}
+
 void XPSTEM_JC4827W543::InitializeButtons() {
     Log::Info( TAG, "Init button ......" );
 
-    boot_button_ = new OneButton(BOOT_BUTTON_PIN);
-    boot_button_->attachClick([]() {
-        Board& board = Board::GetInstance();
-        board.OnPhysicalButtonEvent(kBootButton, ButtonAction::Click);
-    });
-
-    boot_button_->attachDoubleClick([]() {
-        Board& board = Board::GetInstance();
-        board.OnPhysicalButtonEvent(kBootButton, ButtonAction::DoubleClick);
-    });
+    boot_button_ = new OneButtonImpl(kBootButton, BOOT_BUTTON_PIN);
+    boot_button_->BindAction(ButtonAction::Click);
+    boot_button_->BindAction(ButtonAction::DoubleClick);
 
     xTaskCreate([](void *pvParam) {
-        OneButton* button = static_cast<OneButton *>(pvParam);
+        XPSTEM_JC4827W543 *_this = static_cast<XPSTEM_JC4827W543 *>(pvParam);
         while (1) {
-            button->tick();
+            _this->ButtonTick();
             vTaskDelay(pdMS_TO_TICKS(2)); //2ms
         }
-    }, "ButtonTick_Task", 2048, boot_button_, 1, NULL);
+    }, "ButtonTick_Task", 2048, this, 1, NULL);
 }
 
 void XPSTEM_JC4827W543::InitializeTouchPad() {
