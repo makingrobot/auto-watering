@@ -15,7 +15,7 @@
 #include "src/framework/wifi/wifi_station.h"
 #include "src/framework/peripheral/sensor.h"
 #include "src/framework/peripheral/switch_actuator.h"
-#include "l9110_driver.h"
+#include "pump_driver.h"
 #include "watering_config.h"
 #include "xpstem-watering-suit.h"
 
@@ -32,9 +32,6 @@ static const int kTotalCountPerPeriod = 20;
 
 // 深度睡眠时长（23小时）
 static const long kDeepSleepSeconds = 23 * 3600;  //second
-
-static const char *kSsid = "ssid";
-static const char *kPassword = "password";
 
 void* create_application() {
     return new WateringApplication();
@@ -130,15 +127,18 @@ bool WateringApplication::OnSensorDataEvent(const std::string& sensor_name, cons
         // 连接WiFi
         WiFi.mode(WIFI_STA);
 #if CONFIG_WIFI_CONFIGURE_ENABLE==1
+        // 使用配置信息连接
         if (!wifi_board->StartNetwork(30000)) {
-#else
-        if (!wifi_board->StartNetwork(kSsid, kPassword, 30000)) {
-#endif
             Log::Info(TAG, "WiFi连接失败。");
             SetDeviceState(kDeviceStateWarning);
             ShowMessage("WiFi连接失败。");
             return false;
         }
+#else
+        Log::Warn(TAG, "未配置WiFi连接信息。");
+        SetDeviceState(kDeviceStateWarning);
+        return false;
+#endif
 
         Log::Info(TAG, "LocalIP: %s", wifi_board->GetIpAddress().c_str());
 
@@ -175,12 +175,19 @@ bool WateringApplication::OnSensorDataEvent(const std::string& sensor_name, cons
         SetDeviceState(kDeviceStateWorking);
 
         // 数据包处理
-        char buffer[128] = { 0 };
-        snprintf(buffer, 127, "{\"data\":{\"%s\":%d}}", config.soil_moisture_dataname(), soil_moilture_value_);
+        // 创建JSON对象
+        cJSON *temp_node = cJSON_CreateObject();
+        cJSON_AddNumberToObject(temp_node, config.soil_moisture_dataname().c_str(), soil_moilture_value_);
+        cJSON *root_node = cJSON_CreateObject();
+        cJSON_AddItemToObject(root_node, "data", temp_node);
+
+        // 发送JSON响应
+        char *json_str = cJSON_PrintUnformatted(root_node);
+        cJSON_Delete(root_node);
 
         // 发布数据到IoT
         Log::Info(TAG, "发布数据到IoT，主题: %s", config.soil_moisture_topic().c_str());
-        mqtt_service_->PublishData(config.soil_moisture_topic(), std::string(buffer));
+        mqtt_service_->PublishData(config.soil_moisture_topic(), std::string(json_str));
 
         // 等待30秒
         vTaskDelay(pdMS_TO_TICKS(kWaitSecondsAfterPublished * 1000));
@@ -243,7 +250,7 @@ void WateringApplication::DoWatering(uint8_t seconds) {
             return;
         }
 
-        std::shared_ptr<L9110Driver> pump_control_ptr = std::static_pointer_cast<L9110Driver>(actuator_ptr);
+        std::shared_ptr<PumpDriver> pump_control_ptr = std::static_pointer_cast<PumpDriver>(actuator_ptr);
         pump_control_ptr->On();
         vTaskDelay(pdMS_TO_TICKS(seconds * 1000));
         pump_control_ptr->Off();

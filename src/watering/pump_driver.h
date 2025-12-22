@@ -8,11 +8,14 @@
 
 #include "src/framework/peripheral/switch_actuator.h"
 
-#define TAG "L9110Driver"
+#define TAG "PumpDriver"
 
-class L9110Driver : public SwitchActuator {
+/**
+ * 水泵驱动
+ */
+class PumpDriver : public SwitchActuator {
 public:
-    L9110Driver(gpio_num_t pin_in_a, gpio_num_t pin_in_b, bool output_invert) 
+    PumpDriver(gpio_num_t pin_in_a, gpio_num_t pin_in_b, bool output_invert=false) 
             : SwitchActuator(pin_in_a, output_invert), output_invert_(output_invert) { 
 
         if (output_invert) {
@@ -38,7 +41,7 @@ public:
     }
 
     void On() override {
-        On(128);  //128-255 太低会带不动电机。
+        On(192);  //128-255 太低会带不动电机。
     }
 
     void Off() override {

@@ -23,11 +23,10 @@
 #define DISPLAY_MIRROR_Y                    false
 #define DISPLAY_SWAP_XY                     false
 
-#define SOIL_MOISTURE_PIN                   GPIO_NUM_17
-#define MANUAL_BUTTON_PIN                   /*GPIO_NUM_39 */ GPIO_NUM_15
-#define L9110_PIN_B                         /*GPIO_NUM_14 */ GPIO_NUM_25
-#define L9110_PIN_A                         /*GPIO_NUM_15 */ GPIO_NUM_26
-#define L9110_OUPUT_INVERT                  true
+#define SOIL_MOISTURE_PIN                   GPIO_NUM_13
+#define MANUAL_BUTTON_PIN                   GPIO_NUM_15
+#define L9110_PIN_B                         GPIO_NUM_26
+#define L9110_PIN_A                         GPIO_NUM_25
 
 
 //**********************************************************************

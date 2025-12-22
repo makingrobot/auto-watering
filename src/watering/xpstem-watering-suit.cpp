@@ -18,7 +18,7 @@
 #include "src/framework/peripheral/sensor.h"
 #include "src/framework/peripheral/sensor_value.h"
 #include "src/framework/wifi/wifi_station.h"
-#include "l9110_driver.h"
+#include "pump_driver.h"
 #include "wifi_configuration_ex.h"
 
 #define TAG "XPSTEM_WATERING_SUIT"
@@ -96,7 +96,7 @@ void XPSTEM_WATERING_SUIT::InitializePeripherals() {
     });
     AddSensor(kSoilMositureName, soil_moisture_ptr);
 
-    std::shared_ptr<L9110Driver> pump_control_ptr = std::make_shared<L9110Driver>(L9110_PIN_A, L9110_PIN_B, L9110_OUPUT_INVERT);
+    std::shared_ptr<PumpDriver> pump_control_ptr = std::make_shared<PumpDriver>(L9110_PIN_A, L9110_PIN_B);
     AddActuator(kPumpControlName, pump_control_ptr);
 
 }
