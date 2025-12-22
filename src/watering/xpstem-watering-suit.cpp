@@ -10,6 +10,7 @@
 #include <Wire.h>
 #include <esp_system.h>
 
+#include "src/framework/board/onebutton_impl.h"
 #include "src/framework/display/u8g2_display.h"
 #include "src/framework/sys/system_reset.h"
 #include "src/framework/board/i2c_device.h"
@@ -45,7 +46,7 @@ void XPSTEM_WATERING_SUIT::InitializeDisplay() {
 
     Log::Info( TAG, "Init ssd1306 display ......" );
     U8G2 *u8g2 = new U8G2_SSD1306_128X64_NONAME_F_SW_I2C(
-        /* rotation */ U8G2_R2, 
+        /* rotation */ U8G2_R0, 
         /* i2c clk */ I2C_SCL_PIN,
         /* i2c data */ I2C_SDA_PIN,
         /* reset=*/ U8X8_PIN_NONE
@@ -58,8 +59,8 @@ void XPSTEM_WATERING_SUIT::InitializeDisplay() {
 }
 
 void XPSTEM_WATERING_SUIT::ButtonTick() {
-    boot_button_->tick();
-    manual_button_->tick();
+    boot_button_->Tick();
+    manual_button_->Tick();
 }
 
 long _long_press_start = 0;
@@ -67,28 +68,12 @@ long _long_press_start = 0;
 void XPSTEM_WATERING_SUIT::InitializeButtons() {
     Log::Info( TAG, "Init buttons ......");
 
-    boot_button_ = new OneButton(BOOT_BUTTON_PIN);
-    boot_button_->setLongPressIntervalMs(1000);
-    boot_button_->attachLongPressStart([]() {
-        Log::Info(TAG, "Boot button longpress start.");
-        _long_press_start = millis();
-    });
-    boot_button_->attachLongPressStop([](void* parameter) {
-        Log::Info(TAG, "Boot button longpress stop.");
-        long duration = millis() - _long_press_start;
-        if (duration > 5000) {
-            // 长按5秒以上，则重置WiFi配置
-            XPSTEM_WATERING_SUIT *_this = (XPSTEM_WATERING_SUIT*)parameter;
-            _this->ResetWifiConfiguration();
-        }
-    }, this);
+    boot_button_ = new OneButtonImpl(kBootButton, BOOT_BUTTON_PIN);
+    boot_button_->SetLongPressIntervalMs(1000);
+    boot_button_->BindAction(ButtonAction::LongPress);
 
-    manual_button_ = new OneButton(MANUAL_BUTTON_PIN);
-    manual_button_->attachClick([](void* parameter) {
-        Log::Info(TAG, "Manual button doubleclick.");
-        XPSTEM_WATERING_SUIT *_this = (XPSTEM_WATERING_SUIT*)parameter;
-        _this->OnPhysicalButtonEvent(kManualButton, ButtonAction::DoubleClick);
-    }, this);
+    manual_button_ = new OneButtonImpl(kManualButton, MANUAL_BUTTON_PIN);
+    manual_button_->BindAction(ButtonAction::DoubleClick);
 
     xTaskCreate([](void *pvParam) {
             Log::Info(TAG, "ButtonTickTask running on core %d", xPortGetCoreID());

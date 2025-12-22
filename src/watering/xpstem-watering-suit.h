@@ -7,13 +7,13 @@
 #define _XPSTEM_WATERING_SUIT_H
 
 #include <driver/gpio.h>
-#include <OneButton.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
 #include "src/framework/sys/log.h"
 #include "src/framework/app/application.h"
 #include "src/framework/board/wifi_board.h"
+#include "src/framework/board/button.h"
 #include "src/framework/display/display.h"
 #include "src/framework/led/led.h"
 #include "src/framework/wifi/wifi_configuration.h"
@@ -26,8 +26,8 @@ static const std::string kSoilMositureName  = "soil_mositure";
 
 class XPSTEM_WATERING_SUIT : public WifiBoard {
 private:
-    OneButton *boot_button_ = nullptr;
-    OneButton *manual_button_ = nullptr;
+    Button *boot_button_ = nullptr;
+    Button *manual_button_ = nullptr;
     Display *display_ = nullptr;
     TaskHandle_t button_taskhandle_;
     WifiConfiguration *wifi_conf_;
