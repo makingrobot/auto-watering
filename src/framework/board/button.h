@@ -1,0 +1,33 @@
+/**
+ * ESP32-Arduino-Framework
+ * Arduino开发环境下适用于ESP32芯片系列开发板的应用开发框架。
+ * 
+ * Author: Billy Zhang（billy_zh@126.com）
+ */
+#ifndef _BUTTON_H
+#define _BUTTON_H
+
+class Button {
+public:
+
+    virtual void BindAction(const ButtonAction action) { }
+    
+    virtual void OnClick(std::function<void()> click_func) { }
+
+    virtual void OnClick(std::function<void(void*)> click_param_func, void *parameter) { }
+
+    virtual void OnDoubleClick(std::function<void()> doubleclick_func) { }
+
+    virtual void OnDoubleClick(std::function<void(void*)> doubleclick_param_func, void *parameter) { }
+
+    virtual void OnLongPress(std::function<void()> longpress_func) { }
+
+    virtual void OnLongPress(std::function<void(void*)> longpress_func, void *parameter) { }
+
+    virtual void SetLongPressIntervalMs(uint32_t interval) { }
+
+    virtual void Tick() { }
+    
+};
+
+#endif //_BUTTON_H

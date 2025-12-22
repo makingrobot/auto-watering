@@ -23,11 +23,12 @@ protected:
 public:
     WifiBoard();
 
-    virtual std::string GetBoardType() override;
-    virtual std::string GetBoardJson() override;
-    virtual std::string GetDeviceStatusJson() override;
-    virtual void SetPowerSaveMode(bool enabled) override;
-    virtual const char* GetNetworkStateIconName() override;
+    std::string GetBoardType() override;
+    std::string GetBoardJson() override;
+    std::string GetDeviceStatusJson() override;
+    void SetPowerSaveMode(bool enabled) override;
+    const char* GetNetworkStateIconName() override;
+    bool OnPhysicalButtonEvent(const std::string& button_name, const ButtonAction action) override;
 
     virtual bool StartNetwork(uint32_t timeout_ms);
     virtual bool StartNetwork(const std::string& ssid, const std::string& password, uint32_t timeout_ms);

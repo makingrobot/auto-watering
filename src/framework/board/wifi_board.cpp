@@ -329,4 +329,20 @@ std::string WifiBoard::GetDeviceStatusJson() {
     return json;
 }
 
+/**
+ * 响应按键操作
+ * 默认长按boot按键重置WiFi配置
+ */
+bool WifiBoard::OnPhysicalButtonEvent(const std::string& button_name, const ButtonAction action) {
+
+    if (button_name == kBootButton) {
+        if (action == ButtonAction::LongPress) {
+            ResetWifiConfiguration();
+            return true;
+        }
+    }
+
+    return Board::OnPhysicalButtonEvent(button_name, action);
+}
+
 #endif

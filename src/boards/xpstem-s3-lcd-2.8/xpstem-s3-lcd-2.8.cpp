@@ -5,6 +5,7 @@
 
 #include "src/framework/sys/system_reset.h"
 #include "src/framework/board/board.h"
+#include "src/framework/board/onebutton_impl.h"
 #include "src/framework/board/i2c_device.h"
 #include "src/framework/led/ws2812_led.h"
 #include "src/framework/display/lvgl_display.h"
@@ -88,27 +89,24 @@ void XPSTEM_S3_LCD_2_80::InitializeDisplay() {
 
 }
 
+void XPSTEM_S3_LCD_2_80::ButtonTick() {
+    boot_button_->Tick();
+}
+
 void XPSTEM_S3_LCD_2_80::InitializeButtons() {
     Log::Info( TAG, "Init button ......" );
 
-    boot_button_ = new OneButton(BOOT_BUTTON_PIN);
-    boot_button_->attachClick([]() {
-        Board& board = Board::GetInstance();
-        board.OnPhysicalButtonEvent(kBootButton, ButtonAction::Click);
-    });
-
-    boot_button_->attachDoubleClick([]() {
-        Board& board = Board::GetInstance();
-        board.OnPhysicalButtonEvent(kBootButton, ButtonAction::DoubleClick);
-    });
+    boot_button_ = new OneButtonImpl(kBootButton, BOOT_BUTTON_PIN);
+    boot_button_->BindAction(ButtonAction::Click);
+    boot_button_->BindAction(ButtonAction::DoubleClick);
 
     xTaskCreate([](void *pvParam) {
-        OneButton* button = static_cast<OneButton *>(pvParam);
+        XPSTEM_S3_LCD_2_80 *_this = static_cast<XPSTEM_S3_LCD_2_80 *>(pvParam);
         while (1) {
-            button->tick();
+            _this->ButtonTick();
             vTaskDelay(pdMS_TO_TICKS(2)); //2ms
         }
-    }, "ButtonTick_Task", 2048, boot_button_, 1, NULL);
+    }, "ButtonTick_Task", 2048, this, 1, NULL);
 }
 
 void XPSTEM_S3_LCD_2_80::InitializeFt6336TouchPad() {
