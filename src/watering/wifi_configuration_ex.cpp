@@ -15,6 +15,7 @@
 #include "src/framework/sys/log.h"
 #include "src/framework/sys/settings.h"
 #include "src/framework/wifi/ssid_manager.h"
+#include "src/framework/sys/system_info.h"
 #include "wifi_configuration_res.h"
 #include "watering_config.h"
 
@@ -123,11 +124,11 @@ bool WifiConfigurationEx::ReadProductConfig(const std::string& serialno, int wor
     Log::Info(TAG, "read product config, serialno: %s", serialno.c_str());
     
     // 获取项目配置信息
-    String config_url = String("https://www.xpstem.com/app/iot/project/productconfig?chipid=&serialno=") + String(serialno.c_str());
+    std::string config_url = "https://www.xpstem.com/app/iot/project/productconfig?chipid=" + SystemInfo::GetMacAddress2() + "&serialno=" + serialno;
     Log::Info(TAG, "access: %s", config_url.c_str());
 
     HTTPClient http;
-    http.begin(config_url);
+    http.begin(String(config_url.c_str()));
     int status_code = http.GET();
     if (status_code != 200) {
         Log::Warn(TAG, "read product config failure, status code: %d", status_code);
