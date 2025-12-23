@@ -70,6 +70,7 @@ void Application::Init() {
     auto& board = Board::GetInstance();
     Display* display = board.GetDisplay();
     display->Init();
+    display->SetStatus("初始化...");
 
 #if CONFIG_CLOCK_ENABLE==1
     // 时钟定时器，可重载OnClockTimer插入自定义功能

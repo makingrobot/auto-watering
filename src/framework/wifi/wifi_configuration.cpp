@@ -53,7 +53,7 @@ std::string WifiConfiguration::GetAvailableAPList() {
     for (int i=0; i<n; ++i) {
         Log::Debug(TAG, "SSID: %s, RSSI: %d, Authmode: %d",
             WiFi.SSID(i).c_str(), WiFi.RSSI(i), WiFi.encryptionType(i) );
-        char buf[128];
+        char buf[128] = { 0 };
         snprintf(buf, sizeof(buf), "{\"ssid\":\"%s\",\"rssi\":%d,\"authmode\":%d}",
             WiFi.SSID(i).c_str(), WiFi.RSSI(i), WiFi.encryptionType(i) );
         json_str += std::string(buf);
@@ -85,7 +85,7 @@ std::string WifiConfiguration::GetSavedAPList() {
 std::string WifiConfiguration::GetSsid() {
     uint8_t mac[6];
     ESP_ERROR_CHECK(esp_read_mac(mac, ESP_MAC_WIFI_SOFTAP));
-    char ssid[32];
+    char ssid[32] = { 0 };
     snprintf(ssid, sizeof(ssid)-1, "%s-%02x%02x", ssid_prefix_, mac[4], mac[5]);
     return std::string(ssid);
 }
