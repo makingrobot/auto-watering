@@ -26,6 +26,8 @@ public:
 
     virtual void SetLongPressIntervalMs(uint32_t interval) { }
 
+    virtual bool isPressed() { return false; }
+    
     virtual void Tick() { }
     
 };

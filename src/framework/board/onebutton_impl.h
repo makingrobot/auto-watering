@@ -127,6 +127,10 @@ public:
         button_->setLongPressIntervalMs(interval);
     }
 
+    bool isPressed() override {
+        return button_->isLongPressed();
+    }
+
     void Tick() override {
         button_->tick();
     }
