@@ -12,7 +12,7 @@
 
 #define TAG "Sensor"
 
-Sensor::Sensor() {
+Sensor::Sensor(const std::string& name) : name_(name) {
 }
 
 Sensor::~Sensor() {
@@ -46,6 +46,13 @@ void Sensor::Stop() {
     }
 }
 
+void Sensor::BindData() {
+    on_newdata_callback_ = [this](const SensorValue &value) {
+        auto& app = Application::GetInstance();
+        app.OnSensorDataEvent(name_, value);
+    };
+}
+
 /**
  * 读取传感器数据
  */
@@ -61,7 +68,7 @@ void Sensor::ReadData() {
 }
 
 /*********** AnalogSensor **************/
-AnalogSensor::AnalogSensor(gpio_num_t pin) : Sensor(),sensor_pin_(pin) {
+AnalogSensor::AnalogSensor(const std::string& name, gpio_num_t pin) : Sensor(name),sensor_pin_(pin) {
     pinMode(sensor_pin_, INPUT);
 }
 
@@ -71,7 +78,7 @@ void AnalogSensor::ReadValue(SensorValue *value) {
 }
 
 /*********** DigitalSensor **************/
-DigitalSensor::DigitalSensor(gpio_num_t pin) : Sensor(),sensor_pin_(pin) {
+DigitalSensor::DigitalSensor(const std::string& name, gpio_num_t pin) : Sensor(name),sensor_pin_(pin) {
     pinMode(sensor_pin_, INPUT);
 }
 

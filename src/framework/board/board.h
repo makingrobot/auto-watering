@@ -51,8 +51,8 @@ protected:
     void AddActuator(const std::string& name, std::shared_ptr<Actuator> actuator) {
         actuator_map_[name] = actuator;
     }
-    void AddSensor(const std::string& name, std::shared_ptr<Sensor> sensor) {
-        sensor_map_[name] = sensor;
+    void AddSensor(std::shared_ptr<Sensor> sensor) {
+        sensor_map_[sensor->name()] = sensor;
     }
    
 public:

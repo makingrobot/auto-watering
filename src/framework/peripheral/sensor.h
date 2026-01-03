@@ -18,8 +18,10 @@
  */
 class Sensor {
 public:
-    Sensor();
+    Sensor(const std::string& name);
     virtual ~Sensor();
+
+    const std::string& name() const { return name_; }
 
     /**
      * 启动传感器，
@@ -28,6 +30,8 @@ public:
     void Start(uint32_t interval_ms);
     void Stop();
 
+    void BindData();
+    
     void OnNewData(std::function<void(const SensorValue&)> callback) { 
         on_newdata_callback_ = callback; 
     }
@@ -41,6 +45,7 @@ protected:
     virtual void ReadValue(SensorValue *value) = 0;
 
 private:
+    const std::string name;
     std::function<void(const SensorValue&)> on_newdata_callback_;
     SensorValue *sensor_val_;
     Timer* timer_ = nullptr;
@@ -52,7 +57,7 @@ private:
  */
 class AnalogSensor : public Sensor {
 public:
-    AnalogSensor(gpio_num_t pin);
+    AnalogSensor(const std::string& name, gpio_num_t pin);
 
 protected:
     void ReadValue(SensorValue *value) override;
@@ -67,7 +72,7 @@ private:
  */
 class DigitalSensor : public Sensor {
 public:
-    DigitalSensor(gpio_num_t pin);
+    DigitalSensor(const std::string& name, gpio_num_t pin);
 
 protected:
     void ReadValue(SensorValue *value) override;
