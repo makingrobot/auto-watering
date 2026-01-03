@@ -89,12 +89,9 @@ void XPSTEM_WATERING_SUIT::InitializePeripherals() {
     
     Log::Info( TAG, "Init peripherals ......");
 
-    std::shared_ptr<AnalogSensor> soil_moisture_ptr = std::make_shared<AnalogSensor>(SOIL_MOISTURE_PIN);
-    soil_moisture_ptr->OnNewData([](const SensorValue& val) {
-        auto& app = Application::GetInstance();
-        app.OnSensorDataEvent(kSoilMositureName, val);
-    });
-    AddSensor(kSoilMositureName, soil_moisture_ptr);
+    std::shared_ptr<AnalogSensor> soil_moisture_ptr = std::make_shared<AnalogSensor>(kSoilMositureName, SOIL_MOISTURE_PIN);
+    soil_moisture_ptr->BindData();
+    AddSensor(soil_moisture_ptr);
 
     std::shared_ptr<PumpDriver> pump_control_ptr = std::make_shared<PumpDriver>(L9110_PIN_A, L9110_PIN_B);
     AddActuator(kPumpControlName, pump_control_ptr);
