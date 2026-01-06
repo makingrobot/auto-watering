@@ -55,7 +55,7 @@ void Sensor::ReadData() {
     } else {
         // 默认处理
         auto& app = Application::GetInstance();
-        app.OnSensorDataEvent(name_, value);
+        app.OnSensorDataEvent(name_, *sensor_val_);
     }
 
     delete sensor_val_;
