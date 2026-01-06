@@ -30,8 +30,6 @@ public:
     void Start(uint32_t interval_ms);
     void Stop();
 
-    void BindData();
-    
     void OnNewData(std::function<void(const SensorValue&)> callback) { 
         on_newdata_callback_ = callback; 
     }
