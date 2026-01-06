@@ -43,7 +43,7 @@ protected:
     virtual void ReadValue(SensorValue *value) = 0;
 
 private:
-    const std::string name;
+    const std::string name_;
     std::function<void(const SensorValue&)> on_newdata_callback_;
     SensorValue *sensor_val_;
     Timer* timer_ = nullptr;
