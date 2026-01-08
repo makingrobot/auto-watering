@@ -39,14 +39,17 @@ public:
     void SetBrightness(uint8_t brightness) override { }
     void OnBlinkTimer();
 
+    uint8_t num_pixels() const { return num_pixels_; }
+    
     /**
-     * 点亮指定位置的灯珠
+     * 设置要点亮灯珠的编号，编号范围：0-num_pixels
      */
-    void TurnOn(const std::vector<uint8_t>& nums);
+    void SetLightNo(const std::vector<uint8_t>& light_set);
     
 private:
     const gpio_num_t pin_;
     const uint8_t num_pixels_;
+    std::vector<uint8_t> light_set_ = { 0 };  // 默认只使用第1个灯珠
 
     std::mutex mutex_;
     TaskHandle_t blink_task_ = nullptr;
