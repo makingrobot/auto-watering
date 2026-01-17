@@ -61,8 +61,8 @@ void WateringApplication::OnInit() {
 
 void WateringApplication::OnLoop() {
 
-    //XPSTEM_WATERING_SUIT *board = static_cast<XPSTEM_WATERING_SUIT*>(&Board::GetInstance());
-    //board->ButtonTick();
+    XPSTEM_WATERING_SUIT *board = static_cast<XPSTEM_WATERING_SUIT*>(&Board::GetInstance());
+    board->ButtonTick();
 
     delay(1);
 }

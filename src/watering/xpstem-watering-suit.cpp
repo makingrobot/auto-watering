@@ -59,30 +59,22 @@ void XPSTEM_WATERING_SUIT::InitializeDisplay() {
 }
 
 void XPSTEM_WATERING_SUIT::ButtonTick() {
-    boot_button_->Tick();
-    manual_button_->Tick();
+    for (const auto& pair : button_map()) {
+        pair.second->Tick();
+    }
 }
-
-long _long_press_start = 0;
 
 void XPSTEM_WATERING_SUIT::InitializeButtons() {
     Log::Info( TAG, "Init buttons ......");
 
-    boot_button_ = new OneButtonImpl(kBootButton, BOOT_BUTTON_PIN);
-    boot_button_->SetLongPressIntervalMs(1000);
-    boot_button_->BindAction(ButtonAction::LongPress);
+    std::shared_ptr<Button> button1 = std::make_shared<OneButtonImpl>(kBootButton, BOOT_BUTTON_PIN);
+    button1->SetLongPressIntervalMs(1000);
+    button1->BindAction(ButtonAction::LongPress);
+    AddButton(button1);
 
-    manual_button_ = new OneButtonImpl(kManualButton, MANUAL_BUTTON_PIN);
-    manual_button_->BindAction(ButtonAction::DoubleClick);
-
-    xTaskCreate([](void *pvParam) {
-            Log::Info(TAG, "ButtonTickTask running on core %d", xPortGetCoreID());
-            XPSTEM_WATERING_SUIT* _this = (XPSTEM_WATERING_SUIT*)pvParam;
-            while (1) {
-                _this->ButtonTick();
-                delay(2); //2ms
-            }
-        }, "ButtonTick_Task", 8192, this, 1, &button_taskhandle_);
+    std::shared_ptr<Button> button2 = std::make_shared<OneButtonImpl>(kManualButton, MANUAL_BUTTON_PIN);
+    button2->BindAction(ButtonAction::DoubleClick);
+    AddButton(button2);
 }
 
 void XPSTEM_WATERING_SUIT::InitializePeripherals() {
