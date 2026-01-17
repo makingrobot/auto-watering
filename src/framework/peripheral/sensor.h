@@ -40,7 +40,7 @@ protected:
     /**
      * 读取传感器数据，由派生类实现。
      */
-    virtual void ReadValue(SensorValue *value) = 0;
+    virtual bool ReadValue(SensorValue *value) = 0;
 
 private:
     const std::string name_;
@@ -58,7 +58,7 @@ public:
     AnalogSensor(const std::string& name, gpio_num_t pin);
 
 protected:
-    void ReadValue(SensorValue *value) override;
+    bool ReadValue(SensorValue *value) override;
 
 private:
     const gpio_num_t sensor_pin_;
@@ -73,7 +73,7 @@ public:
     DigitalSensor(const std::string& name, gpio_num_t pin);
 
 protected:
-    void ReadValue(SensorValue *value) override;
+    bool ReadValue(SensorValue *value) override;
 
 private:
     const gpio_num_t sensor_pin_;

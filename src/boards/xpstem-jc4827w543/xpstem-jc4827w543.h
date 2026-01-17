@@ -16,7 +16,6 @@
 
 #include "src/framework/sys/log.h"
 #include "src/framework/board/wifi_board.h"
-#include "src/framework/board/button.h"
 #include "src/framework/display/display.h"
 #include "src/framework/display/disp_driver.h"
 #include "src/framework/display/backlight.h"
@@ -29,7 +28,6 @@
 class XPSTEM_JC4827W543 : public WifiBoard {
 private:
     i2c_master_bus_handle_t i2c_bus_;
-    Button* boot_button_ = nullptr;
     PowerSaveTimer* power_save_timer_ = nullptr;
     DispDriver* disp_driver_ = nullptr;
     Display* display_ = nullptr;

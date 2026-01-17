@@ -19,12 +19,12 @@
 
 class Dht11Sensor : public Sensor {
 public:
-    Dht11Sensor(gpio_num_t pin) : Sensor() {
+    Dht11Sensor(const std::string& name, gpio_num_t pin) : Sensor(name) {
         dht_ = new DHT(pin, DHT11);
         dht_->begin();
     }
 
-    void ReadValue(SensorValue *value) override {
+    bool ReadValue(SensorValue *value) override {
         float shidu = dht_->readHumidity();
         float wendu = dht_->readTemperature();
 
@@ -33,6 +33,7 @@ public:
         list.push_back(wendu);
 
         value->setFloatList(list);
+        return true;
     }
 
 private:

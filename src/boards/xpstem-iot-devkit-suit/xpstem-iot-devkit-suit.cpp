@@ -159,12 +159,8 @@ XPSTEM_IOT_DEVKIT_SUIT::XPSTEM_IOT_DEVKIT_SUIT() : WifiBoard() {
     backlight_->RestoreBrightness();
 #endif
 
-    std::shared_ptr<Dht11Sensor> dht11_ptr = std::make_shared<Dht11Sensor>(DHT11_PIN);
-    dht11_ptr->OnNewData([](const SensorValue& value){
-        auto& app = Application::GetInstance();
-        app.OnSensorDataEvent(kDht11, value);
-    });
-    AddSensor(kDht11, dht11_ptr);
+    std::shared_ptr<Dht11Sensor> dht11_ptr = std::make_shared<Dht11Sensor>(kDht11, DHT11_PIN);
+    AddSensor(dht11_ptr);
 
     Log::Info( TAG, "===== Board config completed. =====");
 }

@@ -101,15 +101,18 @@ void XPSTEM_JC4827W543::InitializeDisplay() {
 }
 
 void XPSTEM_JC4827W543::ButtonTick() {
-    boot_button_->Tick();
+    for (const auto& pair : button_map()) {
+        pair.second->Tick();
+    }
 }
 
 void XPSTEM_JC4827W543::InitializeButtons() {
     Log::Info( TAG, "Init button ......" );
 
-    boot_button_ = new OneButtonImpl(kBootButton, BOOT_BUTTON_PIN);
-    boot_button_->BindAction(ButtonAction::Click);
-    boot_button_->BindAction(ButtonAction::DoubleClick);
+    std::shared_ptr<Button> button1 = std::make_shared<OneButtonImpl>(kBootButton, BOOT_BUTTON_PIN);
+    button1->BindAction(ButtonAction::Click);
+    button1->BindAction(ButtonAction::DoubleClick);
+    AddButton(button1);
 
     xTaskCreate([](void *pvParam) {
         XPSTEM_JC4827W543 *_this = static_cast<XPSTEM_JC4827W543 *>(pvParam);

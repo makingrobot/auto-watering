@@ -8,7 +8,6 @@
 #include <driver/i2c_master.h>
 #include <driver/spi_common.h>
 #include <driver/gpio.h>
-#include <OneButton.h>
 
 #include "src/framework/app/application.h"
 #include "src/framework/board/wifi_board.h"
@@ -38,7 +37,6 @@
 class XINGZHI_MATRIXBIT_V3 : public WifiBoard {
 private:
     i2c_master_bus_handle_t i2c_bus_;
-    OneButton* boot_button_ = nullptr;
     PowerSaveTimer* power_save_timer_ = nullptr;
     Display* display_ = nullptr;
     AudioCodec* audio_codec_ = nullptr;

@@ -20,31 +20,25 @@
 class OneButtonImpl : public Button {
 public:
     OneButtonImpl(const std::string& name, const int pin, const bool activeLow = true, const bool pullupActive = true) 
-            : name_(name) {
+            : Button(name) {
         button_ = new OneButton(pin, activeLow, pullupActive);
     }
 
     void BindAction(const ButtonAction action) override {
         if (action == ButtonAction::Click) {
-            OnClick([action](void *param) {
-                OneButtonImpl *_this = (OneButtonImpl *)param;
-                Board& board = Board::GetInstance();
-                board.OnPhysicalButtonEvent(_this->name_, action);
-            }, this);
+            OnClick([action, this](){
+                OnEvent(action);
+            });
 
         } else if (action == ButtonAction::DoubleClick) {
-            OnDoubleClick([action](void *param) {
-                OneButtonImpl *_this = (OneButtonImpl *)param;
-                Board& board = Board::GetInstance();
-                board.OnPhysicalButtonEvent(_this->name_, action);
-            }, this);
+            OnDoubleClick([action, this](){
+                OnEvent(action);
+            });
 
         } else if (action == ButtonAction::LongPress) {
-            OnLongPress([action](void *param){
-                OneButtonImpl *_this = (OneButtonImpl*)param;
-                Board& board = Board::GetInstance();
-                board.OnPhysicalButtonEvent(_this->name_, action);
-            }, this);
+            OnLongPress([action, this](){
+                OnEvent(action);
+            });
             
         }
     }
@@ -136,7 +130,11 @@ public:
     }
 
 private:
-    const std::string name_;
+    void OnEvent(const ButtonAction action) {
+        Board& board = Board::GetInstance();
+        board.OnPhysicalButtonEvent(name(), action);
+    }
+
     OneButton *button_;
     uint32_t longpress_interval_ = 5000;  // 5秒
     uint32_t longpress_start_ = 0; 
