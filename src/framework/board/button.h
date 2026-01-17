@@ -9,7 +9,10 @@
 
 class Button {
 public:
+    Button(const std::string& name) : name_(name) { }
 
+    const std::string& name() const { return name_; }
+    
     virtual void BindAction(const ButtonAction action) { }
     
     virtual void OnClick(std::function<void()> click_func) { }
@@ -30,6 +33,9 @@ public:
     
     virtual void Tick() { }
     
+private:
+    const std::string name_;
+
 };
 
 #endif //_BUTTON_H

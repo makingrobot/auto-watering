@@ -23,6 +23,7 @@
 #include "../file/file_system.h"
 #include "../sys/time.h"
 #include "../types.h"
+#include "../board/button.h"
 #include "../peripheral/actuator.h"
 #include "../peripheral/sensor.h"
 
@@ -35,6 +36,7 @@ private:
     Board(const Board&) = delete; // 禁用拷贝构造函数
     Board& operator=(const Board&) = delete; // 禁用赋值操作
 
+    std::map<std::string, std::shared_ptr<Button>> button_map_; //按键列表
     std::map<std::string, std::shared_ptr<Actuator>> actuator_map_; //执行器外设列列表
     std::map<std::string, std::shared_ptr<Sensor>> sensor_map_; //传感器外设列表
 
@@ -48,6 +50,9 @@ protected:
     virtual void EnterSleepMode();
     virtual void ExitSleepMode();
 
+    void AddButton(std::shared_ptr<Button> button) {
+        button_map_[button->name()] = button;
+    }
     void AddActuator(const std::string& name, std::shared_ptr<Actuator> actuator) {
         actuator_map_[name] = actuator;
     }
@@ -55,6 +60,8 @@ protected:
         sensor_map_[sensor->name()] = sensor;
     }
    
+    std::map<std::string, std::shared_ptr<Button>> button_map() const { return button_map_; }
+
 public:
     static Board& GetInstance() {
         static Board* instance = static_cast<Board*>(create_board());

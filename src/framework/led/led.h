@@ -16,19 +16,53 @@
 
 #define BLINK_INFINITE          -1
 
+/**
+ * LED 基类
+ */
 class Led {
 public:
     virtual ~Led() = default;
 
+    /**
+     * 点亮
+     */
     virtual void TurnOn() = 0;
+
+    /**
+     * 熄灭
+     */
     virtual void TurnOff() = 0;
+
+    /**
+     * 闪烁一次
+     */
     virtual void BlinkOnce() = 0;
+
+    /**
+     * 闪烁指定次数
+     * times: 次数，-1为无数次
+     * interval_ms：间隔时间，毫秒
+     */
     virtual void Blink(int times, int interval_ms) = 0;
+
+    /**
+     * 设置亮度，选用于PWM调光的LED
+     * brightness: 0-255
+     */
     virtual void SetBrightness(uint8_t brightness) = 0;
+
+    /**
+     * 设置颜色，适用于三色LED、灯珠等
+     * r: 红色 0-255
+     * g: 绿色 0-255
+     * b: 蓝色 0-255
+     */
     virtual void SetColor(uint8_t r, uint8_t g, uint8_t b) = 0;
 };
 
-
+/**
+ * 无Led
+ */
 class NoLed : public Led {
 public:
     void TurnOn() override { }

@@ -8,7 +8,6 @@
 #include <driver/i2c_master.h>
 #include <driver/spi_common.h>
 #include <driver/gpio.h>
-#include <OneButton.h>
 
 #include "src/framework/sys/log.h"
 #include "src/framework/app/application.h"
@@ -46,7 +45,6 @@ static const std::string kDht11 = "dht11";
 class XPSTEM_IOT_DEVKIT_SUIT : public WifiBoard {
 private:
     i2c_master_bus_handle_t i2c_bus_;
-    OneButton* boot_button_ = nullptr;
     PowerSaveTimer* power_save_timer_ = nullptr;
     Display* display_ = nullptr;
     Led* led_ = nullptr;

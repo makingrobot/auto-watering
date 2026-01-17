@@ -104,9 +104,6 @@ void WifiBoard::ResetWifiConfiguration() {
     esp_restart();
 }
 
-#endif //CONFIG_WIFI_CONFIGURE_ENABLE
-
-#if CONFIG_WIFI_CONFIGURE_ENABLE==1
 WifiConfiguration* WifiBoard::GetWifiConfiguration() {
 #if CONFIG_WIFI_CONFIGURE_WEBSERVER==1
     static WifiConfiguration *conf = new WifiConfigurationImpl();
@@ -115,7 +112,7 @@ WifiConfiguration* WifiBoard::GetWifiConfiguration() {
     return nullptr;
 #endif
 }
-#endif
+#endif //CONFIG_WIFI_CONFIGURE_ENABLE
 
 bool WifiBoard::StartNetwork(uint32_t timeout_ms) {
     
@@ -337,7 +334,9 @@ bool WifiBoard::OnPhysicalButtonEvent(const std::string& button_name, const Butt
 
     if (button_name == kBootButton) {
         if (action == ButtonAction::LongPress) {
+#if CONFIG_WIFI_CONFIGURE_ENABLE==1
             ResetWifiConfiguration();
+#endif
             return true;
         }
     }

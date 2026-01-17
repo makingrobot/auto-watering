@@ -102,16 +102,19 @@ void XPSTEM_S3_ELECTRONIC_SUIT::InitializeDisplay() {
 }
 
 void XPSTEM_S3_ELECTRONIC_SUIT::ButtonTick() {
-    boot_button_->Tick();
+    for (const auto& pair : button_map()) {
+        pair.second->Tick();
+    }
 }
 
 void XPSTEM_S3_ELECTRONIC_SUIT::InitializeButtons() {
     Log::Info( TAG, "Init button ......" );
 
-    boot_button_ = new OneButtonImpl(kBootButton, BUTTON_0_PIN);
-    boot_button_->BindAction(ButtonAction::Click);
-    boot_button_->BindAction(ButtonAction::DoubleClick);
-
+    std::shared_ptr<Button> button1 = std::make_shared<OneButtonImpl>(kBootButton, BUTTON_0_PIN);
+    button1->BindAction(ButtonAction::Click);
+    button1->BindAction(ButtonAction::DoubleClick);
+    AddButton(button1);
+    
     xTaskCreate([](void *pvParam) {
         XPSTEM_S3_ELECTRONIC_SUIT *_this = static_cast<XPSTEM_S3_ELECTRONIC_SUIT *>(pvParam);
         while (1) {
