@@ -15,9 +15,9 @@
  * 单路电机驱动
  * 支持用两个引脚控制正反转的电机驱动芯片。
  */
-class SwitchMotorDriver : public Actuator {
+class SingleMotorDriver : public Actuator {
 public:
-    SwitchMotorDriver(gpio_num_t pin_in_a, gpio_num_t pin_in_b, bool output_invert=false) 
+    SingleMotorDriver(gpio_num_t pin_in_a, gpio_num_t pin_in_b, bool output_invert=false) 
             : SwitchActuator(pin_in_a, output_invert), output_invert_(output_invert) { 
 
         if (output_invert) {
@@ -35,7 +35,7 @@ public:
         analogWrite(pin_in_b_, 0);
     }
 
-    virtual ~SwitchMotorDriver() { 
+    virtual ~SingleMotorDriver() { 
         Off(); 
     };
 
