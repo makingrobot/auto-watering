@@ -14,8 +14,7 @@
 #include "src/framework/sys/settings.h"
 #include "src/framework/wifi/wifi_station.h"
 #include "src/framework/peripheral/sensor.h"
-#include "src/framework/peripheral/switch_actuator.h"
-#include "pump_driver.h"
+#include "src/framework/peripheral/single_motor_driver.h"
 #include "watering_config.h"
 #include "xpstem-watering-suit.h"
 
@@ -250,8 +249,8 @@ void WateringApplication::DoWatering(uint8_t seconds) {
             return;
         }
 
-        std::shared_ptr<PumpDriver> pump_control_ptr = std::static_pointer_cast<PumpDriver>(actuator_ptr);
-        pump_control_ptr->On();
+        std::shared_ptr<SingleMotorDriver> pump_control_ptr = std::static_pointer_cast<SingleMotorDriver>(actuator_ptr);
+        pump_control_ptr->On(192);
         vTaskDelay(pdMS_TO_TICKS(seconds * 1000));
         pump_control_ptr->Off();
     });
