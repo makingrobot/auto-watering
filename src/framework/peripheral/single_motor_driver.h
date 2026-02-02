@@ -17,8 +17,7 @@
  */
 class SingleMotorDriver : public Actuator {
 public:
-    SingleMotorDriver(gpio_num_t pin_in_a, gpio_num_t pin_in_b, bool output_invert=false) 
-            : SwitchActuator(pin_in_a, output_invert), output_invert_(output_invert) { 
+    SingleMotorDriver(gpio_num_t pin_in_a, gpio_num_t pin_in_b, bool output_invert=false) { 
 
         if (output_invert) {
             pin_in_a_ = pin_in_b;
@@ -60,7 +59,7 @@ public:
     /**
      * 关闭
      */
-    void Off() override {
+    void Off() {
         analogWrite(pin_in_a_, 0);
         analogWrite(pin_in_b_, 0);
 
