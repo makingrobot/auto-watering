@@ -43,6 +43,10 @@ public:
         state_==0 ? On() : Off();
     }
 
+    bool IsOn() {
+        return state_==1;
+    }
+
 private:
     const gpio_num_t sensor_pin_;
     const bool output_invert_;
