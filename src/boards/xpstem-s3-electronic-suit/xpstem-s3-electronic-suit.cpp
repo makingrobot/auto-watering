@@ -115,13 +115,12 @@ void XPSTEM_S3_ELECTRONIC_SUIT::InitializeButtons() {
     button1->BindAction(ButtonAction::DoubleClick);
     AddButton(button1);
     
-    xTaskCreate([](void *pvParam) {
-        XPSTEM_S3_ELECTRONIC_SUIT *_this = static_cast<XPSTEM_S3_ELECTRONIC_SUIT *>(pvParam);
-        while (1) {
-            _this->ButtonTick();
-            vTaskDelay(pdMS_TO_TICKS(2)); //2ms
-        }
-    }, "ButtonTick_Task", 2048, this, 1, NULL);
+    button_task_ = new Task("ButtonTick_Task");
+    button_task_->OnLoop([this](){
+        ButtonTick();
+        vTaskDelay(pdMS_TO_TICKS(2)); //2ms
+    });
+    button_task_->Start(2048, tskIDLE_PRIORITY + 1);
 }
 
 void XPSTEM_S3_ELECTRONIC_SUIT::InitializeFt6336TouchPad() {

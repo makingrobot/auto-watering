@@ -12,10 +12,8 @@
 
 #include "led.h"
 #include <driver/gpio.h>
-#include <atomic>
-#include <mutex>
 #include <cstdint>
-#include "../sys/timer.h"
+#include "../sys/mutex.h"
 
 /**
  * 三色LED
@@ -27,12 +25,11 @@ class RgbLed : public Led {
 
     void TurnOn() override;
     void TurnOff() override;
-    void BlinkOnce() override;
-    void Blink(int times, int interval_ms) override;
     void SetBrightness(uint8_t brightness) override { }
     void SetColor(uint8_t r, uint8_t g, uint8_t b) override;
 
-    void OnBlinkTimer();
+protected:
+    void OnBlinkTimer() override;
 
  private:
     const gpio_num_t r_pin_;
@@ -40,16 +37,11 @@ class RgbLed : public Led {
     const gpio_num_t b_pin_;
     const bool output_invert_ = false;
 
-    std::mutex mutex_;
+    Mutex *mutex_;
     uint8_t r_val_ = 0;
     uint8_t g_val_ = 0;
     uint8_t b_val_ = 0;
-    int blink_counter_ = 0;
-    int blink_interval_ms_ = 0;
-    Timer* timer_ = nullptr;
 
-    void StartBlinkTask(int times, int interval_ms);
-    void StartContinuousBlink(int interval_ms);
 
 };
 

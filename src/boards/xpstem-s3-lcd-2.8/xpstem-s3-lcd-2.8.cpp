@@ -103,13 +103,12 @@ void XPSTEM_S3_LCD_2_80::InitializeButtons() {
     button1->BindAction(ButtonAction::DoubleClick);
     AddButton(button1);
 
-    xTaskCreate([](void *pvParam) {
-        XPSTEM_S3_LCD_2_80 *_this = static_cast<XPSTEM_S3_LCD_2_80 *>(pvParam);
-        while (1) {
-            _this->ButtonTick();
-            vTaskDelay(pdMS_TO_TICKS(2)); //2ms
-        }
-    }, "ButtonTick_Task", 2048, this, 1, NULL);
+    buttontick_task_ = new Task("ButtonTickTask");
+    buttontick_task_->OnLoop([this](){
+        ButtonTick();
+        vTaskDelay(pdMS_TO_TICKS(2)); //2ms
+    });
+    buttontick_task_->Start(2048, tskIDLE_PRIORITY + 1);
 }
 
 void XPSTEM_S3_LCD_2_80::InitializeFt6336TouchPad() {

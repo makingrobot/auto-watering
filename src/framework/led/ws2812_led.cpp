@@ -10,6 +10,7 @@
 #include "ws2812_led.h"
 #include "../sys/log.h"
 #include "../sys/timer.h"
+#include "../sys/mutex/std_mutex.h"
 #include "../app/application.h"
 
 #define TAG "Ws2812Led"
@@ -18,6 +19,7 @@ Ws2812Led::Ws2812Led(gpio_num_t pin, uint8_t num_pixels) : pin_(pin), num_pixels
     pixels_ = new Adafruit_NeoPixel(num_pixels, pin, NEO_GRB + NEO_KHZ800);
     pixels_->begin();
 
+    mutex_ = new StdMutex();
     timer_ = TimerFactory::CreateTimer("Ws2812_Led");
 }
 
@@ -46,14 +48,17 @@ void Ws2812Led::TurnOn() {
         return;
     }
 
-    std::lock_guard<std::mutex> lock(mutex_);
-    Stop();
+    MutexGuard lock(mutex_);
+    if (lock.IsLocked())
+    {
+        Stop();
 
-    pixels_->clear();
-    for (uint8_t n : light_set_) {
-        pixels_->setPixelColor(n, pixels_->Color(r_, g_, b_));
+        pixels_->clear();
+        for (uint8_t n : light_set_) {
+            pixels_->setPixelColor(n, pixels_->Color(r_, g_, b_));
+        }
+        pixels_->show();
     }
-    pixels_->show();
 }
 
 void Ws2812Led::TurnOff() {
@@ -62,25 +67,14 @@ void Ws2812Led::TurnOff() {
         return;
     }
 
-    std::lock_guard<std::mutex> lock(mutex_);
-    Stop();
+    MutexGuard lock(mutex_);
+    if (lock.IsLocked())
+    {
+        Stop();
 
-    pixels_->clear();
-    pixels_->show();
-}
-
-void Ws2812Led::BlinkOnce() {
-    Log::Debug(TAG, "blink");
-    Blink(1, 100);
-}
-
-void Ws2812Led::Blink(int times, int interval_ms) {
-    Log::Debug(TAG, "blink %d times", times);
-    StartBlinkTask(times, interval_ms);
-}
-
-void Ws2812Led::StartContinuousBlink(int interval_ms) {
-    StartBlinkTask(BLINK_INFINITE, interval_ms);
+        pixels_->clear();
+        pixels_->show();
+    }
 }
 
 void Ws2812Led::StartBlinkTask(int times, int interval_ms) {
@@ -102,19 +96,22 @@ void Ws2812Led::StartBlinkTask(int times, int interval_ms) {
 }
 
 void Ws2812Led::OnBlinkTimer() {
-    std::lock_guard<std::mutex> lock(mutex_);
-    blink_counter_--;
+    MutexGuard lock(mutex_);
+    if (lock.IsLocked())
+    {
+        blink_counter_--;
 
-    pixels_->clear();
-    if (blink_counter_ & 1) {
-        for (uint8_t n : light_set_) {
-            pixels_->setPixelColor(n, pixels_->Color(r_, g_, b_));
+        pixels_->clear();
+        if (blink_counter_ & 1) {
+            for (uint8_t n : light_set_) {
+                pixels_->setPixelColor(n, pixels_->Color(r_, g_, b_));
+            }
+        } 
+        pixels_->show();
+
+        if (blink_counter_ == 0) {
+            Stop();
         }
-    } 
-    pixels_->show();
-
-    if (blink_counter_ == 0) {
-        Stop();
     }
 }
 

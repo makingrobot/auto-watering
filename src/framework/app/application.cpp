@@ -21,6 +21,7 @@
 #include "../types.h"
 #include "../sys/log.h"
 #include "../sys/timer.h"
+#include "../sys/mutex/std_mutex.h"
 
 #if CONFIG_USE_WIFI==1
 #include "../board/wifi_board.h"
@@ -43,6 +44,7 @@ Application::Application() {
     }
     ESP_ERROR_CHECK(ret);
 
+    mutex_ = new StdMutex();
     event_group_ = xEventGroupCreate();
 }
 
@@ -150,11 +152,13 @@ void Application::ToggleWorkState() {
 
 // Add a async task to MainLoop
 void Application::Schedule(callback_function_t callback) {
-    std::unique_lock<std::mutex> lock(mutex_);
-    app_tasks_.push_back(std::move(callback));
-    lock.unlock();
+    MutexGuard lock(mutex_);
+    if (lock.IsLocked()) 
+    {
+        app_tasks_.push_back(std::move(callback));
 
-    xEventGroupSetBits(event_group_, EventHandler::kEventScheduleTask);
+        xEventGroupSetBits(event_group_, EventHandler::kEventScheduleTask);
+    }
 }
 
 bool Application::OnPhysicalButtonEvent(const std::string& button_name, const ButtonAction action) {
@@ -377,14 +381,15 @@ void Application::EventLoop() {
 
     try {
         if (bits & EventHandler::kEventScheduleTask) {
-            std::unique_lock<std::mutex> lock(mutex_);
-            auto tasks = std::move(app_tasks_);
-            lock.unlock();
+            MutexGuard lock(mutex_);
+            if (lock.IsLocked())
+            {
+                auto tasks = std::move(app_tasks_);
 
-            for (auto task : tasks) {
-                task();
+                for (auto task : tasks) {
+                    task();
+                }
             }
-            
         } else {
             event_handler_->HandleEvent(bits);
         }
