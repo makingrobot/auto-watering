@@ -11,9 +11,15 @@
 #include <string>
 #include <freertos/FreeRTOS.h>
 
+#define TAG "Task"
+
 class Task {
 public:
     Task(const std::string& name) : name_(name) {}
+
+    const std::string& name() const { return name_; }
+
+    const int state() const { return state_; }
 
     /**
      * 任务初始化函数
@@ -67,19 +73,22 @@ public:
         return xTaskCreate(
                     [](void *parameter) {
                         Task* task = (Task *)parameter;
-                        
+                        Log::Info(TAG, "%s running on core %d", task->name().c_str(), xPortGetCoreID());
+
+                        // 优先调用有参数的Init函数
                         if (task->init_param_function_!=nullptr) {
                             task->init_param_function_(task->init_parameter_);
                         } else if (task->init_function_!=nullptr) {
                             task->init_function_();
                         }
 
+                        // 优先调用有参数的Loop函数
                         if (task->loop_param_function_!=nullptr) {
-                            while (1) {
+                            while (task->state()) {
                                 task->loop_param_function_(task->loop_parameter_);
                             }
                         } else if (task->loop_function_!=nullptr) {
-                            while (1) {
+                            while (task->state()) {
                                 task->loop_function_();
                             }
                         }
@@ -94,6 +103,10 @@ public:
                 );
     }
 
+    void Stop() {
+        state_ = false;
+    }
+
 private:
     const std::string name_;
     
@@ -106,7 +119,7 @@ private:
     void* loop_parameter_;
 
     TaskHandle_t task_handle_;
-
+    volatile int state_ = true;
 };
 
 #endif  //_TASK_H
