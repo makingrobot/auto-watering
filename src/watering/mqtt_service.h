@@ -9,11 +9,10 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
 #include <functional>
 #include <map>
 #include <string>
+#include "src/framework/sys/task.h"
 
 class MqttService {
 public:
@@ -29,7 +28,7 @@ private:
 
     WiFiClient wifi_client_;
     PubSubClient *mqtt_client_;
-    TaskHandle_t mqtt_loop_handle_;
+    Task* mqtt_task_;
     std::map<std::string, std::function<void(const std::string&)>> subscribe_callback_;
 
 };

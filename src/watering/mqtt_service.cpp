@@ -13,28 +13,17 @@
 
 #define TAG "MqttService"
 
-void mqttLoopTask(void *pvParam) {
-    Log::Info(TAG, "MqttLoopTask running on core %d", xPortGetCoreID());
-    PubSubClient *client = static_cast<PubSubClient*>(pvParam);
-    while(1) {
-        client->loop();
-        delay(10);
-    }
-}
-
 MqttService::MqttService() {
     mqtt_client_ = new PubSubClient(wifi_client_);
     mqtt_client_->setKeepAlive(60);
     mqtt_client_->setCallback([this](char *mqtt_topic, byte *payload, unsigned int length) {
         OnMessage(mqtt_topic, payload, length);
     });
-
-    xTaskCreate(mqttLoopTask, "Mqtt_LoopTask", 4096, mqtt_client_, 1, &mqtt_loop_handle_);
 }
 
 MqttService::~MqttService() {
-    if (mqtt_loop_handle_) {
-        vTaskDelete(mqtt_loop_handle_);
+    if (mqtt_task_!=nullptr) {
+        mqtt_task_->Stop();
     }
 
     if (mqtt_client_!=nullptr) {
@@ -76,6 +65,14 @@ void MqttService::PublishData(const std::string& topic, const std::string& paylo
 void MqttService::SubscribeTopic(const std::string& mqtt_topic, std::function<void(const std::string&)> callback) {
     subscribe_callback_[mqtt_topic] = callback;
     mqtt_client_->subscribe(mqtt_topic.c_str());
+
+    if (mqtt_task_ == nullptr) {
+        mqtt_task_ = new Task("Mqtt_LoopTask");
+        mqtt_task_->OnLoop([this]() {
+            mqtt_client_->loop();
+        });
+        mqtt_task_->Start(4096, tskIDLE_PRIORITY + 1);
+    }
 }
 
 void MqttService::OnMessage(char *mqtt_topic, byte *payload, unsigned int length) {
