@@ -10,6 +10,7 @@
 #include <functional>
 #include <string>
 #include <freertos/FreeRTOS.h>
+#include "log.h"
 
 #define TAG "Task"
 
