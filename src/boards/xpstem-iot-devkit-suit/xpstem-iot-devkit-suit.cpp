@@ -118,23 +118,6 @@ void XPSTEM_IOT_DEVKIT_SUIT::InitializeDisplay() {
 
 #endif // CONFIG_USE_GFX_LIBRARY
 
-#if CONFIG_USE_LCD_PANEL==1
-    Log::Info( TAG, "Create ili9341 driver." );
-    driver = new ILI9341Driver(DISPLAY_WIDTH, DISPLAY_HEIGHT,
-                                    DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY);
-                                    
-    Log::Info( TAG, "Init st7796 on spi mode." );
-    driver->InitSpi(SPI3_HOST, DISPLAY_SPI_MODE, DISPLAY_CS_PIN, DISPLAY_DC_PIN, DISPLAY_RST_PIN, 
-        DISPLAY_MOSI_PIN, DISPLAY_MISO_PIN, DISPLAY_SCK_PIN, DISPLAY_RGB_ORDER, DISPLAY_INVERT_COLOR);
-
-    disp_driver_ = driver;
-    display_ = new LvglDisplay(disp_driver_,  {
-                                    .text_font = &font_puhui_20_4,
-                                    .icon_font = &font_awesome_16_4,
-                                    .emoji_font = font_emoji_32_init(),
-                                });
-#endif
-
 }
 
 void XPSTEM_IOT_DEVKIT_SUIT::InitializeButtons() {
@@ -153,7 +136,7 @@ XPSTEM_IOT_DEVKIT_SUIT::XPSTEM_IOT_DEVKIT_SUIT() : WifiBoard() {
 
     InitializeDisplay();
 
-#if CONFIG_USE_LCD_PANEL==1 || CONFIG_USE_GFX_LIBRARY==1 || CONFIG_USE_TFT_ESPI==1
+#if CONFIG_USE_GFX_LIBRARY==1 || CONFIG_USE_TFT_ESPI==1
     Log::Info( TAG, "Init backlight ......" );
     backlight_ = new PwmBacklight(DISPLAY_LED_PIN, DISPLAY_BACKLIGHT_OUTPUT_INVERT);
     backlight_->RestoreBrightness();

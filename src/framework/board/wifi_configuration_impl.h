@@ -13,8 +13,8 @@
 #include <string>
 #include <Arduino.h>
 #include <WebServer.h>
-#include <freertos/FreeRTOS.h>
 #include "../wifi/wifi_configuration.h"
+#include "../sys/task.h"
 
 class WifiConfigurationImpl : public WifiConfiguration {
 public:
@@ -27,7 +27,8 @@ protected:
     virtual void BindAdvancedRoute();
 
     WebServer* webserver_ = nullptr;
-    TaskHandle_t webserver_handle_;
+    Task* webtask_ = nullptr;
+    Task* reboottask_ = nullptr;
     std::string payload_;
 
     // 高级配置项

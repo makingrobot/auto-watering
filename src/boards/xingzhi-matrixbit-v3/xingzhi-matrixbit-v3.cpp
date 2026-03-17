@@ -119,18 +119,6 @@ void XINGZHI_MATRIXBIT_V3::InitializeDisplay() {
 
 #endif
 
-#if CONFIG_USE_LCD_PANEL==1
-    Log::Info( TAG, "Create st7789 driver." );
-    ST7789Driver *driver = new ST7789Driver(DISPLAY_WIDTH, DISPLAY_HEIGHT,
-                                    DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY);
-                                    
-    Log::Info( TAG, "Init st7796 on spi mode." );
-    driver->InitSpi(SPI3_HOST, 0, DISPLAY_CS_PIN, DISPLAY_DC_PIN, DISPLAY_RST_PIN, 
-        DISPLAY_MOSI_PIN, GPIO_NUM_NC, DISPLAY_SCK_PIN, DISPLAY_RGB_ORDER, DISPLAY_INVERT_COLOR);
-
-    disp_driver_ = driver;
-#endif
-
 }
 
 void XINGZHI_MATRIXBIT_V3::InitializeButtons() {

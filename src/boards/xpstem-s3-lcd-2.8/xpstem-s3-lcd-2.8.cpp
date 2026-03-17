@@ -1,24 +1,21 @@
 #include "config.h"
 #if BOARD_XPSTEM_S3_LCD_2_80 == 1
 
+#include <Arduino.h>
+#include <SPI.h>
+
 #include "xpstem-s3-lcd-2.8.h"
 
 #include "src/framework/sys/system_reset.h"
 #include "src/framework/board/board.h"
 #include "src/framework/board/onebutton_impl.h"
-#include "src/framework/board/i2c_device.h"
+#include "src/framework/board/i2c_driver.h"
 #include "src/framework/led/ws2812_led.h"
 #include "src/framework/display/lvgl_display.h"
-#include "src/framework/audio/codecs/es8311/es8311_audio_codec.h"
+#include "src/framework/display/gfx_lvgl_driver.h"
+#include "src/framework/audio/codec/audio_es8311_codec.h"
 #include "src/framework/sys/time/ntp_time.h"
 #include <SD_MMC.h>
-
-#if CONFIG_USE_LCD_PANEL==1
-#include "src/framework/display/drivers/ili9341/ili9341_driver.h"
-#elif CONFIG_USE_GFX_LIBRARY==1
-#include <Arduino.h>
-#include <Arduino_GFX_Library.h>
-#endif
 
 #define TAG "XPSTEM_S3_LCD_2_80"
 
@@ -62,30 +59,33 @@ void XPSTEM_S3_LCD_2_80::InitializePowerSaveTimer() {
 
 void XPSTEM_S3_LCD_2_80::InitializeDisplay() {
 
-#if CONFIG_USE_LCD_PANEL==1
-    Log::Info( TAG, "Init lcd display ......" );
-    Log::Info( TAG, "Create ili9341 driver." );
-    LcdDriver* driver = new ILI9341Driver(DISPLAY_WIDTH, DISPLAY_HEIGHT,
-                                    DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY, 
-                                    DISPLAY_OFFSET_X, DISPLAY_OFFSET_Y);
+    Log::Info( TAG, "Create GFX driver." );
+    gfx_bus_ = new Arduino_ESP32SPI(
+        DISPLAY_DC_PIN /* DC */, 
+        DISPLAY_CS_PIN /* CS*/, 
+        DISPLAY_CLK_PIN /* SCK */, 
+        DISPLAY_MOSI_PIN /* MOSI */, 
+        GPIO_NUM_NC /* MISO */, 
+        2 /* spi_num */);
 
-                                    
-    Log::Info( TAG, "Init ili9341 on spi mode." );
-    driver->InitSpi(SPI3_HOST, DISPLAY_SPI_MODE, DISPLAY_CS_PIN, DISPLAY_DC_PIN, DISPLAY_RST_PIN, 
-        DISPLAY_MOSI_PIN, GPIO_NUM_NC, DISPLAY_CLK_PIN, DISPLAY_RGB_ORDER, DISPLAY_INVERT_COLOR);
+    gfx_graphics_ = new Arduino_ILI9341(
+        gfx_bus_, 
+        DISPLAY_RST_PIN, 
+        0 /* rotation */, 
+        false /* IPS */);
 
-    disp_driver_ = driver;
-    
-    display_ = new LvglDisplay(disp_driver_,  {
+#if CONFIG_USE_LVGL==1
+    Log::Info( TAG, "Create Lvgl display." );
+    disp_driver_ = new GfxLvglDriver(gfx_graphics_, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    display_ = new LvglDisplay(disp_driver_, {
                                     .text_font = &font_puhui_20_4,
                                     .icon_font = &font_awesome_16_4,
                                     .emoji_font = font_emoji_32_init(),
                                 });
-
-#elif CONFIG_USE_GFX_LIBRARY==1
-
-
-#endif
+#else
+    Log::Info( TAG, "Create GFX display." );
+    display_ = new GfxDisplay(gfx_graphics_, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+#endif // CONFIG_USE_LVGL
 
 }
 
@@ -166,7 +166,7 @@ XPSTEM_S3_LCD_2_80::XPSTEM_S3_LCD_2_80() : WifiBoard() {
 
     Log::Info( TAG, "Init audio codec ......" );
     /* 使用ES8311 驱动 */
-    audio_codec_ = new Es8311AudioCodec(
+    audio_codec_ = new AudioEs8311Codec(
         i2c_bus_, 
         I2C_NUM_0, 
         AUDIO_INPUT_SAMPLE_RATE, 

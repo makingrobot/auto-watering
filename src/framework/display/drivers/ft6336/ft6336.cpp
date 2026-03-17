@@ -11,7 +11,7 @@
 
 #define TAG "Ft6336"
 
-Ft6336::Ft6336(i2c_master_bus_handle_t i2c_bus, uint8_t addr) : I2cDevice(i2c_bus, addr) {
+Ft6336::Ft6336(i2c_master_bus_handle_t i2c_bus, uint8_t addr) : I2cDriver(i2c_bus, addr) {
     uint8_t chip_id = ReadReg(0xA3);
     Log::Info(TAG, "Get chip ID: 0x%02X", chip_id);
     read_buffer_ = new uint8_t[6];

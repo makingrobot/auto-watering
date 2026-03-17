@@ -16,6 +16,7 @@
 #include "../ota/ota.h"
 #include "../sys/timer.h"
 #include "../sys/mutex.h"
+#include "../sys/task.h"
 #include "../peripheral/sensor_value.h"
 #include "device_state.h"
 #include "event_handler.h"
@@ -113,7 +114,7 @@ private:
     std::deque<callback_function_t> app_tasks_;
     bool has_server_time_ = false;
 
-    TaskHandle_t eventloop_taskhandle_;
+    Task *eventloop_task_;
 
 #if CONFIG_CLOCK_ENABLE==1
     Timer* clock_timer_;

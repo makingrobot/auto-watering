@@ -114,6 +114,17 @@ WifiConfiguration* WifiBoard::GetWifiConfiguration() {
 }
 #endif //CONFIG_WIFI_CONFIGURE_ENABLE
 
+bool WifiBoard::StartAP(const char* ssid, const IPAddress& address, const IPAddress& gateway, const IPAddress& subnet, const char* passwd) {
+    WiFi.mode(WIFI_AP);
+    WiFi.softAPConfig(address, gateway, subnet);
+    if (!WiFi.softAP(ssid, passwd)) {
+        Log::Info(TAG, "Soft AP creation failed.");
+        return false;
+    }
+    Log::Info(TAG, "Wifi AP %s on %s", ssid, address.toString());
+    return true;
+}
+
 bool WifiBoard::StartNetwork(uint32_t timeout_ms) {
     
     auto& wifi_station = WifiStation::GetInstance();

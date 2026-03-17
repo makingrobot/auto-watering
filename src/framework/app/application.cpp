@@ -101,18 +101,16 @@ void Application::Init() {
 
     SetDeviceState(kDeviceStateIdle);
 
+    eventloop_task_ = new Task("EventLoop_Task");
+    eventloop_task_->OnLoop([this](){
+        EventLoop();
+    });
+    eventloop_task_->Start(16384, tskIDLE_PRIORITY + 1);
+
     OnInit();
     
     // Print heap stats
     SystemInfo::PrintHeapStats();
-
-    xTaskCreate([](void* pvParam){
-        Application* app = (Application *)pvParam;
-        while (1) {
-            app->EventLoop();
-        }
-    }, "EventLoop_Task", 16384, this, 1, &eventloop_taskhandle_);
-
     Log::Info(TAG, "Started.");
 }
 

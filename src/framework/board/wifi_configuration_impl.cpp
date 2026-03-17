@@ -30,9 +30,8 @@ bool LogMiddleware::run(WebServer& server, Callback next) {
 }
 
 WifiConfigurationImpl::~WifiConfigurationImpl() {
-
-    if (webserver_handle_!=nullptr) {
-        vTaskDelete(webserver_handle_);
+    if (webtask_!=nullptr) {
+        webtask_->Stop();
     }
 }
 
@@ -86,19 +85,20 @@ void WifiConfigurationImpl::StartWebServer() {
 
         // 创建一个延迟重启任务
         Log::Info(TAG, "Rebooting..." );
-        xTaskCreate([](void *ctx) {
-                // 等待200ms确保HTTP响应完全发送
-                vTaskDelay(pdMS_TO_TICKS(200));
-                // 停止Web服务器
-                auto* self = static_cast<WifiConfigurationImpl*>(ctx);
-                if (self->webserver_!=nullptr) {
-                    self->webserver_->stop();
-                }
-                // 再等待100ms确保所有连接都已关闭
-                vTaskDelay(pdMS_TO_TICKS(100));
-                // 执行重启
-                esp_restart();
-            }, "reboot_task", 4096, this, 5, NULL);
+        reboottask_ = new Task("reboot_task");
+        reboottask_->OnInit([this](){
+            // 等待200ms确保HTTP响应完全发送
+            vTaskDelay(pdMS_TO_TICKS(200));
+            // 停止Web服务器
+            if (webserver_!=nullptr) {
+                webserver_->stop();
+            }
+            // 再等待100ms确保所有连接都已关闭
+            vTaskDelay(pdMS_TO_TICKS(100));
+            // 执行重启
+            esp_restart();
+        });
+        reboottask_->Start(4096, tskIDLE_PRIORITY + 2);
     });
 
     // GET /done.html
@@ -108,14 +108,12 @@ void WifiConfigurationImpl::StartWebServer() {
     
     webserver_->begin();
     
-    xTaskCreate([](void *pvParam) {
-        WebServer* server = (WebServer *)pvParam;
-        while (1) {
-            server->handleClient();
-            delay(2);
-        }
-    }, "WebServer_Task", 4096, webserver_, 1, &webserver_handle_);
-
+    webtask_ = new Task("");
+    webtask_->OnLoop([this](){
+        webserver_->handleClient();
+        delay(2);
+    });
+   
     Log::Info(TAG, "WebServer started");
 }
 

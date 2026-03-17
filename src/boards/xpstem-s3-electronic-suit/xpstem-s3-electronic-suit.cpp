@@ -8,19 +8,13 @@
 #include "src/framework/board/onebutton_impl.h"
 #include "src/framework/board/i2c_device.h"
 #include "src/framework/display/lvgl_display.h"
-
-#if CONFIG_USE_LCD_PANEL==1
-#include "src/framework/display/drivers/st7796/st7796_driver.h"
-#include "src/framework/display/lcd_driver.h"
-#endif
+#include "src/framework/audio/codec/audio_i2s_complex.h"
 
 #if CONFIG_USE_GFX_LIBRARY==1
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
 #include "src/framework/display/gfx_lvgl_driver.h"
 #endif
-
-#include "src/framework/audio/codecs/no_audio_codec.h"
 
 #include "src/framework/sys/time/ntp_time.h"
 #include "SD.h"
@@ -70,19 +64,6 @@ void XPSTEM_S3_ELECTRONIC_SUIT::InitializePowerSaveTimer() {
 
 void XPSTEM_S3_ELECTRONIC_SUIT::InitializeDisplay() {
     Log::Info( TAG, "Init lcd display ......" );
-
-#if CONFIG_USE_LCD_PANEL==1
-    Log::Info( TAG, "Create st7796 driver." );
-    LcdDriver* driver = new ST7796Driver(DISPLAY_WIDTH, DISPLAY_HEIGHT,
-                                    DISPLAY_MIRROR_X, DISPLAY_MIRROR_Y, DISPLAY_SWAP_XY, 
-                                    DISPLAY_OFFSET_X, DISPLAY_OFFSET_Y);
-                                    
-    Log::Info( TAG, "Init st7796 on spi mode." );
-    driver->InitSpi(SPI3_HOST, DISPLAY_SPI_MODE, DISPLAY_CS_PIN, DISPLAY_DC_PIN, DISPLAY_RST_PIN, 
-        DISPLAY_MOSI_PIN, DISPLAY_MISO_PIN, DISPLAY_SCK_PIN, DISPLAY_RGB_ORDER, DISPLAY_INVERT_COLOR);
-
-    disp_driver_ = driver;
-#endif
 
 #if CONFIG_USE_GFX_LIBRARY==1
     Arduino_DataBus *bus = new Arduino_ESP32SPI(DISPLAY_DC_PIN, DISPLAY_CS_PIN, DISPLAY_SCK_PIN,  
@@ -177,9 +158,7 @@ XPSTEM_S3_ELECTRONIC_SUIT::XPSTEM_S3_ELECTRONIC_SUIT() : WifiBoard() {
 
     Log::Info( TAG, "Init audio codec ......" );
     /* 使用ES8311 驱动 */
-    audio_codec_ = new NoAudioCodecSimplex(
-        AUDIO_INPUT_SAMPLE_RATE, 
-        AUDIO_OUTPUT_SAMPLE_RATE,
+    audio_codec_ = new AudioCodecComplex(
         AUDIO_SPK_BCLK_PIN, 
         AUDIO_SPK_LRC_PIN, 
         AUDIO_SPK_DAT_PIN, 

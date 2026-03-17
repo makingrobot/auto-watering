@@ -9,6 +9,9 @@
 #include <driver/spi_common.h>
 #include <driver/gpio.h>
 
+#include <Arduino.h>
+#include <Arduino_GFX_Library.h>
+
 #include "src/framework/sys/log.h"
 #include "src/framework/board/wifi_board.h"
 #include "src/framework/display/display.h"
@@ -39,6 +42,9 @@ private:
     AudioCodec* audio_codec_ = nullptr;
     FileSystem* file_system_ = nullptr;
     Task* buttontick_task_ = nullptr;
+    
+    Arduino_DataBus* gfx_bus_ = nullptr;
+    Arduino_GFX* gfx_graphics_ = nullptr;
 
     void InitializeI2c();
     void InitializePowerSaveTimer();

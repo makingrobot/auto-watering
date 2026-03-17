@@ -116,7 +116,6 @@
 #define LV_LVGL_H_INCLUDE_SIMPLE            0
 
 // 图形化（最多设置一个为1，其余必须为0）
-#define CONFIG_USE_LCD_PANEL                0   // 直接驱动
 #define CONFIG_USE_TFT_ESPI                 0   // TFT_eSPI
 #define CONFIG_USE_GFX_LIBRARY              1   // GFX_LIBRARY, 可与LVGL整合使用
 

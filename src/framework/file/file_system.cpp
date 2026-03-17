@@ -1,115 +1,77 @@
+/**
+ * ESP32-Arduino-Framework
+ * Arduino开发环境下适用于ESP32芯片系列开发板的应用开发框架。
+ * 
+ * Author: Billy Zhang（billy_zh@126.com）
+ */
+#include "config.h"
 #if CONFIG_USE_FS==1
 
 #include "file_system.h"
+#include "../sys/log.h"
 
-void FileSystem::ListDir(const char *dirname, uint8_t levels) {
-  Serial.printf("Listing directory: %s\n", dirname);
+#define TAG "FileSystem"
 
-  File root = fs_.open(dirname);
-  if (!root) {
-    Serial.println("Failed to open directory");
-    return;
-  }
-  if (!root.isDirectory()) {
-    Serial.println("Not a directory");
-    return;
-  }
-
-  File file = root.openNextFile();
-  while (file) {
-    if (file.isDirectory()) {
-      Serial.print("  DIR : ");
-      Serial.println(file.name());
-      if (levels) {
-        ListDir(file.path(), levels - 1);
-      }
-    } else {
-      Serial.print("  FILE: ");
-      Serial.print(file.name());
-      Serial.print("  SIZE: ");
-      Serial.println(file.size());
+bool FileSystem::CreateDir(const char *path) {
+    bool ret = fs_.mkdir(path);
+    if (!ret) {
+        Log::Warn(TAG, "Dir %s create failed", path);
     }
-    file = root.openNextFile();
-  }
+    return ret;
 }
 
-void FileSystem::CreateDir(const char *path) {
-  Serial.printf("Creating Dir: %s\n", path);
-  if (fs_.mkdir(path)) {
-    Serial.println("Dir created");
-  } else {
-    Serial.println("mkdir failed");
-  }
+bool FileSystem::RemoveDir(const char *path) {
+    bool ret = fs_.rmdir(path);
+    if (!ret) {
+        Log::Warn(TAG, "Dir %s remove failed", path);
+    }
+    return ret;
 }
 
-void FileSystem::RemoveDir(const char *path) {
-  Serial.printf("Removing Dir: %s\n", path);
-  if (fs_.rmdir(path)) {
-    Serial.println("Dir removed");
-  } else {
-    Serial.println("rmdir failed");
-  }
+bool FileSystem::ExistsFile(const char *path) {
+    return fs_.exists(path);
 }
 
-bool FileSystem::OpenFile(const char *path, File* file) {
-  Serial.printf("Reading file: %s\n", path);
-
-  File f= fs_.open(path);
-  if (!f) {
-    Serial.println("Failed to open file for reading");
-    return false;
-  }
-
-  file = &f;
-  return true;
+File FileSystem::OpenFile(const char *path,  const char *mode, const bool create) {
+    return fs_.open(path, mode, create);
 }
 
-void FileSystem::WriteFile(const char *path, const char *message) {
-  Serial.printf("Writing file: %s\n", path);
+bool FileSystem::WriteFile(const char *path, const char *content) {
+    File file = fs_.open(path, FILE_WRITE);
+    if (!file) {
+        Log::Warn(TAG, "File %s to open failed", path);
+        return false;
+    }
 
-  File file = fs_.open(path, FILE_WRITE);
-  if (!file) {
-    Serial.println("Failed to open file for writing");
-    return;
-  }
-  if (file.print(message)) {
-    Serial.println("File written");
-  } else {
-    Serial.println("Write failed");
-  }
+    file.print(content);
+    return true;
 }
 
-void FileSystem::AppendFile(const char *path, const char *message) {
-  Serial.printf("Appending to file: %s\n", path);
+bool FileSystem::AppendFile(const char *path, const char *content) {
+    File file = fs_.open(path, FILE_APPEND);
+    if (!file) {
+        Log::Warn(TAG, "File %s to open failed", path);
+        return false;
+    }
 
-  File file = fs_.open(path, FILE_APPEND);
-  if (!file) {
-    Serial.println("Failed to open file for appending");
-    return;
-  }
-  if (file.print(message)) {
-    Serial.println("Message appended");
-  } else {
-    Serial.println("Append failed");
-  }
+    file.print(content);
+    return true;
 }
 
-void FileSystem::RenameFile(const char *path1, const char *path2) {
-  Serial.printf("Renaming file %s to %s\n", path1, path2);
-  if (fs_.rename(path1, path2)) {
-    Serial.println("File renamed");
-  } else {
-    Serial.println("Rename failed");
-  }
+bool FileSystem::RenameFile(const char *path, const char *new_path) {
+    bool ret = fs_.rename(path, new_path);
+    if (!ret) {
+        Log::Warn(TAG, "Rename %s to %s failed", path, new_path);
+    }
+    return ret;
 }
 
-void FileSystem::DeleteFile(const char *path) {
-  Serial.printf("Deleting file: %s\n", path);
-  if (fs_.remove(path)) {
-    Serial.println("File deleted");
-  } else {
-    Serial.println("Delete failed");
-  }
+bool FileSystem::DeleteFile(const char *path) {
+    bool ret = fs_.remove(path);
+    if (!ret) {
+      Log::Warn(TAG, "File %s delete failed", path);
+    }
+    return ret;
 }
 
 #endif //CONFIG_USE_FS

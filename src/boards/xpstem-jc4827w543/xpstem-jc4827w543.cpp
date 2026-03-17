@@ -9,7 +9,7 @@
 #include "src/framework/board/board.h"
 #include "src/framework/board/onebutton_impl.h"
 #include "src/framework/board/i2c_device.h"
-#include "src/framework/audio/codecs/no_audio_codec.h"
+#include "src/framework/audio/codec/audio_i2s_simplex.h"
 
 #if CONFIG_USE_GFX_LIBRARY==1
 #include <Arduino.h>
@@ -178,9 +178,7 @@ XPSTEM_JC4827W543::XPSTEM_JC4827W543() : WifiBoard() {
 
       Log::Info( TAG, "Init audio codec ......" );
     /* 使用ES8311 驱动 */
-    audio_codec_ = new NoAudioCodecSimplex(
-        AUDIO_INPUT_SAMPLE_RATE, 
-        AUDIO_OUTPUT_SAMPLE_RATE,
+    audio_codec_ = new AudioI2sSimplexSpeaker(
         SPECK_BCLK_PIN, 
         SPECK_LRCLK_PIN, 
         SPECK_DIN_PIN);
