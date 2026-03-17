@@ -13,7 +13,6 @@
 #include "src/framework/board/onebutton_impl.h"
 #include "src/framework/display/u8g2_display.h"
 #include "src/framework/sys/system_reset.h"
-#include "src/framework/board/i2c_device.h"
 #include "src/framework/led/gpio_led.h"
 #include "src/framework/peripheral/sensor.h"
 #include "src/framework/peripheral/sensor_value.h"
