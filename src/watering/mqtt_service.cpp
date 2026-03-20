@@ -67,7 +67,7 @@ void MqttService::SubscribeTopic(const std::string& mqtt_topic, std::function<vo
     mqtt_client_->subscribe(mqtt_topic.c_str());
 
     if (mqtt_task_ == nullptr) {
-        mqtt_task_ = new Task("Mqtt_LoopTask");
+        mqtt_task_ = new FrtTask("Mqtt_LoopTask");
         mqtt_task_->OnLoop([this]() {
             mqtt_client_->loop();
         });

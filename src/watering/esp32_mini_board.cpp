@@ -3,7 +3,7 @@
  * 
  * Author: Billy Zhang（vx: billyzh）
  */
-#include "xpstem-watering-suit.h"
+#include "esp32_mini_board.h"
 
 #include <Arduino.h>
 #include <U8g2lib.h>
@@ -20,13 +20,13 @@
 #include "src/framework/peripheral/single_motor_driver.h"
 #include "wifi_configuration_ex.h"
 
-#define TAG "XPSTEM_WATERING_SUIT"
+#define TAG "ESP32_MINI_BOARD"
 
 void* create_board() { 
-    return new XPSTEM_WATERING_SUIT();
+    return new ESP32_MINI_BOARD();
 }
 
-XPSTEM_WATERING_SUIT::XPSTEM_WATERING_SUIT() : WifiBoard() {
+ESP32_MINI_BOARD::ESP32_MINI_BOARD() : WifiBoard() {
 
     Log::Info(TAG, "===== Create Board ...... =====");
 
@@ -41,7 +41,7 @@ XPSTEM_WATERING_SUIT::XPSTEM_WATERING_SUIT() : WifiBoard() {
     Log::Info( TAG, "===== Board config completed. =====");
 }
 
-void XPSTEM_WATERING_SUIT::InitializeDisplay() {
+void ESP32_MINI_BOARD::InitializeDisplay() {
 
     Log::Info( TAG, "Init ssd1306 display ......" );
     U8G2 *u8g2 = new U8G2_SSD1306_128X64_NONAME_F_SW_I2C(
@@ -57,13 +57,13 @@ void XPSTEM_WATERING_SUIT::InitializeDisplay() {
 
 }
 
-void XPSTEM_WATERING_SUIT::ButtonTick() {
+void ESP32_MINI_BOARD::ButtonTick() {
     for (const auto& pair : button_map()) {
         pair.second->Tick();
     }
 }
 
-void XPSTEM_WATERING_SUIT::InitializeButtons() {
+void ESP32_MINI_BOARD::InitializeButtons() {
     Log::Info( TAG, "Init buttons ......");
 
     std::shared_ptr<Button> button1 = std::make_shared<OneButtonImpl>(kBootButton, BOOT_BUTTON_PIN);
@@ -76,7 +76,7 @@ void XPSTEM_WATERING_SUIT::InitializeButtons() {
     AddButton(button2);
 }
 
-void XPSTEM_WATERING_SUIT::InitializePeripherals() {
+void ESP32_MINI_BOARD::InitializePeripherals() {
     
     Log::Info( TAG, "Init peripherals ......");
 

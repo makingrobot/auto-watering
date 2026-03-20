@@ -3,8 +3,8 @@
  * 
  * Author: Billy Zhang（vx: billyzh）
  */
-#ifndef _XPSTEM_WATERING_SUIT_H
-#define _XPSTEM_WATERING_SUIT_H
+#ifndef _ESP32_MINI_BOARD_H
+#define _ESP32_MINI_BOARD_H
 
 #include <driver/gpio.h>
 
@@ -21,7 +21,7 @@ static const std::string kManualButton      = "manual_button";
 static const std::string kPumpControlName   = "pump_control";
 static const std::string kSoilMositureName  = "soil_mositure";
 
-class XPSTEM_WATERING_SUIT : public WifiBoard {
+class ESP32_MINI_BOARD : public WifiBoard {
 private:
     Display *display_ = nullptr;
     WifiConfiguration *wifi_conf_;
@@ -31,7 +31,7 @@ private:
     void InitializePeripherals();
 
 public:
-    XPSTEM_WATERING_SUIT();
+    ESP32_MINI_BOARD();
 
     Display* GetDisplay() override { return display_; }
 
@@ -40,4 +40,4 @@ public:
     void ButtonTick();
 };
 
-#endif //_XPSTEM_WATERING_SUIT_H
+#endif //_ESP32_MINI_BOARD_H

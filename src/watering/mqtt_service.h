@@ -12,7 +12,7 @@
 #include <functional>
 #include <map>
 #include <string>
-#include "src/framework/sys/task.h"
+#include "src/framework/sys/frt_task.h"
 
 class MqttService {
 public:
@@ -28,7 +28,7 @@ private:
 
     WiFiClient wifi_client_;
     PubSubClient *mqtt_client_;
-    Task* mqtt_task_;
+    FrtTask* mqtt_task_;
     std::map<std::string, std::function<void(const std::string&)>> subscribe_callback_;
 
 };

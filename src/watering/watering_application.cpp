@@ -16,7 +16,7 @@
 #include "src/framework/peripheral/sensor.h"
 #include "src/framework/peripheral/single_motor_driver.h"
 #include "watering_config.h"
-#include "xpstem-watering-suit.h"
+#include "esp32_mini_board.h"
 
 #define TAG "WateringApplication"
 
@@ -60,7 +60,7 @@ void WateringApplication::OnInit() {
 
 void WateringApplication::OnLoop() {
 
-    XPSTEM_WATERING_SUIT *board = static_cast<XPSTEM_WATERING_SUIT*>(&Board::GetInstance());
+    ESP32_MINI_BOARD *board = static_cast<ESP32_MINI_BOARD*>(&Board::GetInstance());
     board->ButtonTick();
 
     delay(1);
