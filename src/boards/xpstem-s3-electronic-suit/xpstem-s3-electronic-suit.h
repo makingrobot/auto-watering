@@ -22,7 +22,7 @@
 #include "src/framework/audio/audio_codec.h"
 #include "src/framework/file/file_system.h"
 #include "src/framework/sys/time.h"
-#include "src/framework/src/task.h"
+#include "src/framework/src/frt_task.h"
 
 class XPSTEM_S3_ELECTRONIC_SUIT : public WifiBoard {
 private:
@@ -35,7 +35,7 @@ private:
     AudioCodec* audio_codec_ = nullptr;
     FileSystem* file_system_ = nullptr;
     Time* time_ = nullptr;
-    Task* button_task_ = nullptr;
+    FrtTask* button_task_ = nullptr;
 
     void InitializeI2c();
     void InitializePowerSaveTimer();

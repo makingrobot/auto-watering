@@ -1,26 +1,26 @@
 #include "config.h"
 #if CONFIG_USE_SW_TIMER==1
 
-#include "sw_timer.h"
+#include "frt_timer.h"
 #include "../log.h"
 
-#define TAG "SwTimer"
+#define TAG "FrtTimer"
 
-SwTimer::SwTimer(const std::string& name) : name_(name) {
+FrtTimer::FrtTimer(const std::string& name) : name_(name) {
 }
 
-SwTimer::~SwTimer() {
+FrtTimer::~FrtTimer() {
     Stop();
 }
 
 void _timerCallback(TimerHandle_t param) {
-    SwTimer *_this = (SwTimer*)pvTimerGetTimerID(param);
+    FrtTimer *_this = (FrtTimer*)pvTimerGetTimerID(param);
     if (_this->callback_function_) {
         _this->callback_function_();
     }
 }
 
-bool SwTimer::Start(uint32_t interval_ms, std::function<void()> callback_function, bool once) {
+bool FrtTimer::Start(uint32_t interval_ms, std::function<void()> callback_function, bool once) {
     Stop();
 
     callback_function_ = std::move(callback_function);
@@ -36,7 +36,7 @@ bool SwTimer::Start(uint32_t interval_ms, std::function<void()> callback_functio
     return success;
 }
 
-bool SwTimer::Stop() {
+bool FrtTimer::Stop() {
     if (timer_handle_ != NULL) {
         bool success = xTimerDelete(timer_handle_, 0);
         timer_handle_ = NULL;

@@ -14,7 +14,7 @@
 #include <Arduino.h>
 #include <WebServer.h>
 #include "../wifi/wifi_configuration.h"
-#include "../sys/task.h"
+#include "../sys/frt_task.h"
 
 class WifiConfigurationImpl : public WifiConfiguration {
 public:
@@ -26,9 +26,9 @@ protected:
     virtual void BindSsidRoute();
     virtual void BindAdvancedRoute();
 
-    WebServer* webserver_ = nullptr;
-    Task* webtask_ = nullptr;
-    Task* reboottask_ = nullptr;
+    WebServer *webserver_ = nullptr;
+    FrtTask *webtask_ = nullptr;
+    FrtTask *reboottask_ = nullptr;
     std::string payload_;
 
     // 高级配置项

@@ -24,7 +24,7 @@
 #include "src/framework/audio/audio_codec.h"
 #include "src/framework/file/file_system.h"
 #include "src/framework/sys/time.h"
-#include "src/framework/sys/task.h"
+#include "src/framework/sys/frt_task.h"
 
 #include "board_config.h"
 
@@ -41,7 +41,7 @@ private:
     Time* time_ = nullptr;
     AudioCodec* audio_codec_ = nullptr;
     FileSystem* file_system_ = nullptr;
-    Task* buttontick_task_ = nullptr;
+    FrtTask *buttontick_task_ = nullptr;
     
     Arduino_DataBus* gfx_bus_ = nullptr;
     Arduino_GFX* gfx_graphics_ = nullptr;

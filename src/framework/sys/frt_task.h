@@ -4,19 +4,19 @@
  * 
  * Author: Billy Zhang（billy_zh@126.com）
  */
-#ifndef _TASK_H
-#define _TASK_H
+#ifndef _FRT_TASK_H
+#define _FRT_TASK_H
 
 #include <functional>
 #include <string>
 #include <freertos/FreeRTOS.h>
 #include "log.h"
 
-#define TAG "Task"
+#define TAG "FrtTask"
 
-class Task {
+class FrtTask {
 public:
-    Task(const std::string& name) : name_(name) {}
+    FrtTask(const std::string& name) : name_(name) {}
 
     const std::string& name() const { return name_; }
 
@@ -73,7 +73,7 @@ public:
     int Start(uint32_t stack_depth, uint8_t priority) {
         return xTaskCreate(
                     [](void *parameter) {
-                        Task* task = (Task *)parameter;
+                        FrtTask* task = (FrtTask *)parameter;
                         Log::Info(TAG, "%s running on core %d", task->name().c_str(), xPortGetCoreID());
 
                         // 优先调用有参数的Init函数
@@ -123,4 +123,4 @@ private:
     volatile int state_ = true;
 };
 
-#endif  //_TASK_H
+#endif  //_FRT_TASK_H

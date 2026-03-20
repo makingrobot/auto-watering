@@ -27,7 +27,10 @@ public:
     }
 
     ~MutexGuard() {
-        mutex_->Unlock();
+        if (is_locked_) 
+        {
+            mutex_->Unlock();
+        }
     }
 
     MutexGuard(const MutexGuard&) = delete;

@@ -103,7 +103,7 @@ void XPSTEM_S3_LCD_2_80::InitializeButtons() {
     button1->BindAction(ButtonAction::DoubleClick);
     AddButton(button1);
 
-    buttontick_task_ = new Task("ButtonTickTask");
+    buttontick_task_ = new FrtTask("ButtonTickTask");
     buttontick_task_->OnLoop([this](){
         ButtonTick();
         vTaskDelay(pdMS_TO_TICKS(2)); //2ms

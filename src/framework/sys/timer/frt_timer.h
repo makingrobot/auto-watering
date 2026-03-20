@@ -1,8 +1,8 @@
 #include "config.h"
 #if CONFIG_USE_SW_TIMER==1
 
-#ifndef _SW_TIMER_H
-#define _SW_TIMER_H
+#ifndef _FRT_TIMER_H
+#define _FRT_TIMER_H
 
 #include <functional>
 #include <string>
@@ -10,10 +10,10 @@
 #include <freertos/timers.h>
 #include "../timer.h"
 
-class SwTimer : public Timer {
+class FrtTimer : public Timer {
 public:
-    SwTimer(const std::string& name);
-    virtual ~SwTimer();
+    FrtTimer(const std::string& name);
+    virtual ~FrtTimer();
 
     virtual bool Start(uint32_t interval_ms, std::function<void()> callback_function, bool once=false);
     virtual bool Stop();
@@ -27,6 +27,6 @@ private:
     
 };
 
-#endif //_SW_TIMER_H
+#endif //_FRT_TIMER_H
 
 #endif

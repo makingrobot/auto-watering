@@ -85,7 +85,7 @@ void WifiConfigurationImpl::StartWebServer() {
 
         // 创建一个延迟重启任务
         Log::Info(TAG, "Rebooting..." );
-        reboottask_ = new Task("reboot_task");
+        reboottask_ = new FrtTask("reboot_task");
         reboottask_->OnInit([this](){
             // 等待200ms确保HTTP响应完全发送
             vTaskDelay(pdMS_TO_TICKS(200));
@@ -108,7 +108,7 @@ void WifiConfigurationImpl::StartWebServer() {
     
     webserver_->begin();
     
-    webtask_ = new Task("");
+    webtask_ = new FrtTask("");
     webtask_->OnLoop([this](){
         webserver_->handleClient();
         delay(2);

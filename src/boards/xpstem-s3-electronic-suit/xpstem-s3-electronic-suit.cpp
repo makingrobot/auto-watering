@@ -96,7 +96,7 @@ void XPSTEM_S3_ELECTRONIC_SUIT::InitializeButtons() {
     button1->BindAction(ButtonAction::DoubleClick);
     AddButton(button1);
     
-    button_task_ = new Task("ButtonTick_Task");
+    button_task_ = new FrtTask("ButtonTick_Task");
     button_task_->OnLoop([this](){
         ButtonTick();
         vTaskDelay(pdMS_TO_TICKS(2)); //2ms
